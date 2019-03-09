@@ -9,34 +9,34 @@ void plot(float x, float *y) {
 	*y = x * x*x;
 }
 
-void drawAxes(int draw_negative) {
+void drawAxes(float length, int draw_negative) {
 	//red
-	glColor3f(1.0f, 0.0f, 0.0f);
+	glColor3f(1, 0, 0);
 	//x-axis
 	glBegin(GL_LINES);
 	if(draw_negative)
-		glVertex3f(-1.0f, 0.0f, 0.0f);
+		glVertex3f(-1 * length, 0, 0);
 	else
-		glVertex3f(0.0f, 0.0f, 0.0f);
-	glVertex3f(1.0f, 0.0f, 0.0f);
+		glVertex3f(0, 0, 0);
+	glVertex3f(length, 0, 0);
 
 	//green
-	glColor3f(0.0f, 1.0f, 0.0f);
+	glColor3f(0, 1, 0);
 	//y-axis
 	if(draw_negative)
-		glVertex3f(0.0f, -1.0f, 0.0f);
+		glVertex3f(0, -1 * length, 0);
 	else
-		glVertex3f(0.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, 1.0f, 0.0f);
+		glVertex3f(0, 0, 0);
+	glVertex3f(0, length, 0);
 
 	//blue
-	glColor3f(0.0f, 0.0f, 1.0f);
+	glColor3f(0, 0, 1);
 	//z-axis
 	if(draw_negative)
-		glVertex3f(0.0f, 0.0f, -1.0f);
+		glVertex3f(0, 0, -1 * length);
 	else
-		glVertex3f(0.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, 0.0f, 1.0f);
+		glVertex3f(0, 0, 0);
+	glVertex3f(0, 0, length);
 	glEnd();
 }
 
@@ -56,7 +56,7 @@ void display() {
 	}
 	glEnd();
 
-	drawAxes(0);
+	drawAxes(1, 0);
 
 
 	//glBegin(GL_POINTS);
