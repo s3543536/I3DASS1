@@ -24,9 +24,9 @@ void drawVector(vector v, vector pos, float s, char normalize) {
 
 	if(normalize) {
 		float length = LENGTHVEC(v);
-		v.x = v.x / length;
-		v.y = v.y / length;
-		v.z = v.z / length;
+		v.x /= length;
+		v.y /= length;
+		v.z /= length;
 	}
 
 	glBegin(GL_LINES);
@@ -78,6 +78,17 @@ void draw_2d_function(void (*f)(float x, float *y), float x_scale, float y_scale
 	glEnd();
 }
 
+void cross_vectors(vector v1, vector v2, vector *ret) {
+	/*
+		|i	j	k|
+		|a	b	c| = i(b*f - c*e) - j(a*f - d*c) + k(a*e - d*b)
+		|d	e	f|
+	*/
+	ret->x = v1.y * v2.z - v1.z * v2.y;
+	ret->y = -1 * (v1.x * v2.z - v1.z - v2.x);
+	ret->z = v1.x * v2.y - v1.y * v2.x;
+}
+
 void draw_2d_function_normals(void (*f)(float x, float *y), float x_scale, float y_scale) {
 	glBegin(GL_LINES);
 	float y1;
@@ -85,16 +96,23 @@ void draw_2d_function_normals(void (*f)(float x, float *y), float x_scale, float
 	float dx = 0.001f;
 	for(float x = -1; x < 1; x += 0.1f * x_scale) {
 		f(x / x_scale, &y1);
-		f((x / x_scale) + dx, &y2);
-		vector v;
-		v.x = dx;
-		v.y = y2 - y1;
-		v.z = 0;
+		f((x + dx) / x_scale, &y2);
+		vector tangent;
+		tangent.x = dx;
+		tangent.y = y2 - y1;
+		tangent.z = 0;
 		vector pos;
 		pos.x = x;
 		pos.y = y1;
 		pos.z = 0;
-		drawVector(v, pos, 0.1f, (char)1);
+		drawVector(tangent, pos, 100, (char)0);
+		vector normal;
+		vector unit_z;
+		unit_z.x = 0;
+		unit_z.y = 0;
+		unit_z.z = 1;
+		cross_vectors(tangent, unit_z, &normal);
+		drawVector(normal, pos, 100, (char)0);
 	}
 	glEnd();
 }
