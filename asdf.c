@@ -56,6 +56,30 @@ void draw_2d_function(void (*f)(float x, float *y), float x_scale, float y_scale
 	glEnd();
 }
 
+typedef struct vector {
+	float x, y, z;
+} vector;
+
+float lengthVector(vector v) {
+	return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
+void drawVector(vector v, vector pos, float s, char normalize) {
+	if(v.x == 0 && v.y == 0 && v.z == 0) return;
+
+	if(normalize) {
+		float length = lengthVector(v);
+		v.x = v.x / length;
+		v.y = v.y / length;
+		v.z = v.z / length;
+	}
+
+	glBegin(GL_LINES);
+	glVertex3f(pos.x, pos.y, pos.z);
+	glVertex3f(pos.x + v.x, pos.y + v.y, pos.z + v.z);
+	glEnd();
+}
+
 void display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
