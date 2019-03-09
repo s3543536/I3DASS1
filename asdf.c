@@ -13,6 +13,28 @@ void x_cubed(float x, float *y) {
 	*y = x * x*x;
 }
 
+typedef struct vector {
+	float x, y, z;
+} vector;
+
+#define LENGTHVEC(V) sqrt((V).x * (V).x + (V).y * (V).y + (V).z * (V).z)
+
+void drawVector(vector v, vector pos, float s, char normalize) {
+	if(v.x == 0 && v.y == 0 && v.z == 0) return;
+
+	if(normalize) {
+		float length = LENGTHVEC(v);
+		v.x = v.x / length;
+		v.y = v.y / length;
+		v.z = v.z / length;
+	}
+
+	glBegin(GL_LINES);
+	glVertex3f(pos.x, pos.y, pos.z);
+	glVertex3f(pos.x + v.x * s, pos.y + v.y * s, pos.z + v.z * s);
+	glEnd();
+}
+
 void drawAxes(float length, int draw_negative) {
 	//red
 	glColor3f(1, 0, 0);
@@ -56,27 +78,24 @@ void draw_2d_function(void (*f)(float x, float *y), float x_scale, float y_scale
 	glEnd();
 }
 
-typedef struct vector {
-	float x, y, z;
-} vector;
-
-float lengthVector(vector v) {
-	return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-}
-
-void drawVector(vector v, vector pos, float s, char normalize) {
-	if(v.x == 0 && v.y == 0 && v.z == 0) return;
-
-	if(normalize) {
-		float length = lengthVector(v);
-		v.x = v.x / length;
-		v.y = v.y / length;
-		v.z = v.z / length;
-	}
-
+void draw_2d_function_normals(void (*f)(float x, float *y), float x_scale, float y_scale) {
 	glBegin(GL_LINES);
-	glVertex3f(pos.x, pos.y, pos.z);
-	glVertex3f(pos.x + v.x, pos.y + v.y, pos.z + v.z);
+	float y1;
+	float y2;
+	float dx = 0.001f;
+	for(float x = -1; x < 1; x += 0.1f * x_scale) {
+		f(x / x_scale, &y1);
+		f((x / x_scale) + dx, &y2);
+		vector v;
+		v.x = dx;
+		v.y = y2 - y1;
+		v.z = 0;
+		vector pos;
+		pos.x = x;
+		pos.y = y1;
+		pos.z = 0;
+		drawVector(v, pos, 0.1f, (char)1);
+	}
 	glEnd();
 }
 
@@ -89,6 +108,9 @@ void display() {
 	glColor3f(1, 1, 1);
 
 	draw_2d_function(&sin_x, 1 / 3.14159f, 1);
+
+	glColor3f(0, 0, 1);
+	draw_2d_function_normals(&sin_x, 1 / 3.14159f, 1);
 
 	drawAxes(1, 0);
 
