@@ -1,11 +1,15 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
 
-void plot(float x, float *y) {
+void sin_x(float x, float *y) {
+	*y = sinf(x);
+}
+void x_cubed(float x, float *y) {
 	*y = x * x*x;
 }
 
@@ -40,6 +44,18 @@ void drawAxes(float length, int draw_negative) {
 	glEnd();
 }
 
+void draw_2d_function(void (*f)(float x, float *y), float x_scale, float y_scale) {
+	glBegin(GL_LINE_STRIP);
+	float y = 0;
+	for(float x = -1; x < 1; x += 0.1f * x_scale) {
+		f(x / x_scale, &y);
+		glVertex3f(x, y * y_scale, 0.0f);
+	}
+	f(1 / x_scale, &y);
+	glVertex3f(1, y * y_scale, 0.0f);
+	glEnd();
+}
+
 void display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -48,13 +64,7 @@ void display() {
 	//white
 	glColor3f(1, 1, 1);
 
-	glBegin(GL_LINE_STRIP);
-	float y = 0;
-	for(float i = -1; i < 1.1f; i+= 0.1) {
-		plot(i, &y);
-		glVertex3f(i, y, 0.0f);
-	}
-	glEnd();
+	draw_2d_function(&sin_x, 1 / 3.14159f, 1);
 
 	drawAxes(1, 0);
 
