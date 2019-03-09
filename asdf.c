@@ -9,28 +9,44 @@ void plot(float x, float *y) {
 	*y = x * x*x;
 }
 
+void drawAxes(int draw_negative) {
+	//red
+	glColor3f(1.0f, 0.0f, 0.0f);
+	//x-axis
+	glBegin(GL_LINES);
+	if(draw_negative)
+		glVertex3f(-1.0f, 0.0f, 0.0f);
+	else
+		glVertex3f(0.0f, 0.0f, 0.0f);
+	glVertex3f(1.0f, 0.0f, 0.0f);
+
+	//green
+	glColor3f(0.0f, 1.0f, 0.0f);
+	//y-axis
+	if(draw_negative)
+		glVertex3f(0.0f, -1.0f, 0.0f);
+	else
+		glVertex3f(0.0f, 0.0f, 0.0f);
+	glVertex3f(0.0f, 1.0f, 0.0f);
+
+	//blue
+	glColor3f(0.0f, 0.0f, 1.0f);
+	//z-axis
+	if(draw_negative)
+		glVertex3f(0.0f, 0.0f, -1.0f);
+	else
+		glVertex3f(0.0f, 0.0f, 0.0f);
+	glVertex3f(0.0f, 0.0f, 1.0f);
+	glEnd();
+}
+
 void display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
-
-	//green
-	glColor3f(0.0f, 1.0f, 0.0f);
-	//x-axis
-	glBegin(GL_LINES);
-	glVertex3f(-1.0f, 0.0f, 0.1f);
-	glVertex3f(1.0f, 0.0f, 0.1f);
-
-	//red
-	glColor3f(1.0f, 0.0f, 0.0f);
-	//y-axis
-	glVertex3f(0.0f, -1.0f, 0.1f);
-	glVertex3f(0.0f, 1.0f, 0.1f);
-	glEnd();
-
-	//blue
-	glColor3f(0.0f, 0.0f, 1.0f);
+	//white
+	glColor3f(1, 1, 1);
 
 	glBegin(GL_LINE_STRIP);
 	float y = 0;
@@ -39,6 +55,9 @@ void display() {
 		glVertex3f(i, y, 0.0f);
 	}
 	glEnd();
+
+	drawAxes(0);
+
 
 	//glBegin(GL_POINTS);
 	//glColor3f(0.0f, 1.0f, 0.0f);
