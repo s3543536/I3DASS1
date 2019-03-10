@@ -17,6 +17,12 @@ typedef struct vector {
 	float x, y, z;
 } vector;
 
+void init_vector(vector *v, float x, float y, float z) {
+	v->x = x;
+	v->y = y;
+	v->z = z;
+}
+
 #define LENGTHVEC(V) sqrt((V).x * (V).x + (V).y * (V).y + (V).z * (V).z)
 
 void drawVector(vector v, vector pos, float s, char normalize) {
@@ -85,7 +91,7 @@ void cross_vectors(vector v1, vector v2, vector *ret) {
 		|d	e	f|
 	*/
 	ret->x = v1.y * v2.z - v1.z * v2.y;
-	ret->y = -1 * (v1.x * v2.z - v1.z - v2.x);
+	ret->y = -1 * (v1.x * v2.z - v1.z * v2.x);
 	ret->z = v1.x * v2.y - v1.y * v2.x;
 }
 
@@ -95,24 +101,26 @@ void draw_2d_function_normals(void (*f)(float x, float *y), float x_scale, float
 	float y2;
 	float dx = 0.001f;
 	for(float x = -1; x < 1; x += 0.1f * x_scale) {
+		//work out 2 (close) values
 		f(x / x_scale, &y1);
 		f((x + dx) / x_scale, &y2);
-		vector tangent;
-		tangent.x = dx;
-		tangent.y = y2 - y1;
-		tangent.z = 0;
-		vector pos;
-		pos.x = x;
-		pos.y = y1;
-		pos.z = 0;
-		drawVector(tangent, pos, 100, (char)0);
-		vector normal;
-		vector unit_z;
-		unit_z.x = 0;
-		unit_z.y = 0;
-		unit_z.z = 1;
-		cross_vectors(tangent, unit_z, &normal);
-		drawVector(normal, pos, 100, (char)0);
+
+		//work out the position and tangent
+		vector tangent = {.x = dx, .y = y2 - y1, .z = 0};
+		vector pos = {.x = x, .y = y1, .z = 0};
+
+		// work out the normal
+		vector normal = {.x = -1 * tangent.y, .y = tangent.x, .z = 0};
+		// in 2d, we don't need the full blown cross product:
+		// y = mx + b (m is gradient)
+		// m = dy/dx
+		// m1 * m2 = -1
+		// m2 = -1/m1
+		// m2 = -1 / (dy / dx) = -dx / dy
+
+		//draw the tangent and normal
+		drawVector(tangent, pos, 0.1f, (char)1);
+		drawVector(normal, pos, 0.1f, (char)1);
 	}
 	glEnd();
 }
@@ -123,14 +131,35 @@ void display() {
 	glEnable(GL_DEPTH_TEST);
 
 	//white
-	glColor3f(1, 1, 1);
+	//glColor3f(1, 1, 1);
 
-	draw_2d_function(&sin_x, 1 / 3.14159f, 1);
+	//draw_2d_function(&sin_x, 1 / 3.14159f, 1);
 
 	glColor3f(0, 0, 1);
 	draw_2d_function_normals(&sin_x, 1 / 3.14159f, 1);
 
 	drawAxes(1, 0);
+
+	/*
+		testing the cross product
+	glColor3f(1, 1, 1);
+	vector up;
+	up.x = 1;
+	up.y = 1;
+	up.z = 0;
+	vector zed_unit;
+	zed_unit.x = 0;
+	zed_unit.y = 0;
+	zed_unit.z = 1;
+	vector normal;
+	vector pos;
+	pos.x = -0.5f;
+	pos.y = 0.5f;
+	pos.z = 0;
+	cross_vectors(up, zed_unit, &normal);
+	drawVector(normal, pos, 100, (char)0);
+	drawVector(up, pos, 100, (char)0);
+	*/
 
 
 	//glBegin(GL_POINTS);
