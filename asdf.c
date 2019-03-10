@@ -17,10 +17,15 @@ typedef struct vector {
 	float x, y, z;
 } vector;
 
-void init_vector(vector *v, float x, float y, float z) {
-	v->x = x;
-	v->y = y;
-	v->z = z;
+void cross_vectors(vector v1, vector v2, vector *ret) {
+	/*
+		|i	j	k|
+		|a	b	c| = i(b*f - c*e) - j(a*f - d*c) + k(a*e - d*b)
+		|d	e	f|
+	*/
+	ret->x = v1.y * v2.z - v1.z * v2.y;
+	ret->y = -1 * (v1.x * v2.z - v1.z * v2.x);
+	ret->z = v1.x * v2.y - v1.y * v2.x;
 }
 
 #define LENGTHVEC(V) sqrt((V).x * (V).x + (V).y * (V).y + (V).z * (V).z)
@@ -84,17 +89,6 @@ void draw_2d_function(void (*f)(float x, float *y), float x_scale, float y_scale
 	glEnd();
 }
 
-void cross_vectors(vector v1, vector v2, vector *ret) {
-	/*
-		|i	j	k|
-		|a	b	c| = i(b*f - c*e) - j(a*f - d*c) + k(a*e - d*b)
-		|d	e	f|
-	*/
-	ret->x = v1.y * v2.z - v1.z * v2.y;
-	ret->y = -1 * (v1.x * v2.z - v1.z * v2.x);
-	ret->z = v1.x * v2.y - v1.y * v2.x;
-}
-
 void draw_2d_function_normals(void (*f)(float x, float *y), float x_scale, float y_scale) {
 	glBegin(GL_LINES);
 	float y1;
@@ -133,39 +127,13 @@ void display() {
 	//white
 	//glColor3f(1, 1, 1);
 
-	//draw_2d_function(&sin_x, 1 / 3.14159f, 1);
+	draw_2d_function(&sin_x, 1 / 3.14159f, 1);
 
 	glColor3f(0, 0, 1);
 	draw_2d_function_normals(&sin_x, 1 / 3.14159f, 1);
 
 	drawAxes(1, 0);
 
-	/*
-		testing the cross product
-	glColor3f(1, 1, 1);
-	vector up;
-	up.x = 1;
-	up.y = 1;
-	up.z = 0;
-	vector zed_unit;
-	zed_unit.x = 0;
-	zed_unit.y = 0;
-	zed_unit.z = 1;
-	vector normal;
-	vector pos;
-	pos.x = -0.5f;
-	pos.y = 0.5f;
-	pos.z = 0;
-	cross_vectors(up, zed_unit, &normal);
-	drawVector(normal, pos, 100, (char)0);
-	drawVector(up, pos, 100, (char)0);
-	*/
-
-
-	//glBegin(GL_POINTS);
-	//glColor3f(0.0f, 1.0f, 0.0f);
-	//glVertex2f(0.0f, 0.0f);
-	//glEnd();
 
 	//vsync
 	glutSwapBuffers();
