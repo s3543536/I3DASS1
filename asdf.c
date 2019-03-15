@@ -125,7 +125,7 @@ void display() {
 	glEnable(GL_DEPTH_TEST);
 
 	//white
-	//glColor3f(1, 1, 1);
+	glColor3f(1, 1, 1);
 
 	draw_2d_function(&sin_x, 1 / 3.14159f, 1);
 
@@ -133,7 +133,6 @@ void display() {
 	draw_2d_function_normals(&sin_x, 1 / 3.14159f, 1);
 
 	drawAxes(1, 0);
-
 
 	//vsync
 	glutSwapBuffers();
@@ -159,7 +158,7 @@ void keyboard(unsigned char key, int x, int y) {
 
 void init() {
 	glMatrixMode(GL_PROJECTION);
-	glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+	glOrtho(-1.0, (GLUT_SCREEN_HEIGHT * 2 / GLUT_SCREEN_WIDTH) - 1, -1.0, 1.0, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 }
 
@@ -171,7 +170,7 @@ int main(int argc, char **argv) {
 	init();
 
 	glutDisplayFunc(display);
-	//glutDisplayFunc(keyboard);
+	glutKeyboardFunc(keyboard);
 	glutMainLoop();
 
 }
