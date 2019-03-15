@@ -40,7 +40,7 @@ void drawVector(vector v, vector pos, float s, char normalize) {
 		v.z /= length;
 	}
 
-	glBegin(GL_LINES);
+    glBegin(GL_LINES);
 	glVertex3f(pos.x, pos.y, pos.z);
 	glVertex3f(pos.x + v.x * s, pos.y + v.y * s, pos.z + v.z * s);
 	glEnd();
@@ -90,7 +90,6 @@ void draw_2d_function(void (*f)(float x, float *y), float x_scale, float y_scale
 }
 
 void draw_2d_function_normals(void (*f)(float x, float *y), float x_scale, float y_scale) {
-	glBegin(GL_LINES);
 	float y1;
 	float y2;
 	float dx = 0.001f;
@@ -116,13 +115,13 @@ void draw_2d_function_normals(void (*f)(float x, float *y), float x_scale, float
 		drawVector(tangent, pos, 0.1f, (char)1);
 		drawVector(normal, pos, 0.1f, (char)1);
 	}
-	glEnd();
 }
 
 void display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
+
 
 	//white
 	glColor3f(1, 1, 1);
@@ -131,7 +130,6 @@ void display() {
 
 	glColor3f(0, 0, 1);
 	draw_2d_function_normals(&sin_x, 1 / 3.14159f, 1);
-
 	drawAxes(1, 0);
 
 	//vsync
