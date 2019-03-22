@@ -1,4 +1,4 @@
-SOURCES=asdf.c
+SOURCES=main.c vector.c glvector.c
 OBJECTS=$(SOURCES:.c=.o)
 HEADERS=$(SOURCES:.c=.h)
 DFILES=$(SOURCES:.c=.d)

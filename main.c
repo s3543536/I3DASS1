@@ -1,49 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
+#include "main.h"
 
 void sin_x(float x, float *y) {
 	*y = sinf(x);
 }
 void x_cubed(float x, float *y) {
 	*y = x * x*x;
-}
-
-typedef struct vector {
-	float x, y, z;
-} vector;
-
-void cross_vectors(vector v1, vector v2, vector *ret) {
-	/*
-		|i	j	k|
-		|a	b	c| = i(b*f - c*e) - j(a*f - d*c) + k(a*e - d*b)
-		|d	e	f|
-	*/
-	ret->x = v1.y * v2.z - v1.z * v2.y;
-	ret->y = -1 * (v1.x * v2.z - v1.z * v2.x);
-	ret->z = v1.x * v2.y - v1.y * v2.x;
-}
-
-#define LENGTHVEC(V) sqrt((V).x * (V).x + (V).y * (V).y + (V).z * (V).z)
-
-void drawVector(vector v, vector pos, float s, char normalize) {
-	if(v.x == 0 && v.y == 0 && v.z == 0) return;
-
-	if(normalize) {
-		float length = LENGTHVEC(v);
-		v.x /= length;
-		v.y /= length;
-		v.z /= length;
-	}
-
-    glBegin(GL_LINES);
-	glVertex3f(pos.x, pos.y, pos.z);
-	glVertex3f(pos.x + v.x * s, pos.y + v.y * s, pos.z + v.z * s);
-	glEnd();
 }
 
 void drawAxes(float length, int draw_negative) {
