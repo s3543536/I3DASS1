@@ -105,17 +105,27 @@ void draw_2d_function_normals(void (*f)(void *data, float x, float *y), void *pa
 	}
 }
 
+const int milli = 1000;
+float time_;
+float start_time;
+
+void update(void) {
+
+	time_ = glutGet(GLUT_ELAPSED_TIME) / (float)milli - start_time;
+}
+
 void display() {
+
+	printf("time: %5.1f\n", time_);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
-
 
 	//white
 	glColor3f(1, 1, 1);
 
 	//x_cubed_data;
-	sin_data fdata = {.a = 1, .b = 1, .c = 1, .d = 0};
+	sin_data fdata = {.a = 1, .b = 1, .c = time_, .d = 0};
 
 	draw_2d_function(&sin_x, &fdata, 1 / 3.14159f, 1);
 
@@ -156,10 +166,12 @@ int main(int argc, char **argv) {
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow("openGL hello world");
 
+	start_time = glutGet(GLUT_ELAPSED_TIME) / (float)milli;
 	init();
 
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
+	glutIdleFunc(update);
 	glutMainLoop();
 
 }
