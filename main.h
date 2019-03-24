@@ -15,10 +15,10 @@
  * @param x value of x-axis on the sin function
  * @param y ptr to float where y value will be stored
  */
-void sin_x(float x, float *y);
+void sin_x(void *data, float x, float *y);
 /** sin function
  * @param x value of x-axis on the x^3 function
  * @param y ptr to float where y value will be stored
  */
-void x_cubed(float x, float *y);
+void x_cubed(void *data, float x, float *y);
 
