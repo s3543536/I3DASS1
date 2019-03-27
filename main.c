@@ -85,7 +85,10 @@ float start_time;
 void update(void) {
 
 	time_ = glutGet(GLUT_ELAPSED_TIME) / (float)milli - start_time;
+	glFlush();
 }
+
+#define VSYNC 1
 
 void display() {
 
@@ -103,8 +106,13 @@ void display() {
 	draw_2d_function_normals(&sin_x, 1 / 3.14159f, 1);
 	drawAxes(1, 0);
 
+#if VSYNC
 	//vsync
 	glutSwapBuffers();
+#else
+	glFlush();
+#endif
+
 
 	// print out errors
 	int err;
@@ -133,7 +141,11 @@ void init() {
 
 int main(int argc, char **argv) {
 	glutInit(&argc, argv);
+#if VSYNC
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+#else
+	glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE | GLUT_DEPTH);
+#endif
 	glutCreateWindow("openGL hello world");
 
 	start_time = glutGet(GLUT_ELAPSED_TIME) / (float)milli;
