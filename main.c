@@ -110,9 +110,10 @@ float time_;
 float start_time;
 
 void update(void) {
-
+	// update the time
 	time_ = glutGet(GLUT_ELAPSED_TIME) / (float)milli - start_time;
-	glFlush();
+	// redraw the screen
+	glutPostRedisplay();
 }
 
 #define VSYNC 1
