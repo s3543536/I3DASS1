@@ -230,6 +230,10 @@ void display() {
 	//white
 	glColor3f(1, 1, 1);
 
+	vector car_offset = {.x = 0.3, .y = -0.5, .z = 0};
+	vector car_scale = {.x = 0.2, .y = 0.5, .z = 0.2};
+	draw_car(1, car_offset, car_scale);
+
 	draw_circle(0.5f, 0, 0, 3, (char)0);
 	draw_circle(0.3f, 0.5f, 0.3f, (unsigned int)time_%10, (char)1);
 
@@ -237,11 +241,6 @@ void display() {
 	sin_data fdata = {.a = 1, .b = 1, .c = time_, .d = 0};
 
 	draw_2d_function(&sin_x, &fdata, 1 / 3.14159f, 1);
-
-	vector car_offset = {.x = 0.3, .y = -0.5, .z = 0};
-	vector car_scale = {.x = 0.2, .y = 0.5, .z = 0.2};
-
-	draw_car(1, car_offset, car_scale);
 
 	glColor3f(0, 0, 1);
 	draw_2d_function_normals(&sin_x, &fdata, 1 / 3.14159f, 1);
