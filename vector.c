@@ -2,6 +2,11 @@
 
 
 
+void init_vector(vector *vec, float x, float y, float z) {
+	vec->x = x;
+	vec->y = y;
+	vec->z = z;
+}
 
 
 void cross_vectors(vector v1, vector v2, vector *ret) {
