@@ -25,3 +25,44 @@ void x_cubed(void *data, float x, float *y);
 void draw_circle(float r, float x, float y, unsigned int nvertex, char filled);
 
 void draw_car(float height, vector offset, vector scale);
+
+typedef struct {
+	vector pos;
+	float height;
+} e_car;
+
+typedef struct {
+	float radius;
+} e_log;
+
+typedef struct {
+	vector bottom_left;
+	vector top_right;
+	float depth;
+	unsigned int nlogs;
+	e_log logs[0];
+} e_water;
+
+typedef struct {
+	unsigned int nvertices;
+	vector vertices[0];
+} e_wall;
+
+struct leveldata {
+	char is_cars_on_heap;
+	e_car *cars;
+	char is_water_on_heap;
+	e_water *water;
+	char is_terrain_on_heap;
+	e_wall *terrain;
+};
+
+struct leveldata leveldata;
+
+
+/*
+ * glTranslate();
+ * glRotate();
+ * glScale();
+ * glLoadIdentity();
+ */
