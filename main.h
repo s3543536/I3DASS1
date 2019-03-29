@@ -23,3 +23,5 @@ void sin_x(void *data, float x, float *y);
 void x_cubed(void *data, float x, float *y);
 
 void draw_circle(float r, float x, float y, unsigned int nvertex, char filled);
+
+void draw_car(float height, vector offset, vector scale);

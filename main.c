@@ -124,6 +124,26 @@ void draw_2d_function_normals(void (*f)(void *data, float x, float *y), void *pa
 	}
 }
 
+#ifndef CAR_HEIGHT
+#define CAR_HEIGHT 0.6f
+#endif
+#ifndef CAR_WIDTH
+#define CAR_WIDTH 1.0f
+#endif
+
+void draw_car(float height, vector offset, vector scale) {
+	glBegin(GL_LINE_STRIP);
+	// bottom left
+	glVertex3f((CAR_WIDTH/2 - CAR_WIDTH) * scale.x + offset.x, 0 * scale.y + offset.y, 0 + offset.z);
+	//top left
+	glVertex3f((CAR_WIDTH/2 - CAR_WIDTH) * scale.x + offset.x, CAR_HEIGHT * scale.y + offset.y, 0 + offset.z);
+	//top right
+	glVertex3f((CAR_WIDTH/2) * scale.x + offset.x, CAR_HEIGHT * scale.y + offset.y, 0 + offset.z);
+	//bottom right
+	glVertex3f((CAR_WIDTH/2) * scale.x + offset.x, 0 * scale.y + offset.y, 0 + offset.z);
+	glEnd();
+}
+
 const int milli = 1000;
 float time_;
 float start_time;
@@ -157,6 +177,11 @@ void display() {
 	vector scale = {.x = 0.3, .y = 0.3, .z = 1};
 
 	draw_2d_function(&sin_x, &fdata, 1 / 3.14159f, 1, offset, scale);
+
+	vector car_offset = {.x = 0.3, .y = -0.5, .z = 0};
+	vector car_scale = {.x = 0.2, .y = 0.5, .z = 0.2};
+
+	draw_car(1, car_offset, car_scale);
 
 	glColor3f(0, 0, 1);
 	draw_2d_function_normals(&sin_x, &fdata, 1 / 3.14159f, 1, offset, scale);
