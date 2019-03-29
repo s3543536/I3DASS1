@@ -1,6 +1,8 @@
 #include "main.h"
 
+#ifndef PI
 #define PI 3.14159f
+#endif
 
 void draw_circle(float r, float x, float y, unsigned int nvertex, char filled) {
 	if(filled) {
