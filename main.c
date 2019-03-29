@@ -1,5 +1,22 @@
 #include "main.h"
 
+#define PI 3.14159f
+
+void draw_circle(float r, float x, float y, unsigned int nvertex, char filled) {
+	if(filled) {
+		glBegin(GL_POLYGON);
+	} else {
+		glBegin(GL_LINE_LOOP);
+	}
+
+	float angle = 0;
+	for(int i = 0; i < nvertex; i++) {
+		angle = i * 2 * PI / nvertex;
+		glVertex3f(x + sin(angle) * r, y + cos(angle) * r, 0);
+	}
+	glEnd();
+}
+
 typedef struct {
 	float a;
 	float b;
@@ -127,6 +144,9 @@ void display() {
 
 	//white
 	glColor3f(1, 1, 1);
+
+	draw_circle(0.5f, 0, 0, 3, (char)0);
+	draw_circle(0.3f, 0.5f, 0.3f, (unsigned int)time_%10, (char)1);
 
 	//x_cubed_data;
 	sin_data fdata = {.a = 1, .b = 1, .c = time_, .d = 0};
