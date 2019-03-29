@@ -82,19 +82,19 @@ void drawAxes(float length, int draw_negative) {
 	glEnd();
 }
 
-void draw_2d_function(void (*f)(void *data, float x, float *y), void *pass_thr, float x_scale, float y_scale) {
+void draw_2d_function(void (*f)(void *data, float x, float *y), void *pass_thr, float x_scale, float y_scale, vector offset, vector scale) {
 	glBegin(GL_LINE_STRIP);
 	float y = 0;
 	for(float x = -1; x < 1; x += 0.1f * x_scale) {
 		f(pass_thr, x / x_scale, &y);
-		glVertex3f(x, y * y_scale, 0.0f);
+		glVertex3f(x * scale.x + offset.x, y * y_scale * scale.y + offset.y, 0.0f + offset.z);
 	}
 	f(pass_thr, 1 / x_scale, &y);
-	glVertex3f(1, y * y_scale, 0.0f);
+	glVertex3f(1 * scale.x + offset.x, y * y_scale * scale.y + offset.y, 0.0f + offset.z);
 	glEnd();
 }
 
-void draw_2d_function_normals(void (*f)(void *data, float x, float *y), void *pass_thr, float x_scale, float y_scale) {
+void draw_2d_function_normals(void (*f)(void *data, float x, float *y), void *pass_thr, float x_scale, float y_scale, vector offset, vector scale) {
 	float y1;
 	float y2;
 	float dx = 0.001f;
@@ -104,11 +104,11 @@ void draw_2d_function_normals(void (*f)(void *data, float x, float *y), void *pa
 		f(pass_thr, (x + dx) / x_scale, &y2);
 
 		//work out the position and tangent
-		vector tangent = {.x = dx, .y = y2 - y1, .z = 0};
-		vector pos = {.x = x, .y = y1, .z = 0};
+		vector tangent = {.x = dx * scale.x, .y = (y2 - y1) * scale.y, .z = 0};
+		vector pos = {.x = x * scale.x + offset.x, .y = y1 * scale.y + offset.y, .z = 0 * scale.z + offset.z};
 
 		// work out the normal
-		vector normal = {.x = -1 * tangent.y, .y = tangent.x, .z = 0};
+		vector normal = {.x = -1 * tangent.y * scale.x, .y = tangent.x * scale.y, .z = 0};
 		// in 2d, we don't need the full blown cross product:
 		// y = mx + b (m is gradient)
 		// m = dy/dx
@@ -151,10 +151,13 @@ void display() {
 	//x_cubed_data;
 	sin_data fdata = {.a = 1, .b = 1, .c = time_, .d = 0};
 
-	draw_2d_function(&sin_x, &fdata, 1 / 3.14159f, 1);
+	vector offset = {.x = -0.3, .y = 0.2, .z = 0};
+	vector scale = {.x = 0.3, .y = 0.3, .z = 1};
+
+	draw_2d_function(&sin_x, &fdata, 1 / 3.14159f, 1, offset, scale);
 
 	glColor3f(0, 0, 1);
-	draw_2d_function_normals(&sin_x, &fdata, 1 / 3.14159f, 1);
+	draw_2d_function_normals(&sin_x, &fdata, 1 / 3.14159f, 1, offset, scale);
 	drawAxes(1, 0);
 
 #if VSYNC
