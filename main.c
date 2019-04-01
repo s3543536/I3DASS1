@@ -4,6 +4,13 @@
 #define PI 3.14159f
 #endif
 
+float scalex = 0.37f;
+float scaley = 0.37f;
+float posx = 0.375f;
+float posy = 0.375f;
+
+
+
 void draw_circle(float r, float x, float y, unsigned int nvertex, char filled) {
 	if(filled) {
 		glBegin(GL_POLYGON);
@@ -240,12 +247,21 @@ void display() {
 	//x_cubed_data;
 	sin_data fdata = {.a = 1, .b = 1, .c = time_, .d = 0};
 
+	glPushMatrix();
+
+	glTranslatef(0.375, 0, 0);
+	glScalef(0.37, 0.5f, 0.5f);
 	draw_2d_function(&sin_x, &fdata, 1 / 3.14159f, 1);
 
 	glColor3f(0, 0, 1);
 	draw_2d_function_normals(&sin_x, &fdata, 1 / 3.14159f, 1);
 	drawAxes(1, 0);
 
+	glPopMatrix();
+
+	// use a stack for all transformations
+	/* glPushMatrix(); */
+	/* glPopMatrix(); */
 
 	if(!is_init) {
 		glBegin(GL_LINE_STRIP);
@@ -279,6 +295,26 @@ void keyboard(unsigned char key, int x, int y) {
 		case 27:
 		case 'q':
 			exit(EXIT_SUCCESS);
+			break;
+		case 'h':
+			// decrement posx and print
+			posx -= 0.01f;
+			printf("posx: %5.3f\n", posx);
+			break;
+		case 'j':
+			// decrement scalex and print
+			posy -= 0.01f;
+			printf("scalex: %5.3f\n", scalex);
+			break;
+		case 'k':
+			// increment scalex and print
+			posy += 0.01f;
+			printf("scalex: %5.3f\n", scalex);
+			break;
+		case 'l':
+			// increment posx and print
+			posx += 0.01f;
+			printf("posx: %5.3f\n", posx);
 			break;
 		default://every other key
 			break;

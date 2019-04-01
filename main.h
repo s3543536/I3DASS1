@@ -61,8 +61,8 @@ struct leveldata leveldata;
 
 
 /*
- * glTranslate();
- * glRotate();
- * glScale();
+ * glTranslate(x, y, z);
+ * glRotate(angle, x, y, z);//(xyz is a vector to rotate around)
+ * glScale(x, y, z);
  * glLoadIdentity();
  */
