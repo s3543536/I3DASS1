@@ -152,8 +152,6 @@ void draw_car(float height, vector offset, vector scale) {
 }
 
 const int milli = 1000;
-float time_;
-float start_time;
 char is_init = (char)1;
 
 void update(void) {
@@ -220,7 +218,7 @@ void update(void) {
 
 
 	// update the time
-	time_ = glutGet(GLUT_ELAPSED_TIME) / (float)milli - start_time;
+	g.time = glutGet(GLUT_ELAPSED_TIME) / (float)milli - g.start_time;
 	// redraw the screen
 	glutPostRedisplay();
 }
@@ -229,7 +227,7 @@ void update(void) {
 
 void display() {
 
-	//printf("time: %5.1f\n", time_);
+	//printf("time: %5.1f\n", g.time);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
@@ -242,10 +240,10 @@ void display() {
 	draw_car(1, car_offset, car_scale);
 
 	draw_circle(0.5f, 0, 0, 3, (char)0);
-	draw_circle(0.3f, 0.5f, 0.3f, (unsigned int)time_%10, (char)1);
+	draw_circle(0.3f, 0.5f, 0.3f, (unsigned int)g.time%10, (char)1);
 
 	//x_cubed_data;
-	sin_data fdata = {.a = 1, .b = 1, .c = time_, .d = 0};
+	sin_data fdata = {.a = 1, .b = 1, .c = g.time, .d = 0};
 
 	glPushMatrix();
 
@@ -336,7 +334,7 @@ int main(int argc, char **argv) {
 #endif
 	glutCreateWindow("openGL hello world");
 
-	start_time = glutGet(GLUT_ELAPSED_TIME) / (float)milli;
+	g.start_time = glutGet(GLUT_ELAPSED_TIME) / (float)milli;
 	init();
 
 	glutDisplayFunc(display);

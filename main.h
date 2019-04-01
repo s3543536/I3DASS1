@@ -26,6 +26,17 @@ void draw_circle(float r, float x, float y, unsigned int nvertex, char filled);
 
 void draw_car(float height, vector offset, vector scale);
 
+typedef enum { analytical, numerical } integrationMode;
+
+struct global_t {
+	float time;
+	float start_time;
+	integrationMode i_mode;
+	char OSD;
+};
+
+struct global_t g;
+
 typedef struct {
 	vector pos;
 	float height;
