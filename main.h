@@ -30,12 +30,21 @@ typedef enum { analytical, numerical } integrationMode;
 
 struct global_t {
 	float time;
+	float dt;
 	float start_time;
 	integrationMode i_mode;
 	char OSD;
 };
 
 struct global_t g;
+
+typedef struct {
+	float start_time;
+	vector pos0;
+	vector pos;
+	vector vel0;
+	vector vel;
+} projectile;
 
 typedef struct {
 	vector pos;

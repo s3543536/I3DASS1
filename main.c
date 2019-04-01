@@ -212,17 +212,67 @@ void init_level() {
 	}
 }
 
+const float gravity = -0.2f;
+
+void updateProjectileStateAnalytical(projectile *p) {
+	// newtons constant acceleration equations
+	// x = x0 + v0*t + a * t^2 / 2
+	float dt = g.time - p->start_time;
+
+	// update vertical position
+	p->pos.y = p->pos0.y + p->vel0.y * dt + (gravity * dt*dt / 2);
+	// update vertical velocity
+	p->vel.y = p->vel0.y + gravity * dt;
+
+	// update horizontal position
+	p->pos.x = p->pos0.x + p->vel0.x * dt;
+}
+
+void updateProjectileStateNumerical(projectile *p) {
+	// add the change over the frame time
+	p->pos.y += p->vel.y * g.dt;
+	p->pos.x += p->vel.x * g.dt;
+
+	p->vel.y += gravity * g.dt;
+}
+
+projectile p;
+char activep = (char)0;
+
 void update(void) {
-
-	if(is_init) {
-		is_init = (char)0;
-
-		init_level();
-	}
-
+	static float lastT;
 
 	// update the time
 	g.time = glutGet(GLUT_ELAPSED_TIME) / (float)milli - g.start_time;
+
+	if(is_init) {
+		is_init = (char)0;
+		
+		lastT = g.time;
+
+		init_level();
+
+		init_vector(&p.pos0, 0,0,0);
+		init_vector(&p.pos, 0,0,0);
+		init_vector(&p.vel0, 0,0,0);
+		init_vector(&p.vel, 0,0,0);
+		p.start_time = g.time;
+
+		g.i_mode = numerical;
+	}
+
+	g.dt = g.time - lastT;
+	lastT = g.time;
+
+	if(g.i_mode == analytical) {
+		updateProjectileStateAnalytical(&p);
+	} else if(g.i_mode == numerical) {
+		updateProjectileStateNumerical(&p);
+	} else {
+		perror("invalid integration mode");
+		updateProjectileStateNumerical(&p);
+	}
+
 	// redraw the screen
 	glutPostRedisplay();
 }
@@ -237,6 +287,12 @@ void display() {
 	glEnable(GL_DEPTH_TEST);
 
 	//white
+	glColor3f(1, 1, 0);
+
+	glBegin(GL_POINTS);
+	glVertex3f(p.pos.x, p.pos.y, p.pos.z);
+	glEnd();
+
 	glColor3f(1, 1, 1);
 
 	vector car_offset = {.x = 0.3, .y = -0.5, .z = 0};
@@ -317,6 +373,18 @@ void keyboard(unsigned char key, int x, int y) {
 			// increment posx and print
 			posx += 0.01f;
 			printf("posx: %5.3f\n", posx);
+			break;
+		case 'w':
+			p.vel.y = 0.2;
+			break;
+		case 'a':
+			p.vel.x -= 0.05;
+			break;
+		case 'd':
+			p.vel.x += 0.05;
+			break;
+		case 's':
+			activep = (char)1;
 			break;
 		default://every other key
 			break;
