@@ -154,66 +154,70 @@ void draw_car(float height, vector offset, vector scale) {
 const int milli = 1000;
 char is_init = (char)1;
 
+void init_level() {
+	// malloc cars
+	unsigned int ncars = 4;
+	leveldata.cars = malloc(sizeof(*leveldata.cars) * ncars);
+	leveldata.is_cars_on_heap = leveldata.cars != NULL;
+	if(leveldata.cars == NULL) {
+		perror("can't malloc leveldata.cars\n");
+	} else {
+		init_vector(&leveldata.cars[0].pos, -0.7, 0.03, 0);
+		init_vector(&leveldata.cars[1].pos, -0.58, 0.03, 0);
+		init_vector(&leveldata.cars[2].pos, -0.44, 0.03, 0);
+		init_vector(&leveldata.cars[3].pos, -0.2, 0.03, 0);
+
+		leveldata.cars[0].height = 0.6f;
+		leveldata.cars[1].height = 0.6f;
+		leveldata.cars[2].height = 0.6f;
+		leveldata.cars[3].height = 0.6f;
+	}
+
+	// malloc water
+	unsigned int nlogs = 4;
+	leveldata.water = malloc(sizeof(*leveldata.water) + sizeof(e_log) * nlogs);
+	leveldata.is_water_on_heap = leveldata.cars != NULL;
+	if(leveldata.water == NULL) {
+		perror("can't malloc leveldata.water\n");
+	} else {
+		init_vector(&leveldata.water->bottom_left, 0.5, 0, 0);
+		init_vector(&leveldata.water->top_right, 0.6, 0.1, 0);
+		leveldata.water->depth = 0.8f;
+		leveldata.water->nlogs = nlogs;
+
+		leveldata.water->logs[0].radius = 0.3f;
+		leveldata.water->logs[1].radius = 0.42f;
+		leveldata.water->logs[2].radius = 0.25f;
+		leveldata.water->logs[3].radius = 0.5f;
+	}
+
+	// malloc terrain
+	unsigned int nterrain_points = 10;
+	leveldata.terrain = malloc(sizeof(*leveldata.terrain) + sizeof(vector) * nterrain_points);
+	leveldata.is_terrain_on_heap = leveldata.terrain != NULL;
+	if(leveldata.terrain == NULL) {
+		perror("can't malloc leveldata.terrain\n");
+	} else {
+		leveldata.terrain->nvertices = nterrain_points;
+		init_vector(&leveldata.terrain->vertices[0], -1, 0, 0);
+		init_vector(&leveldata.terrain->vertices[1], -0.75, 0, 0);
+		init_vector(&leveldata.terrain->vertices[2], -0.75, 0.025, 0);
+		init_vector(&leveldata.terrain->vertices[3], -0.25, 0.025, 0);
+		init_vector(&leveldata.terrain->vertices[4], -0.25, 0, 0);
+		init_vector(&leveldata.terrain->vertices[5], 0, 0, 0);
+		init_vector(&leveldata.terrain->vertices[6], -0, -0.06, 0);
+		init_vector(&leveldata.terrain->vertices[7], 0.75, -0.06, 0);
+		init_vector(&leveldata.terrain->vertices[8], 0.75, 0, 0);
+		init_vector(&leveldata.terrain->vertices[9], 1, 0, 0);
+	}
+}
+
 void update(void) {
 
 	if(is_init) {
 		is_init = (char)0;
 
-		// malloc cars
-		unsigned int ncars = 4;
-		leveldata.cars = malloc(sizeof(*leveldata.cars) * ncars);
-		leveldata.is_cars_on_heap = leveldata.cars != NULL;
-		if(leveldata.cars == NULL) {
-			perror("can't malloc leveldata.cars\n");
-		} else {
-			init_vector(&leveldata.cars[0].pos, -0.7, 0.03, 0);
-			init_vector(&leveldata.cars[1].pos, -0.58, 0.03, 0);
-			init_vector(&leveldata.cars[2].pos, -0.44, 0.03, 0);
-			init_vector(&leveldata.cars[3].pos, -0.2, 0.03, 0);
-
-			leveldata.cars[0].height = 0.6f;
-			leveldata.cars[1].height = 0.6f;
-			leveldata.cars[2].height = 0.6f;
-			leveldata.cars[3].height = 0.6f;
-		}
-
-		// malloc water
-		unsigned int nlogs = 4;
-		leveldata.water = malloc(sizeof(*leveldata.water) + sizeof(e_log) * nlogs);
-		leveldata.is_water_on_heap = leveldata.cars != NULL;
-		if(leveldata.water == NULL) {
-			perror("can't malloc leveldata.water\n");
-		} else {
-			init_vector(&leveldata.water->bottom_left, 0.5, 0, 0);
-			init_vector(&leveldata.water->top_right, 0.6, 0.1, 0);
-			leveldata.water->depth = 0.8f;
-			leveldata.water->nlogs = nlogs;
-
-			leveldata.water->logs[0].radius = 0.3f;
-			leveldata.water->logs[1].radius = 0.42f;
-			leveldata.water->logs[2].radius = 0.25f;
-			leveldata.water->logs[3].radius = 0.5f;
-		}
-
-		// malloc terrain
-		unsigned int nterrain_points = 10;
-		leveldata.terrain = malloc(sizeof(*leveldata.terrain) + sizeof(vector) * nterrain_points);
-		leveldata.is_terrain_on_heap = leveldata.terrain != NULL;
-		if(leveldata.terrain == NULL) {
-			perror("can't malloc leveldata.terrain\n");
-		} else {
-			leveldata.terrain->nvertices = nterrain_points;
-			init_vector(&leveldata.terrain->vertices[0], -1, 0, 0);
-			init_vector(&leveldata.terrain->vertices[1], -0.75, 0, 0);
-			init_vector(&leveldata.terrain->vertices[2], -0.75, 0.025, 0);
-			init_vector(&leveldata.terrain->vertices[3], -0.25, 0.025, 0);
-			init_vector(&leveldata.terrain->vertices[4], -0.25, 0, 0);
-			init_vector(&leveldata.terrain->vertices[5], 0, 0, 0);
-			init_vector(&leveldata.terrain->vertices[6], -0, -0.06, 0);
-			init_vector(&leveldata.terrain->vertices[7], 0.75, -0.06, 0);
-			init_vector(&leveldata.terrain->vertices[8], 0.75, 0, 0);
-			init_vector(&leveldata.terrain->vertices[9], 1, 0, 0);
-		}
+		init_level();
 	}
 
 
