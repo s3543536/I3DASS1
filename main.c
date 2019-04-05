@@ -250,8 +250,10 @@ void update(void) {
 
 		init_level();
 
-		init_vector(&p.pos0, 0,0,0);
-		init_vector(&p.pos, 0,0,0);
+
+
+		init_vector(&p.pos0, 0,0.5,0);
+		init_vector(&p.pos, 0,0.5,0);
 		init_vector(&p.vel0, 0,0,0);
 		init_vector(&p.vel, 0,0,0);
 		p.start_time = g.time;
@@ -329,6 +331,8 @@ void display() {
 	/* glPushMatrix(); */
 	/* glPopMatrix(); */
 
+	glColor3f(1,1,1);
+	// draw road
 	if(!is_init) {
 		glBegin(GL_LINE_STRIP);
 		for(int i = 0; i < leveldata.terrain->nvertices; i++) {
