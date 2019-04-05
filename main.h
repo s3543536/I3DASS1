@@ -26,8 +26,6 @@ void sin_x(void *data, float x, float *y);
  */
 void x_cubed(void *data, float x, float *y);
 
-void draw_circle(float r, float x, float y, unsigned int nvertex, char filled);
-
 void draw_car(float height, vector offset, vector scale);
 
 typedef enum { analytical, numerical } integrationMode;
@@ -36,6 +34,8 @@ typedef struct {
 	float r;//radius
 	vector c;//centre
 } circle;
+
+void draw_circle(circle *c, unsigned int nvertex, char filled);
 
 struct global_t {
 	float time;

@@ -9,7 +9,7 @@ char circle_is_intersect(circle *c1, circle *c2) {
 	return c1->r + c2->r > distance_vector(&c1->c, &c2->c);
 }
 
-void draw_circle(float r, float x, float y, unsigned int nvertex, char filled) {
+void draw_circle(circle *c, unsigned int nvertex, char filled) {
 	if(filled) {
 		glBegin(GL_POLYGON);
 	} else {
@@ -19,7 +19,7 @@ void draw_circle(float r, float x, float y, unsigned int nvertex, char filled) {
 	float angle = 0;
 	for(int i = 0; i < nvertex; i++) {
 		angle = i * 2 * PI / nvertex;
-		glVertex3f(x + sin(angle) * r, y + cos(angle) * r, 0);
+		glVertex3f(c->c.x + sin(angle) * c->r, c->c.y + cos(angle) * c->r, c->c.z);
 	}
 	glEnd();
 }
@@ -303,8 +303,12 @@ void display() {
 	vector car_scale = {.x = 0.2, .y = 0.5, .z = 0.2};
 	draw_car(1, car_offset, car_scale);
 
-	draw_circle(0.5f, 0, 0, 3, (char)0);
-	draw_circle(0.3f, 0.5f, 0.3f, (unsigned int)g.time%10, (char)1);
+	vector triangle_pos = {.x=0, .y=0.5f, .z=0};
+	circle triangle = {.r=0.5f, .c=triangle_pos};
+	vector circle_pos = {.x=0.5f, .y=0.3f, .z=0};
+	circle circle = {.r=0.3f, .c=circle_pos};
+	draw_circle(&triangle, 3, (char)0);
+	draw_circle(&circle, (unsigned int)g.time%10, (char)1);
 
 	//x_cubed_data;
 	sin_data fdata = {.a = 1, .b = 1, .c = g.time, .d = 0};
