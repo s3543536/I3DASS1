@@ -9,7 +9,16 @@ float scaley = 0.37f;
 float posx = 0.375f;
 float posy = 0.375f;
 
+float vector_distance(vector v1, vector v2) {
+	float dx = v1.x - v2.x;
+	float dy = v1.y - v2.y;
+	float dz = v1.z - v2.z;
+	return sqrt(dx*dx + dy*dy + dz*dz);
+}
 
+char circle_is_intersect(circle *c1, circle *c2) {
+	return c1.r + c2.r > vector_distance(c1.c, c2.c);
+}
 
 void draw_circle(float r, float x, float y, unsigned int nvertex, char filled) {
 	if(filled) {
