@@ -13,7 +13,7 @@ char circle_is_intersect(circle *c1, circle *c2) {
 	return c1->r + c2->r > distance_vector(&c1->c, &c2->c);
 }
 
-char circle_box_is_intersect2(circle *c, box *b) {
+char circle_box_is_intersect(circle *c, box *b) {
 	vector nearest_point;
 	nearest_point.z = 0;
 	if(c->c.x < b->c.x) {
@@ -30,50 +30,6 @@ char circle_box_is_intersect2(circle *c, box *b) {
 	return circle_point_is_intersect(c, &nearest_point);
 }
 
-// this is bad mkay
-char circle_box_is_intersect(circle *c, box *b) {
-	float bvr = b->h/2;//box vertical radius
-	float bhr = b->w/2;//box horizontal radius
-
-	//circle centre is vertically aligned with box
-	if(c->c.x < b->c.x+bhr && c->c.x > b->c.x-bhr) {
-		if(c->c.y < b->c.y) {
-			//circle below box
-			return c->c.y + c->r > b->c.y - bvr;
-		} else {
-			//circle above box
-			return c->c.y - c->r < b->c.y + bvr;
-		}
-	}
-	//circle centre is horizontally aligned with box
-	if(c->c.y < b->c.y+bvr && c->c.y > b->c.y-bvr) {
-		if(c->c.x < b->c.y) {
-			//circle left of box
-			return c->c.x + c->r > b->c.x - bhr;
-		} else {
-			//circle right of box
-			return c->c.x - c->r < b->c.x + bhr;
-		}
-	}
-
-
-	//centre outside on corner
-	circle nearest_corner;
-	nearest_corner.r = 0;
-	nearest_corner.c.z = 0;
-
-	if(c->c.x < b->c.x) {
-		nearest_corner.c.x = b->c.x - bhr;
-	} else {
-		nearest_corner.c.x = b->c.x + bhr;
-	}
-	if(c->c.y < b->c.y) {
-		nearest_corner.c.y = b->c.y - bvr;
-	} else {
-		nearest_corner.c.y = b->c.y + bvr;
-	}
-	return circle_is_intersect(&nearest_corner, c);
-}
 
 void draw_circle(circle *c, unsigned int nvertex, char filled) {
 	if(filled) {
@@ -202,17 +158,21 @@ void draw_2d_function_normals(void (*f)(void *data, float x, float *y), void *pa
 #define CAR_WIDTH 1.0f
 #endif
 
-void draw_car(float height, vector offset, vector scale) {
+void draw_car(e_car *car) {
+	glPushMatrix();
+	glTranslatef(car->pos.x, car->pos.y, car->pos.z);
+
 	glBegin(GL_LINE_STRIP);
 	// bottom left
-	glVertex3f((CAR_WIDTH/2 - CAR_WIDTH) * scale.x + offset.x, 0 * scale.y + offset.y, 0 + offset.z);
+	glVertex3f((car->width/2 - car->width), 0, 0);
 	//top left
-	glVertex3f((CAR_WIDTH/2 - CAR_WIDTH) * scale.x + offset.x, CAR_HEIGHT * scale.y + offset.y, 0 + offset.z);
+	glVertex3f((car->width/2 - car->width), car->height, 0);
 	//top right
-	glVertex3f((CAR_WIDTH/2) * scale.x + offset.x, CAR_HEIGHT * scale.y + offset.y, 0 + offset.z);
+	glVertex3f((car->width/2), car->height, 0);
 	//bottom right
-	glVertex3f((CAR_WIDTH/2) * scale.x + offset.x, 0 * scale.y + offset.y, 0 + offset.z);
+	glVertex3f((car->width/2), 0, 0);
 	glEnd();
+	glPopMatrix();
 }
 
 const int milli = 1000;
@@ -225,6 +185,7 @@ void init_level() {
 	leveldata.is_cars_on_heap = leveldata.cars != NULL;
 	if(leveldata.cars == NULL) {
 		perror("can't malloc leveldata.cars\n");
+		leveldata.n_cars = 0;
 	} else {
 		init_vector(&leveldata.cars[0].pos, -0.7, 0.03, 0);
 		init_vector(&leveldata.cars[1].pos, -0.58, 0.03, 0);
@@ -235,6 +196,13 @@ void init_level() {
 		leveldata.cars[1].height = 0.6f;
 		leveldata.cars[2].height = 0.6f;
 		leveldata.cars[3].height = 0.6f;
+
+		leveldata.cars[0].width = 0.05f;
+		leveldata.cars[1].width = 0.05f;
+		leveldata.cars[2].width = 0.05f;
+		leveldata.cars[3].width = 0.05f;
+		
+		leveldata.n_cars = 4;
 	}
 
 	// malloc water
@@ -345,14 +313,17 @@ void update(void) {
 		updateProjectileStateNumerical(&p);
 	}
 
-	//projectile collision
+	//player collision circle
 	circle pj = {.r=0.05, .c={.x=p.pos.x, .y=p.pos.y, .z=p.pos.z}};
-	box firstcar = {.c=leveldata.cars[0].pos,.h=leveldata.cars[0].height, .w=CAR_WIDTH};
-	firstcar.c.y += firstcar.h/2;
 
-
-	if(circle_box_is_intersect2(&pj, &firstcar)) {
-		printf("%4.2f circle is intersecting\n", g.time);
+	// collide with cars
+	for(int i = 0; i < leveldata.n_cars; i++) {
+		box car = {.c=leveldata.cars[i].pos,.h=leveldata.cars[i].height, .w=leveldata.cars[i].width};
+		//bounding box pos is the centre, car pos is the center on the bottom
+		car.c.y += car.h/2;
+		if(circle_box_is_intersect(&pj, &car)) {
+			printf("%4.2f circle is intersecting with car %d\n", g.time, i);
+		}
 	}
 
 	// redraw the screen
@@ -380,13 +351,12 @@ void display() {
 	circle pj = {.r=0.05, .c={.x=p.pos.x, .y=p.pos.y, .z=p.pos.z}};
 	draw_circle(&pj, 10, (char)0);
 
-	vector car_offset = {.x = 0.3, .y = -0.5, .z = 0};
-	vector car_scale = {.x = 0.2, .y = 0.5, .z = 0.2};
-	draw_car(1, car_offset, car_scale);
 	vector unitvec = {.x=1, .y=1, .z=1};
 
 	if(!is_init) {
-		draw_car(leveldata.cars[0].height, leveldata.cars[0].pos, unitvec);
+		for(int i = 0; i < leveldata.n_cars; i++) {
+			draw_car(&leveldata.cars[i]);
+		}
 	}
 
 	vector triangle_pos = {.x=0, .y=0.5f, .z=0};

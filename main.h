@@ -26,8 +26,6 @@ void sin_x(void *data, float x, float *y);
  */
 void x_cubed(void *data, float x, float *y);
 
-void draw_car(float height, vector offset, vector scale);
-
 typedef enum { analytical, numerical } integrationMode;
 
 typedef struct {
@@ -65,7 +63,10 @@ typedef struct {
 typedef struct {
 	vector pos;
 	float height;
+	float width;
 } e_car;
+
+void draw_car(e_car *car);
 
 typedef struct {
 	float radius;
@@ -86,6 +87,7 @@ typedef struct {
 
 struct leveldata {
 	char is_cars_on_heap;
+	size_t n_cars;
 	e_car *cars;
 	char is_water_on_heap;
 	e_water *water;
