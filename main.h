@@ -39,6 +39,7 @@ struct global_t {
 struct global_t g;
 
 typedef struct {
+	char reset_start;
 	float start_time;
 	vector pos0;
 	vector pos;

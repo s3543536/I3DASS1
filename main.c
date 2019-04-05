@@ -265,6 +265,12 @@ void update(void) {
 	lastT = g.time;
 
 	if(g.i_mode == analytical) {
+		if(p.reset_start) {
+			p.start_time = g.time;
+			p.pos0 = p.pos;
+			p.vel0 = p.vel;
+			p.reset_start = 0;
+		}
 		updateProjectileStateAnalytical(&p);
 	} else if(g.i_mode == numerical) {
 		updateProjectileStateNumerical(&p);
@@ -374,17 +380,29 @@ void keyboard(unsigned char key, int x, int y) {
 			posx += 0.01f;
 			printf("posx: %5.3f\n", posx);
 			break;
+		case 'i':
+			if(g.i_mode == analytical) {
+				g.i_mode = numerical;
+			} else if(g.i_mode == numerical) {
+				g.i_mode = analytical;
+			} else {
+				perror("invalid integration mode");
+			}
 		case 'w':
 			p.vel.y = 0.2;
+			p.reset_start = (char)1;
 			break;
 		case 'a':
 			p.vel.x -= 0.05;
+			p.reset_start = (char)1;
 			break;
 		case 'd':
 			p.vel.x += 0.05;
+			p.reset_start = (char)1;
 			break;
 		case 's':
 			activep = (char)1;
+			p.reset_start = (char)1;
 			break;
 		default://every other key
 			break;
