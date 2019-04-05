@@ -252,11 +252,11 @@ void init_level() {
 		leveldata.terrain->n_boxes = 4;
 		vector centre0 = {.x=-0.5, .y=-0.5, .z=0};//main left quadrant
 		vector centre1 = {.x=-0.5, .y=0.0125, .z=0};//road
-		vector centre2 = {.x=0.5, .y=-0.47, .z=0};
-		vector centre3 = {.x=0.875, .y=-0.03, .z=0};
-		leveldata.terrain->box_collision[0] = (box){.c=centre0, .h=0.5, .w=0.5};//main left quadrant
-		leveldata.terrain->box_collision[1] = (box){.c=centre1, .h=0.025, .w=0.25};//road
-		leveldata.terrain->box_collision[2] = (box){.c=centre2, .h=0.94, .w=0.5};
+		vector centre2 = {.x=0.5, .y=-0.53, .z=0};//main right quadrant
+		vector centre3 = {.x=0.875, .y=-0.03, .z=0};//right-most bank
+		leveldata.terrain->box_collision[0] = (box){.c=centre0, .h=1, .w=1};//main left quadrant
+		leveldata.terrain->box_collision[1] = (box){.c=centre1, .h=0.025, .w=0.5};//road
+		leveldata.terrain->box_collision[2] = (box){.c=centre2, .h=0.94, .w=1};
 		leveldata.terrain->box_collision[3] = (box){.c=centre3, .h=0.06, .w=0.25};
 	}
 }
