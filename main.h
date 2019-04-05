@@ -11,6 +11,10 @@
 #include "glvector.h"
 
 
+#ifndef PI
+#define PI 3.14159f
+#endif
+
 /** sin function
  * @param x value of x-axis on the sin function
  * @param y ptr to float where y value will be stored
@@ -27,6 +31,11 @@ void draw_circle(float r, float x, float y, unsigned int nvertex, char filled);
 void draw_car(float height, vector offset, vector scale);
 
 typedef enum { analytical, numerical } integrationMode;
+
+typedef struct {
+	float r;//radius
+	vector c;//centre
+} circle;
 
 struct global_t {
 	float time;

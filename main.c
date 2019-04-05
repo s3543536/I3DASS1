@@ -1,16 +1,12 @@
 #include "main.h"
 
-#ifndef PI
-#define PI 3.14159f
-#endif
-
 float scalex = 0.37f;
 float scaley = 0.37f;
 float posx = 0.375f;
 float posy = 0.375f;
 
 char circle_is_intersect(circle *c1, circle *c2) {
-	return c1.r + c2.r > distance_vector(c1.c, c2.c);
+	return c1->r + c2->r > distance_vector(&c1->c, &c2->c);
 }
 
 void draw_circle(float r, float x, float y, unsigned int nvertex, char filled) {
