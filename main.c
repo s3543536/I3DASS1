@@ -9,6 +9,50 @@ char circle_is_intersect(circle *c1, circle *c2) {
 	return c1->r + c2->r > distance_vector(&c1->c, &c2->c);
 }
 
+char circle_box_is_intersect(circle *c, box *b) {
+	float bvr = b->h/2;//box vertical radius
+	float bhr = b->w/2;//box horizontal radius
+
+	//circle centre is vertically aligned with box
+	if(c->c.x < b->c.x+bhr && c->c.x > b->c.x-bhr) {
+		if(c->c.y < b->c.y) {
+			//circle below box
+			return c->c.y + c->r > b->c.y - bvr;
+		} else {
+			//circle above box
+			return c->c.y - c->r < b->c.y + bvr;
+		}
+	}
+	//circle centre is horizontally aligned with box
+	if(c->c.y < b->c.y+bvr && c->c.y > b->c.y-bvr) {
+		if(c->c.x < b->c.y) {
+			//circle left of box
+			return c->c.x + c->r > b->c.x - bhr;
+		} else {
+			//circle right of box
+			return c->c.x - c->r < b->c.x + bhr;
+		}
+	}
+
+
+	//centre outside on corner
+	circle nearest_corner;
+	nearest_corner.r = 0;
+	nearest_corner.c.z = 0;
+
+	if(c->c.x < b->c.x) {
+		nearest_corner.c.x = b->c.x - bhr;
+	} else {
+		nearest_corner.c.x = b->c.x + bhr;
+	}
+	if(c->c.y < b->c.y) {
+		nearest_corner.c.y = b->c.y - bvr;
+	} else {
+		nearest_corner.c.y = b->c.y + bvr;
+	}
+	return circle_is_intersect(&nearest_corner, c);
+}
+
 void draw_circle(circle *c, unsigned int nvertex, char filled) {
 	if(filled) {
 		glBegin(GL_POLYGON);

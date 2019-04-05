@@ -37,12 +37,18 @@ typedef struct {
 
 void draw_circle(circle *c, unsigned int nvertex, char filled);
 
+typedef struct {
+	vector c;//centre
+	float h;//height
+	float w;//width
+} box;
+
 struct global_t {
 	float time;
 	float dt;
 	float start_time;
 	integrationMode i_mode;
-	char OSD;
+	char OSD;//on screen display
 };
 
 struct global_t g;
