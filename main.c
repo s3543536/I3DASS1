@@ -1,5 +1,19 @@
 #include "main.h"
 
+
+void reshape(int x, int y) {
+
+	//glMatrixMode(GL_PROJECTION);
+	glOrtho(
+			-1.0, 
+			 0.5, 
+			-1.0, 
+			 1.0, 
+			 -1.0, 1.0);
+	//glOrtho(-1.0, (GLUT_SCREEN_HEIGHT * 2 / GLUT_SCREEN_WIDTH) - 1, -1.0, 1.0, -1.0, 1.0);
+	//glMatrixMode(GL_MODELVIEW);
+}
+
 float scalex = 0.37f;
 float scaley = 0.37f;
 float posx = 0.375f;
@@ -488,6 +502,7 @@ int main(int argc, char **argv) {
 	init();
 
 	glutDisplayFunc(display);
+	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
 	glutIdleFunc(update);
 	glutMainLoop();
