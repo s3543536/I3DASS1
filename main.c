@@ -230,7 +230,7 @@ void init_level() {
 	if(leveldata.terrain == NULL) {
 		perror("can't malloc leveldata.terrain\n");
 	} else {
-		leveldata.terrain->nvertices = nterrain_points;
+		leveldata.terrain->n_vertices = nterrain_points;
 		init_vector(&leveldata.terrain->vertices[0], -1, 0, 0);
 		init_vector(&leveldata.terrain->vertices[1], -0.75, 0, 0);
 		init_vector(&leveldata.terrain->vertices[2], -0.75, 0.025, 0);
@@ -241,6 +241,23 @@ void init_level() {
 		init_vector(&leveldata.terrain->vertices[7], 0.75, -0.06, 0);
 		init_vector(&leveldata.terrain->vertices[8], 0.75, 0, 0);
 		init_vector(&leveldata.terrain->vertices[9], 1, 0, 0);
+	}
+	// malloc terrain collision
+	leveldata.terrain->n_boxes = 4;
+	leveldata.terrain->box_collision = malloc(sizeof(leveldata.terrain->box_collision));
+	leveldata.terrain->is_collision = leveldata.terrain->box_collision != NULL;
+	if(!leveldata.terrain->is_collision) {
+		perror("can't malloc leveldata.terrain->box_collision");
+	} else {
+		leveldata.terrain->n_boxes = 4;
+		vector centre0 = {.x=-0.5, .y=-0.5, .z=0};//main left quadrant
+		vector centre1 = {.x=-0.5, .y=0.0125, .z=0};//road
+		vector centre2 = {.x=0.5, .y=-0.47, .z=0};
+		vector centre3 = {.x=0.875, .y=-0.03, .z=0};
+		leveldata.terrain->box_collision[0] = (box){.c=centre0, .h=0.5, .w=0.5};//main left quadrant
+		leveldata.terrain->box_collision[1] = (box){.c=centre1, .h=0.025, .w=0.25};//road
+		leveldata.terrain->box_collision[2] = (box){.c=centre2, .h=0.94, .w=0.5};
+		leveldata.terrain->box_collision[3] = (box){.c=centre3, .h=0.06, .w=0.25};
 	}
 }
 
@@ -284,6 +301,7 @@ void update(void) {
 
 		init_level();
 
+		g.draw_box_collision = 0;
 
 
 		init_vector(&p.pos0, 0,0.5,0);
@@ -326,6 +344,13 @@ void update(void) {
 		}
 	}
 
+	// collide with walls
+	for(int i = 0; i < leveldata.terrain->n_boxes; i++) {
+		if(circle_box_is_intersect(&pj, &leveldata.terrain->box_collision[i])) {
+			printf("%4.2f circle is intersecting with wall %d\n", g.time, i);
+		}
+	}
+
 	// redraw the screen
 	glutPostRedisplay();
 }
@@ -356,6 +381,23 @@ void display() {
 	if(!is_init) {
 		for(int i = 0; i < leveldata.n_cars; i++) {
 			draw_car(&leveldata.cars[i]);
+		}
+
+		if(g.draw_box_collision) {
+			glPushMatrix();
+			for(int i = 0; i < leveldata.terrain->n_boxes; i++) {
+				vector c = leveldata.terrain->box_collision[i].c;
+				float w = leveldata.terrain->box_collision[i].w;
+				float h = leveldata.terrain->box_collision[i].h;
+
+				glBegin(GL_LINE_LOOP);
+				glVertex3f(c.x-w/2, c.y-h/2, c.z);
+				glVertex3f(c.x-w/2, c.y+h/2, c.z);
+				glVertex3f(c.x+w/2, c.y+h/2, c.z);
+				glVertex3f(c.x+w/2, c.y-h/2, c.z);
+				glEnd();
+			}
+			glPopMatrix();
 		}
 	}
 
@@ -389,7 +431,7 @@ void display() {
 	// draw road
 	if(!is_init) {
 		glBegin(GL_LINE_STRIP);
-		for(int i = 0; i < leveldata.terrain->nvertices; i++) {
+		for(int i = 0; i < leveldata.terrain->n_vertices; i++) {
 			float x = leveldata.terrain->vertices[i].x;
 			float y = leveldata.terrain->vertices[i].y;
 			float z = leveldata.terrain->vertices[i].z;
@@ -414,11 +456,36 @@ void display() {
 
 }
 
+void free_leveldata() {
+	//free cars
+	if(leveldata.is_cars_on_heap) {
+		free(leveldata.cars);
+	}
+
+	//free water
+	if(leveldata.is_water_on_heap) {
+		free(leveldata.water);
+	}
+
+	//free terrain
+	if(leveldata.is_terrain_on_heap) {
+		if(leveldata.terrain->is_collision) {
+			free(leveldata.terrain->box_collision);
+		}
+		free(leveldata.terrain);
+	}
+}
+
 void keyboard(unsigned char key, int x, int y) {
 	switch(key) {
 		case 27:
 		case 'q':
+			free_leveldata();
 			exit(EXIT_SUCCESS);
+			break;
+		case 'm':
+			// toggle draw box collision
+			g.draw_box_collision = !g.draw_box_collision;
 			break;
 		case 'h':
 			// decrement posx and print

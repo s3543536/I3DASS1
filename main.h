@@ -45,6 +45,7 @@ struct global_t {
 	float time;
 	float dt;
 	float start_time;
+	float draw_box_collision;
 	integrationMode i_mode;
 	char OSD;//on screen display
 };
@@ -81,7 +82,10 @@ typedef struct {
 } e_water;
 
 typedef struct {
-	unsigned int nvertices;
+	char is_collision;
+	size_t n_boxes;
+	box *box_collision;
+	size_t n_vertices;
 	vector vertices[0];
 } e_wall;
 
