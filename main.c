@@ -151,13 +151,6 @@ void draw_2d_function_normals(void (*f)(void *data, float x, float *y), void *pa
 	}
 }
 
-#ifndef CAR_HEIGHT
-#define CAR_HEIGHT 0.6f
-#endif
-#ifndef CAR_WIDTH
-#define CAR_WIDTH 1.0f
-#endif
-
 void draw_car(e_car *car) {
 	glPushMatrix();
 	glTranslatef(car->pos.x, car->pos.y, car->pos.z);
