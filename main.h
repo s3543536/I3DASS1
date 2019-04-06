@@ -11,6 +11,8 @@
 #include "glvector.h"
 #include "mathfunc.h"
 #include "glfunc.h"
+#include "shapes.h"
+#include "intersect.h"
 
 
 #ifndef PI
@@ -19,18 +21,7 @@
 
 typedef enum { analytical, numerical } integrationMode;
 
-typedef struct {
-	float r;//radius
-	vector c;//centre
-} circle;
-
 void draw_circle(circle *c, unsigned int nvertex, char filled);
-
-typedef struct {
-	vector c;//centre
-	float h;//height
-	float w;//width
-} box;
 
 struct global_t {
 	float time;
