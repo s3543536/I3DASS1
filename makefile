@@ -1,4 +1,4 @@
-SOURCES=main.c vector.c glvector.c mathfunc.c
+SOURCES=main.c vector.c glvector.c mathfunc.c glfunc.c
 OBJECTS=$(SOURCES:.c=.o)
 HEADERS=$(SOURCES:.c=.h)
 DFILES=$(SOURCES:.c=.d)

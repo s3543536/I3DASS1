@@ -10,6 +10,7 @@
 #include "vector.h"
 #include "glvector.h"
 #include "mathfunc.h"
+#include "glfunc.h"
 
 
 #ifndef PI
