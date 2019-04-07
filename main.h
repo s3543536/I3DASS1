@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -12,16 +11,11 @@
 #include "mathfunc.h"
 #include "glfunc.h"
 #include "shapes.h"
+#include "glshapes.h"
 #include "intersect.h"
 
 
-#ifndef PI
-#define PI 3.14159f
-#endif
-
 typedef enum { analytical, numerical } integrationMode;
-
-void draw_circle(circle *c, unsigned int nvertex, char filled);
 
 struct global_t {
 	float time;
