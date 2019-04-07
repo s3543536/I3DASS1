@@ -13,6 +13,8 @@
 #include "shapes.h"
 #include "glshapes.h"
 #include "intersect.h"
+#include "gameobjects.h"
+#include "glgameobjects.h"
 
 
 typedef enum { analytical, numerical } integrationMode;
@@ -36,34 +38,6 @@ typedef struct {
 	vector vel0;
 	vector vel;
 } projectile;
-
-typedef struct {
-	vector pos;
-	float height;
-	float width;
-} e_car;
-
-void draw_car(e_car *car);
-
-typedef struct {
-	float radius;
-} e_log;
-
-typedef struct {
-	vector bottom_left;
-	vector top_right;
-	float depth;
-	unsigned int nlogs;
-	e_log logs[0];
-} e_water;
-
-typedef struct {
-	char is_collision;
-	size_t n_boxes;
-	box *box_collision;
-	size_t n_vertices;
-	vector vertices[0];
-} e_wall;
 
 struct leveldata {
 	char is_cars_on_heap;
