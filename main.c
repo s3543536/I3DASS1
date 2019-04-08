@@ -118,18 +118,18 @@ void updateProjectileStateNumerical(projectile *p) {
 }
 
 
-double derivative(double (*f)(void *data, double x), void *f_data, double x, double delta) {
+float derivative(float (*f)(void *data, float x), void *f_data, float x, float delta) {
 	return f(f_data, x + delta) - f(f_data, x - delta) / (2 * delta);
 }
 
-double newtons_inner(double (*f)(void *data, double x), void *f_data, size_t n_itter, double x0) {
-	double xprev2 = x0;
-	double xprev = x0+0.001;
-	double xnext = x0;
+float newtons_inner(float (*f)(void *data, float x), void *f_data, size_t n_itter, float x0) {
+	float xprev2 = x0;
+	float xprev = x0+0.001;
+	float xnext = x0;
 
 	for(size_t i = 0; i < n_itter; i++) {
 		//printf("x: %f, delta: %f ", xnext, fabs(xprev - xprev2)*2);
-		double df = derivative(f, f_data, xprev, fabs(xprev - xprev2));
+		float df = derivative(f, f_data, xprev, fabs(xprev - xprev2));
 		//xnext = (xprev * df - f(xprev))/df;
 		xnext = xprev - f(f_data, xprev) / df;
 
@@ -147,12 +147,25 @@ double newtons_inner(double (*f)(void *data, double x), void *f_data, size_t n_i
 	return xnext;
 }
 
-void newtons(double (*f)(void *data, double x), void *f_data, size_t n_itter, double *guesses, size_t n_guess) {
+void newtons(float (*f)(void *data, float x), void *f_data, size_t n_itter, float *guesses, size_t n_guess) {
 	for(size_t i = 0; i < n_guess; i++) {
 		guesses[i] = newtons_inner(f, f_data, n_itter, guesses[i]);
 	}
 }
 
+typedef struct {
+	float i;
+	float j;
+	float (*f)(void *data, float x);
+	void *f_data;
+} f_dist_data;
+
+float f_dist(void *data, float x) {
+	f_dist_data data_= *(f_dist_data*)data;
+	float xdist = data_.i - x;
+	float ydist = data_.j - data_.f(data_.f_data, x);
+	return sqrt(xdist*xdist + ydist*ydist);
+}
 
 projectile p;
 char activep = (char)0;
@@ -204,11 +217,6 @@ void update(void) {
 	// update water
 	leveldata.water->shape.c = g.time;
 
-	double roots[] = {-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
-	size_t n_roots = sizeof(roots) / sizeof(*roots);
-	newtons(sin_x,&leveldata.water->shape, 100, roots, n_roots);
-
-	draw_2d_function(&sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
 
 	//player collision circle
 	circle pj = {.r=0.05, .c={.x=p.pos.x, .y=p.pos.y, .z=p.pos.z}};
@@ -252,9 +260,9 @@ void display() {
 
 	glColor3f(1, 1, 1);
 
+	// draw circle around player
 	circle pj = {.r=0.05, .c={.x=p.pos.x, .y=p.pos.y, .z=p.pos.z}};
 	draw_circle(&pj, 10, (char)0);
-
 
 	if(!is_init) {
 		for(int i = 0; i < leveldata.n_cars; i++) {
@@ -281,14 +289,47 @@ void display() {
 
 	vector triangle_pos = {.x=0, .y=0.5f, .z=0};
 	circle triangle = {.r=0.5f, .c=triangle_pos};
-	vector circle_pos = {.x=0.5f, .y=0.3f, .z=0};
-	circle circle = {.r=0.3f, .c=circle_pos};
+	vector acircle_pos = {.x=0.5f, .y=0.3f, .z=0};
+	circle acircle = {.r=0.3f, .c=acircle_pos};
 	draw_circle(&triangle, 3, (char)0);
-	draw_circle(&circle, (unsigned int)g.time%10, (char)1);
+	draw_circle(&acircle, (unsigned int)g.time%10, (char)1);
 
 
 	if(!is_init) {
+
+
+
+		float roots[] = {-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+		size_t n_roots = sizeof(roots) / sizeof(*roots);
+		f_dist_data fdd = {.i=p.pos.x, .j=p.pos.y, .f=sin_x, .f_data=&leveldata.water->shape};
+
+		newtons(f_dist,&fdd, 100, roots, n_roots);
+
+		float min_val = FLT_MAX;
+		float min_x = 0;
+		for(size_t i = 0; i < n_roots; i++) {
+			float current_val = f_dist(&fdd, roots[i]);
+			//float val_at_current = fdd.f(fdd.f_data, roots[i]);
+
+			if(current_val < 0 || !isfinite(current_val)) continue;
+			min_val = fmin(min_val, current_val);
+			min_x = roots[i];
+		}
+
+		//draw a small circle around the nearest point
+		circle nearest = {.r=0.1f, .c=(vector){.x=min_x, .y=fdd.f(fdd.f_data, min_x), .z=0}};
+		draw_circle(&nearest, 10, (char)0);
+
+
+		draw_2d_function(f_dist, &fdd, 1 / 3.14159f, 1);
+
 		draw_2d_function(sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
+
+
+
+
+
+
 		glPushMatrix();
 
 		glTranslatef(0.375, 0, 0);
