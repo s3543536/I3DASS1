@@ -203,10 +203,9 @@ void display() {
 
 	glColor3f(1, 1, 1);
 
+	// draw circle around player
 	circle pj = {.r=0.05, .c={.x=p.pos.x, .y=p.pos.y, .z=p.pos.z}};
 	draw_circle(&pj, 10, (char)0);
-
-	vector unitvec = {.x=1, .y=1, .z=1};
 
 	if(!is_init) {
 		for(int i = 0; i < leveldata.n_cars; i++) {
