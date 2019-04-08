@@ -132,7 +132,7 @@ float f_dist(void *data, float x) {
 	return sqrt(xdist*xdist + ydist*ydist);
 }
 
-float f_dist_sin_derivative(void *data, float x) {
+float f_dist_derivative(void *data, float x) {
 	f_dist_data data_ = *(f_dist_data*)data;
 
 	float a = ((sin_data*)data_.f_data)->a;
@@ -146,7 +146,7 @@ float f_dist_sin_derivative(void *data, float x) {
 	float j_minus_func = data_.j - funcval;
 
 	float first = 1 / (2 * sqrt((i_minus_x*i_minus_x) + (j_minus_func*j_minus_func)));
-	float second = -2*i_minus_x + 2*((data_.j - funcval) * (0 - (a*cos(b*x+c)+d)));
+	float second = -2*i_minus_x + 2*((data_.j - funcval) * (0 - ((sin_data*)data_.f_data)->derivative(data_.f_data, x)));
 
 	return first * second;
 }
@@ -164,7 +164,7 @@ float newtons_inner(float (*f)(void *data, float x), void *f_data, size_t n_itte
 	for(size_t i = 0; i < n_itter; i++) {
 		//printf("x: %f, delta: %f ", xnext, fabs(xprev - xprev2)*2);
 		//float df = derivative(f, f_data, xprev, fabs(xprev - xprev2));
-		float df = f_dist_sin_derivative(f_data, xprev);
+		float df = f_dist_derivative(f_data, xprev);
 		//float df = derivative(f, f_data, xprev, 0.5);
 		//xnext = (xprev * df - f(xprev))/df;
 		xnext = xprev - f(f_data, xprev) / df;
@@ -325,6 +325,7 @@ void display() {
 
 		float roots[] = {-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
 		size_t n_roots = sizeof(roots) / sizeof(*roots);
+		leveldata.water->shape.derivative = dsin_x;
 		f_dist_data fdd = {.i=p.pos.x, .j=p.pos.y, .f=sin_x, .f_data=&leveldata.water->shape};
 		((sin_data*)fdd.f_data)->b = 3.14159f;
 
@@ -362,7 +363,7 @@ void display() {
 		//printf("p.pos.x: %4.2f   p.pos.y: %4.2f\n", p.pos.x, p.pos.y);
 
 		draw_2d_function(sin_x, fdd.f_data, 1, 1);
-		draw_2d_function(f_dist_sin_derivative, &fdd, 1, 1);
+		draw_2d_function(f_dist_derivative, &fdd, 1, 1);
 		glPushMatrix();
 		glTranslatef(0, -1, 0);
 		draw_2d_function(f_dist, &fdd, 1, 1);

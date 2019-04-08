@@ -4,6 +4,11 @@
 #include <math.h>
 
 typedef struct {
+	void (*derivative)(void *data, float x);
+} func_data;
+
+typedef struct {
+	float (*derivative)(void *data, float x);
 	float a;
 	float b;
 	float c;
@@ -16,6 +21,9 @@ typedef struct {
  * @param x                 x value of function
  */
 float sin_x(void *data, float x);
+
+// 1st derivative of sin function (including vars)
+float dsin_x(void *data, float x);
 
 
 typedef struct {
