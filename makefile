@@ -5,7 +5,7 @@ DFILES=$(SOURCES:.c=.d)
 PROGRAM=a.out
 DFILERULES=-MMD -MP
 CFLAGS= $(DFILERULES)
-LDFLAGS=$(CFLAGS) -lGL -lGLU -lglut -lm 
+LDFLAGS=$(CFLAGS) -lGL -lGLU -lglut -lm
 CC=gcc
 
 

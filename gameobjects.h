@@ -3,6 +3,7 @@
 
 #include "vector.h"
 #include "shapes.h"
+#include "mathfunc.h"
 
 
 typedef struct {
@@ -19,7 +20,8 @@ typedef struct {
 	vector bottom_left;
 	vector top_right;
 	float depth;
-	unsigned int nlogs;
+	sin_data shape;
+	size_t nlogs;
 	e_log logs[0];
 } e_water;
 

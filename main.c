@@ -36,7 +36,7 @@ void init_level() {
 	}
 
 	// malloc water
-	unsigned int nlogs = 4;
+	size_t nlogs = 4;
 	leveldata.water = malloc(sizeof(*leveldata.water) + sizeof(e_log) * nlogs);
 	leveldata.is_water_on_heap = leveldata.cars != NULL;
 	if(leveldata.water == NULL) {
@@ -47,6 +47,8 @@ void init_level() {
 		leveldata.water->depth = 0.8f;
 		leveldata.water->nlogs = nlogs;
 
+		leveldata.water->shape = (sin_data){.a=1, .b=1, .c=g.time, .d=0};
+
 		leveldata.water->logs[0].radius = 0.3f;
 		leveldata.water->logs[1].radius = 0.42f;
 		leveldata.water->logs[2].radius = 0.25f;
@@ -55,7 +57,7 @@ void init_level() {
 
 	// malloc terrain
 	unsigned int nterrain_points = 10;
-	leveldata.terrain = malloc(sizeof(*leveldata.terrain) + sizeof(vector) * nterrain_points);
+	leveldata.terrain = malloc(sizeof(*leveldata.terrain) + sizeof(*leveldata.terrain->vertices) * nterrain_points);
 	leveldata.is_terrain_on_heap = leveldata.terrain != NULL;
 	if(leveldata.terrain == NULL) {
 		perror("can't malloc leveldata.terrain\n");
@@ -74,7 +76,7 @@ void init_level() {
 	}
 	// malloc terrain collision
 	leveldata.terrain->n_boxes = 4;
-	leveldata.terrain->box_collision = malloc(sizeof(leveldata.terrain->box_collision));
+	leveldata.terrain->box_collision = malloc(sizeof(*leveldata.terrain->box_collision) * leveldata.terrain->n_boxes);
 	leveldata.terrain->is_collision = leveldata.terrain->box_collision != NULL;
 	if(!leveldata.terrain->is_collision) {
 		perror("can't malloc leveldata.terrain->box_collision");
@@ -129,6 +131,7 @@ void update(void) {
 		
 		lastT = g.time;
 
+		printf("init level\n");
 		init_level();
 
 		g.draw_box_collision = 0;
@@ -160,6 +163,9 @@ void update(void) {
 		perror("invalid integration mode");
 		updateProjectileStateNumerical(&p);
 	}
+
+	// update water
+	leveldata.water->shape.c = g.time;
 
 	//player collision circle
 	circle pj = {.r=0.05, .c={.x=p.pos.x, .y=p.pos.y, .z=p.pos.z}};
@@ -206,7 +212,6 @@ void display() {
 	circle pj = {.r=0.05, .c={.x=p.pos.x, .y=p.pos.y, .z=p.pos.z}};
 	draw_circle(&pj, 10, (char)0);
 
-	vector unitvec = {.x=1, .y=1, .z=1};
 
 	if(!is_init) {
 		for(int i = 0; i < leveldata.n_cars; i++) {
@@ -238,20 +243,20 @@ void display() {
 	draw_circle(&triangle, 3, (char)0);
 	draw_circle(&circle, (unsigned int)g.time%10, (char)1);
 
-	//x_cubed_data;
-	sin_data fdata = {.a = 1, .b = 1, .c = g.time, .d = 0};
 
-	glPushMatrix();
+	if(!is_init) {
+		glPushMatrix();
 
-	glTranslatef(0.375, 0, 0);
-	glScalef(0.37, 0.5f, 0.5f);
-	draw_2d_function(&sin_x, &fdata, 1 / 3.14159f, 1);
+		glTranslatef(0.375, 0, 0);
+		glScalef(0.37, 0.5f, 0.5f);
+		draw_2d_function(&sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
 
-	glColor3f(0, 0, 1);
-	draw_2d_function_normals(&sin_x, &fdata, 1 / 3.14159f, 1);
-	drawAxes(1, 0);
+		glColor3f(0, 0, 1);
+		draw_2d_function_normals(&sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
+		drawAxes(1, 0);
 
-	glPopMatrix();
+		glPopMatrix();
+	}
 
 	// use a stack for all transformations
 	/* glPushMatrix(); */
