@@ -227,14 +227,14 @@ void update(void) {
 		//bounding box pos is the centre, car pos is the center on the bottom
 		car.c.y += car.h/2;
 		if(circle_box_is_intersect(&pj, &car)) {
-			printf("%4.2f circle is intersecting with car %d\n", g.time, i);
+			//printf("%4.2f circle is intersecting with car %d\n", g.time, i);
 		}
 	}
 
 	// collide with walls
 	for(int i = 0; i < leveldata.terrain->n_boxes; i++) {
 		if(circle_box_is_intersect(&pj, &leveldata.terrain->box_collision[i])) {
-			printf("%4.2f circle is intersecting with wall %d\n", g.time, i);
+			//printf("%4.2f circle is intersecting with wall %d\n", g.time, i);
 		}
 	}
 
@@ -287,12 +287,14 @@ void display() {
 		}
 	}
 
+#if 0
 	vector triangle_pos = {.x=0, .y=0.5f, .z=0};
 	circle triangle = {.r=0.5f, .c=triangle_pos};
 	vector acircle_pos = {.x=0.5f, .y=0.3f, .z=0};
 	circle acircle = {.r=0.3f, .c=acircle_pos};
 	draw_circle(&triangle, 3, (char)0);
 	draw_circle(&acircle, (unsigned int)g.time%10, (char)1);
+#endif
 
 
 	if(!is_init) {
@@ -302,6 +304,8 @@ void display() {
 		float roots[] = {-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
 		size_t n_roots = sizeof(roots) / sizeof(*roots);
 		f_dist_data fdd = {.i=p.pos.x, .j=p.pos.y, .f=sin_x, .f_data=&leveldata.water->shape};
+		((sin_data*)fdd.f_data)->b = 3.14159f;
+
 
 		newtons(f_dist,&fdd, 100, roots, n_roots);
 
@@ -311,19 +315,36 @@ void display() {
 			float current_val = f_dist(&fdd, roots[i]);
 			//float val_at_current = fdd.f(fdd.f_data, roots[i]);
 
-			if(current_val < 0 || !isfinite(current_val)) continue;
+			if(current_val < 0) {
+				printf("current_val less than 0: %f\n", current_val);
+			}
+			if(!isfinite(current_val)) {
+				printf("current val not finite: %f\n", current_val);
+			}
+			if(!isfinite(roots[i])) {
+				printf("current root not finite: %f\n", roots[i]);
+			}
+			if(current_val < 0 || !isfinite(current_val) || !isfinite(roots[i])) continue;
 			min_val = fmin(min_val, current_val);
 			min_x = roots[i];
 		}
+		//printf("dist: %f\n", min_val);
+		printf("minx: %f\n", min_x);
 
 		//draw a small circle around the nearest point
 		circle nearest = {.r=0.1f, .c=(vector){.x=min_x, .y=fdd.f(fdd.f_data, min_x), .z=0}};
 		draw_circle(&nearest, 10, (char)0);
 
 
-		draw_2d_function(f_dist, &fdd, 1 / 3.14159f, 1);
 
-		draw_2d_function(sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
+		//printf("p.pos.x: %4.2f   p.pos.y: %4.2f\n", p.pos.x, p.pos.y);
+
+		draw_2d_function(sin_x, fdd.f_data, 1, 1);
+		glPushMatrix();
+		glTranslatef(0, -1, 0);
+		draw_2d_function(f_dist, &fdd, 1, 1);
+		glPopMatrix();
+		((sin_data*)fdd.f_data)->b = 1;
 
 
 
