@@ -117,6 +117,43 @@ void updateProjectileStateNumerical(projectile *p) {
 	p->vel.y += gravity * g.dt;
 }
 
+
+double derivative(double (*f)(void *data, double x), void *f_data, double x, double delta) {
+	return f(f_data, x + delta) - f(f_data, x - delta) / (2 * delta);
+}
+
+double newtons_inner(double (*f)(void *data, double x), void *f_data, size_t n_itter, double x0) {
+	double xprev2 = x0;
+	double xprev = x0+0.001;
+	double xnext = x0;
+
+	for(size_t i = 0; i < n_itter; i++) {
+		//printf("x: %f, delta: %f ", xnext, fabs(xprev - xprev2)*2);
+		double df = derivative(f, f_data, xprev, fabs(xprev - xprev2));
+		//xnext = (xprev * df - f(xprev))/df;
+		xnext = xprev - f(f_data, xprev) / df;
+
+		//printf("derivative: %f next: %f\n", df, xnext);
+
+		if(isfinite(xnext) && xnext != xprev) {
+			xprev2 = xprev;
+			xprev = xnext;
+		} else {
+			// divide by 0... take previous value
+			return xprev;
+		}
+	}
+
+	return xnext;
+}
+
+void newtons(double (*f)(void *data, double x), void *f_data, size_t n_itter, double *guesses, size_t n_guess) {
+	for(size_t i = 0; i < n_guess; i++) {
+		guesses[i] = newtons_inner(f, f_data, n_itter, guesses[i]);
+	}
+}
+
+
 projectile p;
 char activep = (char)0;
 
@@ -166,6 +203,12 @@ void update(void) {
 
 	// update water
 	leveldata.water->shape.c = g.time;
+
+	double roots[] = {-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+	size_t n_roots = sizeof(roots) / sizeof(*roots);
+	newtons(sin_x,&leveldata.water->shape, 100, roots, n_roots);
+
+	draw_2d_function(&sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
 
 	//player collision circle
 	circle pj = {.r=0.05, .c={.x=p.pos.x, .y=p.pos.y, .z=p.pos.z}};
@@ -245,14 +288,15 @@ void display() {
 
 
 	if(!is_init) {
+		draw_2d_function(sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
 		glPushMatrix();
 
 		glTranslatef(0.375, 0, 0);
 		glScalef(0.37, 0.5f, 0.5f);
-		draw_2d_function(&sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
+		draw_2d_function(sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
 
 		glColor3f(0, 0, 1);
-		draw_2d_function_normals(&sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
+		draw_2d_function_normals(sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
 		drawAxes(1, 0);
 
 		glPopMatrix();
