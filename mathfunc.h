@@ -4,7 +4,6 @@
 #include <math.h>
 
 typedef struct {
-	float (*derivative)(void *data, float x);
 	float a;
 	float b;
 	float c;

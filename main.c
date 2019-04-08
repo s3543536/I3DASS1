@@ -122,6 +122,7 @@ typedef struct {
 	float i;
 	float j;
 	float (*f)(void *data, float x);
+	float (*df)(void *data, float x);
 	void *f_data;
 } f_dist_data;
 
@@ -145,8 +146,12 @@ float f_dist_derivative(void *data, float x) {
 	float i_minus_x = data_.i - x;
 	float j_minus_func = data_.j - funcval;
 
+	/* the derivative of the distance function:
+	 * (1/(2*sqrt((i-x)^2 + (j-f(x))^2)))(-2(i - x) + 2(j-f(x))df(x))
+	 * \_____________first______________/\________second______________/
+	 */
 	float first = 1 / (2 * sqrt((i_minus_x*i_minus_x) + (j_minus_func*j_minus_func)));
-	float second = -2*i_minus_x + 2*((data_.j - funcval) * (0 - ((sin_data*)data_.f_data)->derivative(data_.f_data, x)));
+	float second = -2*i_minus_x + -2 * (data_.j - funcval) * data_.df(data_.f_data, x);
 
 	return first * second;
 }
@@ -156,20 +161,27 @@ float derivative(float (*f)(void *data, float x), void *f_data, float x, float d
 	return f(f_data, x + delta) - f(f_data, x - delta) / (2 * delta);
 }
 
-float newtons_inner(float (*f)(void *data, float x), void *f_data, size_t n_itter, float x0) {
+float newtons_inner(float (*f)(void *data, float x), float (*df)(void *data, float x), void *f_data, size_t n_itter, float x0) {
 	float xprev2 = x0;
 	float xprev = x0+0.001;
 	float xnext = x0;
 
 	for(size_t i = 0; i < n_itter; i++) {
 		//printf("x: %f, delta: %f ", xnext, fabs(xprev - xprev2)*2);
-		//float df = derivative(f, f_data, xprev, fabs(xprev - xprev2));
-		float df = f_dist_derivative(f_data, xprev);
-		//float df = derivative(f, f_data, xprev, 0.5);
-		//xnext = (xprev * df - f(xprev))/df;
-		xnext = xprev - f(f_data, xprev) / df;
+		float df_;
+		if(df == NULL) {
+			df_ = derivative(f, f_data, xprev, fabs(xprev - xprev2));
+			//float df_ = derivative(f, f_data, xprev, 0.5);
+		} else {
+			df_ = df(f_data, xprev);
+		}
+#if 0
+		xnext = (xprev * df_ - f(xprev))/df_;
+#else
+		xnext = xprev - f(f_data, xprev) / df_;
+#endif
 
-		//printf("derivative: %f next: %f\n", df, xnext);
+		//printf("derivative: %f next: %f\n", df_, xnext);
 
 		if(isfinite(xnext) && xnext != xprev) {
 			xprev2 = xprev;
@@ -183,9 +195,9 @@ float newtons_inner(float (*f)(void *data, float x), void *f_data, size_t n_itte
 	return xnext;
 }
 
-void newtons(float (*f)(void *data, float x), void *f_data, size_t n_itter, float *guesses, size_t n_guess) {
+void newtons(float (*f)(void *data, float x), float (*df)(void *data, float x), void *f_data, size_t n_itter, float *guesses, size_t n_guess) {
 	for(size_t i = 0; i < n_guess; i++) {
-		guesses[i] = newtons_inner(f, f_data, n_itter, guesses[i]);
+		guesses[i] = newtons_inner(f, df, f_data, n_itter, guesses[i]);
 	}
 }
 
@@ -325,12 +337,11 @@ void display() {
 
 		float roots[] = {-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
 		size_t n_roots = sizeof(roots) / sizeof(*roots);
-		leveldata.water->shape.derivative = dsin_x;
-		f_dist_data fdd = {.i=p.pos.x, .j=p.pos.y, .f=sin_x, .f_data=&leveldata.water->shape};
+		f_dist_data fdd = {.i=p.pos.x, .j=p.pos.y, .f=sin_x, .df=dsin_x, .f_data=&leveldata.water->shape};
 		((sin_data*)fdd.f_data)->b = 3.14159f;
 
 
-		newtons(f_dist,&fdd, 8, roots, n_roots);
+		newtons(f_dist, f_dist_derivative, &fdd, 8, roots, n_roots);
 
 		float min_val = FLT_MAX;
 		float min_x = 0;
@@ -362,7 +373,7 @@ void display() {
 
 		//printf("p.pos.x: %4.2f   p.pos.y: %4.2f\n", p.pos.x, p.pos.y);
 
-		draw_2d_function(sin_x, fdd.f_data, 1, 1);
+		draw_2d_function(fdd.f, fdd.f_data, 1, 1);
 		draw_2d_function(f_dist_derivative, &fdd, 1, 1);
 		glPushMatrix();
 		glTranslatef(0, -1, 0);
