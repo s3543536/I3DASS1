@@ -10,18 +10,25 @@ typedef struct {
 	float d;
 } sin_data;
 /** sin function
- * @param x value of x-axis on the sin function
- * @param y ptr to float where y value will be stored
+ *
+ * @param sin_data *data    constains the co-efficients of the function
+ *                            y = asin(bx + c) + d;
+ * @param x                 x value of function
+ * @param flaot *y          y value of function will be put here
  */
 void sin_x(void *data, float x, float *y);
+
 
 typedef struct {
 	float a;
 	float c;
 } x_cubed_data;
-/** sin function
- * @param x value of x-axis on the x^3 function
- * @param y ptr to float where y value will be stored
+/** x^3 function
+ *
+ * @param x_cubed_data *data    constains the co-efficients of the function
+ *                                y = ax^3 + c
+ * @param x                     x value of function
+ * @param flaot *y              y value of function will be put here
  */
 void x_cubed(void *data, float x, float *y);
 
