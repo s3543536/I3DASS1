@@ -14,9 +14,8 @@ typedef struct {
  * @param sin_data *data    constains the co-efficients of the function
  *                            y = asin(bx + c) + d;
  * @param x                 x value of function
- * @param flaot *y          y value of function will be put here
  */
-void sin_x(void *data, float x, float *y);
+float sin_x(void *data, float x);
 
 
 typedef struct {
@@ -28,9 +27,8 @@ typedef struct {
  * @param x_cubed_data *data    constains the co-efficients of the function
  *                                y = ax^3 + c
  * @param x                     x value of function
- * @param flaot *y              y value of function will be put here
  */
-void x_cubed(void *data, float x, float *y);
+float x_cubed(void *data, float x);
 
 
 #endif
