@@ -15,7 +15,9 @@ void drawAxes(float length, int draw_negative);
 // nasa-approved 15 digits (fits in a double)
 #define PI 3.141592653589793
 #endif
-void draw_circle(circle *c, unsigned int nvertex, char filled);
+void draw_circle(circle *c, size_t nvertex, char filled);
+
+void draw_box(box *b, char filled);
 
 
 

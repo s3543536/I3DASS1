@@ -32,7 +32,7 @@ void drawAxes(float length, int draw_negative) {
 	glEnd();
 }
 
-void draw_circle(circle *c, unsigned int nvertex, char filled) {
+void draw_circle(circle *c, size_t nvertex, char filled) {
 	if(filled) {
 		glBegin(GL_POLYGON);
 	} else {
@@ -40,7 +40,7 @@ void draw_circle(circle *c, unsigned int nvertex, char filled) {
 	}
 
 	float angle = 0;
-	for(int i = 0; i < nvertex; i++) {
+	for(size_t i = 0; i < nvertex; i++) {
 		angle = i * 2 * PI / nvertex;
 		glVertex3f(c->c.x + sin(angle) * c->r, c->c.y + cos(angle) * c->r, c->c.z);
 	}
