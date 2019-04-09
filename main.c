@@ -1,5 +1,9 @@
 #include "main.h"
 
+#define DRAW_CLOSEST_SIN_DIST 0
+#define DRAW_SIN_DIST_FUNC 0
+#define DRAW_SIN_DIST_DERIVATIVE_FUNC 0
+
 float scalex = 0.37f;
 float scaley = 0.37f;
 float posx = 0.375f;
@@ -177,15 +181,41 @@ void update(void) {
 		//bounding box pos is the centre, car pos is the center on the bottom
 		car.c.y += car.h/2;
 		if(circle_box_is_intersect(&pj, &car)) {
-			//printf("%4.2f circle is intersecting with car %d\n", g.time, i);
+			printf("%4.2f circle is intersecting with car %d\n", g.time, i);
 		}
 	}
 
 	// collide with walls
 	for(int i = 0; i < leveldata.terrain->n_boxes; i++) {
 		if(circle_box_is_intersect(&pj, &leveldata.terrain->box_collision[i])) {
-			//printf("%4.2f circle is intersecting with wall %d\n", g.time, i);
+			printf("%4.2f circle is intersecting with wall %d\n", g.time, i);
 		}
+	}
+
+	// collide with sin wave
+	float roots[] = {-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+	size_t n_roots = sizeof(roots) / sizeof(*roots);
+	f_dist_data fdd = {.i=p.pos.x, .j=p.pos.y, .f=sin_x, .df=dsin_x, .f_data=&leveldata.water->shape};
+	((sin_data*)fdd.f_data)->b = 3.14159f;
+
+
+	newtons(f_dist, f_dist_derivative, &fdd, 8, roots, n_roots);
+
+	// collide with water
+	float min_val = FLT_MAX;
+	float min_x = 0;
+	for(size_t i = 0; i < n_roots; i++) {
+		float current_val = f_dist(&fdd, roots[i]);
+		//float val_at_current = fdd.f(fdd.f_data, roots[i]);
+
+		if(current_val < 0 || !isfinite(current_val) || !isfinite(roots[i])) continue;
+		min_val = fmin(min_val, current_val);
+		min_x = roots[i];
+	}
+	//printf("dist: %f\n", min_val);
+
+	if(min_val < pj.r) {
+		printf("collision with sin wave %f\n", g.time);
 	}
 
 	// redraw the screen
@@ -265,36 +295,24 @@ void display() {
 			float current_val = f_dist(&fdd, roots[i]);
 			//float val_at_current = fdd.f(fdd.f_data, roots[i]);
 
-			if(current_val < 0) {
-				printf("current_val less than 0: %f\n", current_val);
-			}
-			if(!isfinite(current_val)) {
-				printf("current val not finite: %f\n", current_val);
-			}
-			if(!isfinite(roots[i])) {
-				printf("current root not finite: %f\n", roots[i]);
-			}
 			if(current_val < 0 || !isfinite(current_val) || !isfinite(roots[i])) continue;
 			min_val = fmin(min_val, current_val);
 			min_x = roots[i];
 		}
-		//printf("dist: %f\n", min_val);
-		printf("minx: %f\n", min_x);
 
 		//draw a small circle around the nearest point
 		circle nearest = {.r=0.1f, .c=(vector){.x=min_x, .y=fdd.f(fdd.f_data, min_x), .z=0}};
+#if DRAW_CLOSEST_SIN_DIST
 		draw_circle(&nearest, 10, (char)0);
-
-
-
-		//printf("p.pos.x: %4.2f   p.pos.y: %4.2f\n", p.pos.x, p.pos.y);
+#endif
 
 		draw_2d_function(fdd.f, fdd.f_data, 1, 1);
-		draw_2d_function(f_dist_derivative, &fdd, 1, 1);
-		glPushMatrix();
-		glTranslatef(0, -1, 0);
+#if DRAW_SIN_DIST_FUNC
 		draw_2d_function(f_dist, &fdd, 1, 1);
-		glPopMatrix();
+#endif
+#if DRAW_SIN_DIST_DERIVATIVE_FUNC
+		draw_2d_function(f_dist_derivative, &fdd, 1, 1);
+#endif
 		((sin_data*)fdd.f_data)->b = 1;
 
 
