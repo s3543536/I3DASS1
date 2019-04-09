@@ -46,9 +46,9 @@ void init_level() {
 	if(leveldata.water == NULL) {
 		perror("can't malloc leveldata.water\n");
 	} else {
-		leveldata.water->bounds.c = (vector){.x=0.55, .y=0.05, .z=0};
-		leveldata.water->bounds.w = 0.1;
-		leveldata.water->bounds.h = 0.1;
+		leveldata.water->bounds.c = (vector){.x=0.375, .y=0, .z=0};
+		leveldata.water->bounds.w = 0.37;
+		leveldata.water->bounds.h = 0.5;
 		//init_vector(&leveldata.water->bottom_left, 0.5, 0, 0);
 		//init_vector(&leveldata.water->top_right, 0.6, 0.1, 0);
 		leveldata.water->depth = 0.8f;
@@ -272,56 +272,9 @@ void display() {
 
 
 
-		sin_data waterdata = leveldata.water->shape;
-		circle player_circle = pj;
-		player_circle.c.x -= 0.375;
-		player_circle.c.x *= 1/0.37;
-		player_circle.c.y *= 1/0.5;
-		player_circle.r *= 1/0.37;
-		waterdata.a *= 1/(0.5/0.37);
-
-		float roots[] = {-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
-		size_t n_roots = sizeof(roots) / sizeof(*roots);
-		f_dist_data fdd = {.i=player_circle.c.x, .j=player_circle.c.y, .f=sin_x, .df=dsin_x, .f_data=&waterdata};
-
-
-		newtons(f_dist, f_dist_derivative, &fdd, 8, roots, n_roots);
-
-		float min_val = FLT_MAX;
-		float min_x = 0;
-		for(size_t i = 0; i < n_roots; i++) {
-			roots[i] = fmin(roots[i], 1);
-			roots[i] = fmax(roots[i], -1);
-			float current_val = f_dist(&fdd, roots[i]);
-			//float val_at_current = fdd.f(fdd.f_data, roots[i]);
-
-			if(current_val < 0 || !isfinite(current_val) || !isfinite(roots[i])) continue;
-			min_val = fmin(min_val, current_val);
-			min_x = roots[i];
-		}
-
-		//draw a small circle around the nearest point
-		circle nearest = {.r=0.1f, .c=(vector){.x=min_x, .y=fdd.f(fdd.f_data, min_x), .z=0}};
-
-
-
-		glPushMatrix();
-
-		glTranslatef(0.375, 0, 0);
-		glScalef(0.37, 0.5f, 0.5f);
-#if DRAW_CLOSEST_SIN_DIST
-		draw_circle(&nearest, 10, (char)0);
-#endif
-
-		draw_2d_function(fdd.f, fdd.f_data, 1, 1);
-#if DRAW_SIN_DIST_FUNC
-		draw_2d_function(f_dist, &fdd, 1, 1);
-#endif
-#if DRAW_SIN_DIST_DERIVATIVE_FUNC
-		draw_2d_function(f_dist_derivative, &fdd, 1, 1);
-#endif
-		glPopMatrix();
-
+		// draw water and distance to it
+		draw_water_distance(leveldata.water, &pj, wd_water );
+		//draw_water(leveldata.water);
 
 
 
