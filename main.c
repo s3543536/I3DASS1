@@ -1,7 +1,7 @@
 #include "main.h"
 
-#define DRAW_CLOSEST_SIN_DIST 0
-#define DRAW_SIN_DIST_FUNC 0
+#define DRAW_CLOSEST_SIN_DIST 1
+#define DRAW_SIN_DIST_FUNC 1
 #define DRAW_SIN_DIST_DERIVATIVE_FUNC 0
 
 float scalex = 0.37f;
@@ -198,9 +198,17 @@ void update(void) {
 	}
 
 
+	//glTranslatef(0.375, 0, 0);
+	//glScalef(0.37, 0.5f, 0.5f);
 	// collide with water
 	sin_data waterdata = leveldata.water->shape;
-	if(circle_func_is_intersect(&pj, sin_x, dsin_x, &waterdata)) {
+	circle player_circle = pj;
+	player_circle.c.x -= 0.375;
+	player_circle.c.x *= 1/0.37;
+	player_circle.c.y *= 1/0.5;
+	player_circle.r *= 1/0.37;
+	waterdata.a *= 1/(0.5/0.37);
+	if(circle_func_is_intersect(&player_circle, sin_x, dsin_x, &waterdata)) {
 		printf("%4.2f circle is intersecting with wave\n", g.time);
 	}
 
@@ -245,6 +253,7 @@ void display() {
 				draw_box(&leveldata.terrain->box_collision[i], (char)1);
 			}
 			glPopMatrix();
+			glColor3f(1,1,1);
 		}
 	}
 
@@ -263,9 +272,17 @@ void display() {
 
 
 
+		sin_data waterdata = leveldata.water->shape;
+		circle player_circle = pj;
+		player_circle.c.x -= 0.375;
+		player_circle.c.x *= 1/0.37;
+		player_circle.c.y *= 1/0.5;
+		player_circle.r *= 1/0.37;
+		waterdata.a *= 1/(0.5/0.37);
+
 		float roots[] = {-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
 		size_t n_roots = sizeof(roots) / sizeof(*roots);
-		f_dist_data fdd = {.i=p.pos.x, .j=p.pos.y, .f=sin_x, .df=dsin_x, .f_data=&leveldata.water->shape};
+		f_dist_data fdd = {.i=player_circle.c.x, .j=player_circle.c.y, .f=sin_x, .df=dsin_x, .f_data=&waterdata};
 
 
 		newtons(f_dist, f_dist_derivative, &fdd, 8, roots, n_roots);
@@ -273,6 +290,8 @@ void display() {
 		float min_val = FLT_MAX;
 		float min_x = 0;
 		for(size_t i = 0; i < n_roots; i++) {
+			roots[i] = fmin(roots[i], 1);
+			roots[i] = fmax(roots[i], -1);
 			float current_val = f_dist(&fdd, roots[i]);
 			//float val_at_current = fdd.f(fdd.f_data, roots[i]);
 
@@ -283,6 +302,13 @@ void display() {
 
 		//draw a small circle around the nearest point
 		circle nearest = {.r=0.1f, .c=(vector){.x=min_x, .y=fdd.f(fdd.f_data, min_x), .z=0}};
+
+
+
+		glPushMatrix();
+
+		glTranslatef(0.375, 0, 0);
+		glScalef(0.37, 0.5f, 0.5f);
 #if DRAW_CLOSEST_SIN_DIST
 		draw_circle(&nearest, 10, (char)0);
 #endif
@@ -294,28 +320,25 @@ void display() {
 #if DRAW_SIN_DIST_DERIVATIVE_FUNC
 		draw_2d_function(f_dist_derivative, &fdd, 1, 1);
 #endif
-
-
-
-
-
-
-		glPushMatrix();
-
-		glTranslatef(0.375, 0, 0);
-		glScalef(0.37, 0.5f, 0.5f);
-		draw_2d_function(sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
-
-		glColor3f(0, 0, 1);
-		draw_2d_function_normals(sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
-		drawAxes(1, 0);
-
 		glPopMatrix();
-	}
 
-	// use a stack for all transformations
-	/* glPushMatrix(); */
-	/* glPopMatrix(); */
+
+
+
+
+
+		//glPushMatrix();
+
+		//glTranslatef(0.375, 0, 0);
+		//glScalef(0.37, 0.5f, 0.5f);
+		//draw_2d_function(sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
+
+		//glColor3f(0, 0, 1);
+		//draw_2d_function_normals(sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
+		//drawAxes(1, 0);
+
+		//glPopMatrix();
+	}
 
 	glColor3f(1,1,1);
 	// draw road
@@ -329,6 +352,7 @@ void display() {
 		}
 		glEnd();
 	}
+	
 
 #if VSYNC
 	//vsync

@@ -45,6 +45,8 @@ char circle_func_is_intersect(circle *c, float (*f)(void *data, float x), float 
 	float min_val = FLT_MAX;
 	float min_x = 0;
 	for(size_t i = 0; i < n_roots; i++) {
+		roots[i] = fmax(roots[i], -1);
+		roots[i] = fmin(roots[i], 1);
 		float current_val = f_dist(&fdd, roots[i]);
 		//float val_at_current = fdd.f(fdd.f_data, roots[i]);
 
