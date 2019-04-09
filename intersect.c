@@ -34,13 +34,12 @@ char circle_box_is_intersect(circle *c, box *b) {
 char circle_func_is_intersect(circle *c, float (*f)(void *data, float x), float (*df)(void *data, float x), void *data) {
 	// setup the distance function 
 	f_dist_data fdd = {.i=c->c.x, .j=c->c.y, .f=f, .df=df, .f_data=data};
-	//((sin_data*)fdd.f_data)->b = 3.14159f;
 
 
 	// find the roots of the distance function (to get the minimum)
 	float roots[] = {-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
 	size_t n_roots = sizeof(roots) / sizeof(*roots);
-	// TODO: find a good n_itter for this    V
+	// TODO: find a good n_itter             V
 	newtons(f_dist, f_dist_derivative, &fdd, 8, roots, n_roots);
 
 	float min_val = FLT_MAX;
@@ -53,8 +52,8 @@ char circle_func_is_intersect(circle *c, float (*f)(void *data, float x), float 
 		min_val = fmin(min_val, current_val);
 		min_x = roots[i];
 	}
-	//printf("dist: %f\n", min_val);
 
 	//distance is less than c.r
 	return min_val < c->r;
 }
+
