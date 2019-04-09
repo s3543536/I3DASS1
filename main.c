@@ -157,7 +157,7 @@ float f_dist_derivative(void *data, float x) {
 }
 
 
-float derivative(float (*f)(void *data, float x), void *f_data, float x, float delta) {
+float generic_derivative(float (*f)(void *data, float x), void *f_data, float x, float delta) {
 	return f(f_data, x + delta) - f(f_data, x - delta) / (2 * delta);
 }
 
@@ -170,8 +170,8 @@ float newtons_inner(float (*f)(void *data, float x), float (*df)(void *data, flo
 		//printf("x: %f, delta: %f ", xnext, fabs(xprev - xprev2)*2);
 		float df_;
 		if(df == NULL) {
-			df_ = derivative(f, f_data, xprev, fabs(xprev - xprev2));
-			//float df_ = derivative(f, f_data, xprev, 0.5);
+			df_ = generic_derivative(f, f_data, xprev, fabs(xprev - xprev2));
+			//float df_ = generic_derivative(f, f_data, xprev, 0.5);
 		} else {
 			df_ = df(f_data, xprev);
 		}
