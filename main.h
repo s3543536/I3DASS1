@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <limits.h>
-#include <float.h>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -25,7 +24,7 @@ struct global_t {
 	float time;
 	float dt;
 	float start_time;
-	float draw_box_collision;
+	char draw_box_collision;
 	integrationMode i_mode;
 	char OSD;//on screen display
 };

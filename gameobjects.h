@@ -17,8 +17,7 @@ typedef struct {
 } e_log;
 
 typedef struct {
-	vector bottom_left;
-	vector top_right;
+	box bounds;
 	float depth;
 	sin_data shape;
 	size_t nlogs;

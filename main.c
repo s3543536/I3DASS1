@@ -46,12 +46,17 @@ void init_level() {
 	if(leveldata.water == NULL) {
 		perror("can't malloc leveldata.water\n");
 	} else {
-		init_vector(&leveldata.water->bottom_left, 0.5, 0, 0);
-		init_vector(&leveldata.water->top_right, 0.6, 0.1, 0);
+		leveldata.water->bounds.c = (vector){.x=0.55, .y=0.05, .z=0};
+		leveldata.water->bounds.w = 0.1;
+		leveldata.water->bounds.h = 0.1;
+		//init_vector(&leveldata.water->bottom_left, 0.5, 0, 0);
+		//init_vector(&leveldata.water->top_right, 0.6, 0.1, 0);
 		leveldata.water->depth = 0.8f;
 		leveldata.water->nlogs = nlogs;
 
-		leveldata.water->shape = (sin_data){.a=1, .b=1, .c=g.time, .d=0};
+		leveldata.water->shape = (sin_data){.a=0.2, .b=(10), .c=g.time, .d=0};
+
+		//((sin_data*)fdd.f_data)->b = 1;
 
 		leveldata.water->logs[0].radius = 0.3f;
 		leveldata.water->logs[1].radius = 0.42f;
@@ -138,7 +143,7 @@ void update(void) {
 		printf("init level\n");
 		init_level();
 
-		g.draw_box_collision = 0;
+		g.draw_box_collision = (char)0;
 
 
 		init_vector(&p.pos0, 0,0.5,0);
@@ -192,30 +197,11 @@ void update(void) {
 		}
 	}
 
-	// collide with sin wave
-	float roots[] = {-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
-	size_t n_roots = sizeof(roots) / sizeof(*roots);
-	f_dist_data fdd = {.i=p.pos.x, .j=p.pos.y, .f=sin_x, .df=dsin_x, .f_data=&leveldata.water->shape};
-	((sin_data*)fdd.f_data)->b = 3.14159f;
-
-
-	newtons(f_dist, f_dist_derivative, &fdd, 8, roots, n_roots);
 
 	// collide with water
-	float min_val = FLT_MAX;
-	float min_x = 0;
-	for(size_t i = 0; i < n_roots; i++) {
-		float current_val = f_dist(&fdd, roots[i]);
-		//float val_at_current = fdd.f(fdd.f_data, roots[i]);
-
-		if(current_val < 0 || !isfinite(current_val) || !isfinite(roots[i])) continue;
-		min_val = fmin(min_val, current_val);
-		min_x = roots[i];
-	}
-	//printf("dist: %f\n", min_val);
-
-	if(min_val < pj.r) {
-		printf("collision with sin wave %f\n", g.time);
+	sin_data waterdata = leveldata.water->shape;
+	if(circle_func_is_intersect(&pj, sin_x, dsin_x, &waterdata)) {
+		printf("%4.2f circle is intersecting with wave\n", g.time);
 	}
 
 	// redraw the screen
@@ -276,6 +262,7 @@ void display() {
 	draw_circle(&acircle, (unsigned int)g.time%10, (char)1);
 #endif
 
+	
 
 	if(!is_init) {
 
@@ -284,7 +271,6 @@ void display() {
 		float roots[] = {-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
 		size_t n_roots = sizeof(roots) / sizeof(*roots);
 		f_dist_data fdd = {.i=p.pos.x, .j=p.pos.y, .f=sin_x, .df=dsin_x, .f_data=&leveldata.water->shape};
-		((sin_data*)fdd.f_data)->b = 3.14159f;
 
 
 		newtons(f_dist, f_dist_derivative, &fdd, 8, roots, n_roots);
@@ -313,7 +299,6 @@ void display() {
 #if DRAW_SIN_DIST_DERIVATIVE_FUNC
 		draw_2d_function(f_dist_derivative, &fdd, 1, 1);
 #endif
-		((sin_data*)fdd.f_data)->b = 1;
 
 
 
