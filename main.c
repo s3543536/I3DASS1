@@ -237,17 +237,12 @@ void display() {
 
 		if(g.draw_box_collision) {
 			glPushMatrix();
-			for(int i = 0; i < leveldata.terrain->n_boxes; i++) {
-				vector c = leveldata.terrain->box_collision[i].c;
-				float w = leveldata.terrain->box_collision[i].w;
-				float h = leveldata.terrain->box_collision[i].h;
-
-				glBegin(GL_LINE_LOOP);
-				glVertex3f(c.x-w/2, c.y-h/2, c.z);
-				glVertex3f(c.x-w/2, c.y+h/2, c.z);
-				glVertex3f(c.x+w/2, c.y+h/2, c.z);
-				glVertex3f(c.x+w/2, c.y-h/2, c.z);
-				glEnd();
+			for(size_t i = 0; i < leveldata.terrain->n_boxes; i++) {
+				float red = (i % 3) / 3.0;
+				float green = ((i+1) % 3) / 3.0;
+				float blue = ((i+2) % 3) / 3.0;
+				glColor3f(red, green, blue);
+				draw_box(&leveldata.terrain->box_collision[i], (char)1);
 			}
 			glPopMatrix();
 		}
