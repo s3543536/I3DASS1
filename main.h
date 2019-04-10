@@ -7,6 +7,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 
+#include "global.h"
 #include "vector.h"
 #include "glvector.h"
 #include "shapes.h"
@@ -18,20 +19,8 @@
 #include "glgameobjects.h"
 #include "intersect.h"
 #include "intersect_gameobjects.h"
+#include "glintersect_gameobjects.h"
 
-
-typedef enum { analytical, numerical } integrationMode;
-
-struct global_t {
-	float time;
-	float dt;
-	float start_time;
-	char draw_box_collision;
-	integrationMode i_mode;
-	char OSD;//on screen display
-};
-
-struct global_t g;
 
 struct leveldata {
 	e_player player;

@@ -2,11 +2,11 @@
 #define PHYSICS
 
 #include "vector.h"
-
-const float gravity;
+#include "global.h"
 
 typedef struct {
 	char reset_start;
+	char is_dynamic;//is the projectile in the air?
 	float start_time;
 	vector pos0;
 	vector pos;

@@ -1,5 +1,4 @@
 #include "glvector.h"
-#include "vector.h"
 
 
 void drawVector(vector v, vector pos, float s, char normalize) {

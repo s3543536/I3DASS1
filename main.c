@@ -112,6 +112,16 @@ void init_level() {
 	}
 }
 
+trajectory global_trajectory = {
+	1,
+	&leveldata.player,
+	0,
+	0,
+	0,
+	0,
+	NULL
+};
+
 void update(void) {
 	static float lastT;
 
@@ -163,20 +173,31 @@ void update(void) {
 		//bounding box pos is the centre, car pos is the center on the bottom
 		car.c.y += car.h/2;
 		if(circle_box_is_intersect(&leveldata.player.bounds, &car)) {
-			printf("%4.2f circle is intersecting with car %d\n", g.time, i);
+			//printf("%4.2f circle is intersecting with car %d\n", g.time, i);
 		}
 	}
 
 	// collide with walls
 	for(int i = 0; i < leveldata.terrain->n_boxes; i++) {
 		if(circle_box_is_intersect(&leveldata.player.bounds, &leveldata.terrain->box_collision[i])) {
-			printf("%4.2f circle is intersecting with wall %d\n", g.time, i);
+			//printf("%4.2f circle is intersecting with wall %d\n", g.time, i);
 		}
 	}
 
-	if(player_water_is_intersect(&leveldata.player, leveldata.water)) {
-		printf("%4.2f plalyer is intersecting with water\n", g.time);
+	if(player_water_is_intersect(&leveldata.player, (e_gameobject*)leveldata.water)) {
+		//printf("%4.2f plalyer is intersecting with water\n", g.time);
 	}
+
+	// generic gameobject array for collision code
+	size_t total_game_objects = leveldata.n_cars + 2;//n_cars + terrain + water
+	e_gameobject *gameobjects[total_game_objects];
+	gameobjects[0] = (e_gameobject *)leveldata.water;
+	gameobjects[1] = (e_gameobject *)leveldata.terrain;
+	for(size_t i = 2; i < leveldata.n_cars; i++) {
+		gameobjects[i] = (e_gameobject *)&leveldata.cars[i];
+	}
+
+	update_trajectory(&global_trajectory, gameobjects, total_game_objects, fmin(0.1, g.dt));
 
 	// redraw the screen
 	glutPostRedisplay();
@@ -235,7 +256,8 @@ void display() {
 	
 
 	if(!is_init) {
-
+		//printf("drawing trajectory\n");
+		draw_trajectory(&global_trajectory);
 
 
 		// draw water and distance to it
@@ -294,6 +316,7 @@ void free_leveldata() {
 	//free cars
 	if(leveldata.is_cars_on_heap) {
 		free(leveldata.cars);
+		leveldata.n_cars = 0;
 	}
 
 	//free water

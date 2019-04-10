@@ -1,7 +1,5 @@
 #include "physics.h"
 
-const float gravity = -0.2f;
-
 void updateProjectileStateAnalytical(projectile *p, float time) {
 	// newtons constant acceleration equations
 	// x = x0 + v0*t + a * t^2 / 2
