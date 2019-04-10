@@ -16,6 +16,13 @@ typedef struct {
 	vector c;//centre
 } circle;
 
+typedef struct {
+	// r = (x/a)^2 + (y/b)^2
+	float r;
+	vector c;//centre
+	float a;
+	float b;
+} oval;
 
 #endif
 
