@@ -135,6 +135,7 @@ void update(void) {
 	g.dt = g.time - lastT;
 	lastT = g.time;
 
+	//update player
 	if(g.i_mode == analytical) {
 		if(leveldata.player.proj.reset_start) {
 			leveldata.player.proj.start_time = g.time;
@@ -174,7 +175,7 @@ void update(void) {
 	}
 
 	if(player_water_is_intersect(&leveldata.player, leveldata.water)) {
-		printf("%4.2f plalyer is intersecting with something %d\n", g.time);
+		printf("%4.2f plalyer is intersecting with water %d\n", g.time);
 	}
 
 	// redraw the screen
@@ -238,7 +239,7 @@ void display() {
 
 
 		// draw water and distance to it
-		draw_water_distance(leveldata.water, &leveldata.player.bounds, wd_water | wd_closest);
+		draw_water_distance(leveldata.water, &leveldata.player.bounds, wd_water);
 		//draw_water(leveldata.water);
 		draw_box(&leveldata.water->bounds, 0);
 
@@ -382,7 +383,7 @@ int main(int argc, char **argv) {
 #else
 	glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE | GLUT_DEPTH);
 #endif
-	glutCreateWindow("openGL hello world");
+	glutCreateWindow("frogger cross section");
 
 	g.start_time = glutGet(GLUT_ELAPSED_TIME) / (float)milli;
 	init();

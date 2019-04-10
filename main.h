@@ -9,14 +9,14 @@
 
 #include "vector.h"
 #include "glvector.h"
-#include "mathfunc.h"
-#include "glfunc.h"
 #include "shapes.h"
 #include "physics.h"
 #include "glshapes.h"
-#include "intersect.h"
+#include "mathfunc.h"
+#include "glfunc.h"
 #include "gameobjects.h"
 #include "glgameobjects.h"
+#include "intersect.h"
 #include "intersect_gameobjects.h"
 
 
