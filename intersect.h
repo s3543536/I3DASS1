@@ -35,3 +35,4 @@ char circle_func_is_intersect(circle *c, float (*f)(void *data, float x), float 
  *		@param void *data    data for function (see mathfunc.h)
  */
 char oval_func_is_intersect(oval *o, float (*f)(void *data, float x), float (*df)(void *data, float x), void *data);
+

@@ -193,22 +193,8 @@ void update(void) {
 
 	e_player p = {.bounds=pj};
 
-	sin_data waterdata = leveldata.water->shape;
-	oval player_oval = *(oval *)&pj;
-
-	//apply translation in reverse
-	player_oval.c.x -= leveldata.water->bounds.c.x;
-	player_oval.c.y -= leveldata.water->bounds.c.y;
-	player_oval.c.z -= leveldata.water->bounds.c.z;
-
-	//apply scale in reverse
-	player_oval.c.x *= 1/(0.5*leveldata.water->bounds.w);
-	player_oval.c.y *= 1/(0.5*leveldata.water->bounds.h);
-	player_oval.a = 1/(0.5*leveldata.water->bounds.w);
-	player_oval.b = 1/(0.5*leveldata.water->bounds.h);
-
-	if(oval_func_is_intersect(&player_oval, sin_x, dsin_x, &waterdata)) {
-		printf("%4.2f oval is intersecting with wave\n", g.time);
+	if(player_water_is_intersect(&p, leveldata.water)) {
+		printf("%4.2f plalyer is intersecting with something %d\n", g.time);
 	}
 
 	// redraw the screen

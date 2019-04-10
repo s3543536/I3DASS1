@@ -16,6 +16,7 @@
 #include "intersect.h"
 #include "gameobjects.h"
 #include "glgameobjects.h"
+#include "intersect_gameobjects.h"
 
 
 typedef enum { analytical, numerical } integrationMode;
