@@ -23,6 +23,7 @@ void draw_water_distance(e_water *water, circle *player, water_distance_opts opt
 	if(opts == wd_water) {
 		return draw_water(water);
 	}
+	//printf("water height: %f\n", water->bounds.h);
 
 	// create a local copy that we can modify
 	sin_data waterdata = water->shape;
@@ -34,10 +35,12 @@ void draw_water_distance(e_water *water, circle *player, water_distance_opts opt
 	player_circle.c.z -= water->bounds.c.z;
 
 	//apply scale
-	player_circle.c.x *= 1/water->bounds.w;
-	player_circle.c.y *= 1/water->bounds.h;
-	player_circle.r *= 1/water->bounds.w;
-	waterdata.a *= 1/(water->bounds.h/water->bounds.w);
+	player_circle.c.x *= 1/(0.5*water->bounds.w);
+	player_circle.c.y *= 1/(0.5*water->bounds.h);
+	player_circle.r *= 1/(0.5*water->bounds.w);
+	// can't apply both scales to the radius, so
+	// we compensate for height scale here
+	//waterdata.a *= 1/(water->bounds.h/water->bounds.w);
 
 	f_dist_data fdd = {.i=player_circle.c.x, .j=player_circle.c.y, .f=sin_x, .df=dsin_x, .f_data=&waterdata};
 
@@ -65,7 +68,7 @@ void draw_water_distance(e_water *water, circle *player, water_distance_opts opt
 	glPushMatrix();
 
 	glTranslatef(water->bounds.c.x, water->bounds.c.y, water->bounds.c.z);
-	glScalef(water->bounds.w, water->bounds.h, 1);
+	glScalef(0.5*water->bounds.w, 0.5*water->bounds.h, 1);
 
 	if((opts & wd_water) != 0) {
 		// draw water
@@ -95,11 +98,12 @@ void draw_water_distance(e_water *water, circle *player, water_distance_opts opt
 void draw_water(e_water *water) {
 
 	sin_data waterdata = water->shape;
-	waterdata.a *= 1/(water->bounds.h/water->bounds.w);
+	//waterdata.a *= 1/(water->bounds.h/water->bounds.w);
+	//waterdata.a *= water->bounds.w*0.5;
 
 	glPushMatrix();
 	glTranslatef(water->bounds.c.x, water->bounds.c.y, water->bounds.c.z);
-	glScalef(water->bounds.w, water->bounds.h, 1);
+	glScalef(0.5*water->bounds.w, 0.5*water->bounds.h, 1);
 
 	draw_2d_function(sin_x, &waterdata, 1, 1);
 

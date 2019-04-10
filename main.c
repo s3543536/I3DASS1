@@ -1,9 +1,5 @@
 #include "main.h"
 
-#define DRAW_CLOSEST_SIN_DIST 1
-#define DRAW_SIN_DIST_FUNC 1
-#define DRAW_SIN_DIST_DERIVATIVE_FUNC 0
-
 float scalex = 0.37f;
 float scaley = 0.37f;
 float posx = 0.375f;
@@ -47,16 +43,14 @@ void init_level() {
 		perror("can't malloc leveldata.water\n");
 	} else {
 		leveldata.water->bounds.c = (vector){.x=0.375, .y=0, .z=0};
-		leveldata.water->bounds.w = 0.37;
-		leveldata.water->bounds.h = 0.5;
+		leveldata.water->bounds.w = 0.75;
+		leveldata.water->bounds.h = 1.5;
 		//init_vector(&leveldata.water->bottom_left, 0.5, 0, 0);
 		//init_vector(&leveldata.water->top_right, 0.6, 0.1, 0);
 		leveldata.water->depth = 0.8f;
 		leveldata.water->nlogs = nlogs;
 
-		leveldata.water->shape = (sin_data){.a=0.2, .b=(10), .c=g.time, .d=0};
-
-		//((sin_data*)fdd.f_data)->b = 1;
+		leveldata.water->shape = (sin_data){.a=1, .b=5, .c=g.time, .d=0};
 
 		leveldata.water->logs[0].radius = 0.3f;
 		leveldata.water->logs[1].radius = 0.42f;
@@ -198,18 +192,22 @@ void update(void) {
 	}
 
 
-	//glTranslatef(0.375, 0, 0);
-	//glScalef(0.37, 0.5f, 0.5f);
-	// collide with water
 	sin_data waterdata = leveldata.water->shape;
-	circle player_circle = pj;
-	player_circle.c.x -= 0.375;
-	player_circle.c.x *= 1/0.37;
-	player_circle.c.y *= 1/0.5;
-	player_circle.r *= 1/0.37;
-	waterdata.a *= 1/(0.5/0.37);
-	if(circle_func_is_intersect(&player_circle, sin_x, dsin_x, &waterdata)) {
-		printf("%4.2f circle is intersecting with wave\n", g.time);
+	oval player_oval = *(oval *)&pj;
+
+	//apply translation in reverse
+	player_oval.c.x -= leveldata.water->bounds.c.x;
+	player_oval.c.y -= leveldata.water->bounds.c.y;
+	player_oval.c.z -= leveldata.water->bounds.c.z;
+
+	//apply scale in reverse
+	player_oval.c.x *= 1/(0.5*leveldata.water->bounds.w);
+	player_oval.c.y *= 1/(0.5*leveldata.water->bounds.h);
+	player_oval.a = 1/(0.5*leveldata.water->bounds.w);
+	player_oval.b = 1/(0.5*leveldata.water->bounds.h);
+
+	if(oval_func_is_intersect(&player_oval, sin_x, dsin_x, &waterdata)) {
+		printf("%4.2f oval is intersecting with wave\n", g.time);
 	}
 
 	// redraw the screen
@@ -273,8 +271,9 @@ void display() {
 
 
 		// draw water and distance to it
-		draw_water_distance(leveldata.water, &pj, wd_water );
+		draw_water_distance(leveldata.water, &pj, wd_water | wd_closest);
 		//draw_water(leveldata.water);
+		draw_box(&leveldata.water->bounds, 0);
 
 
 
