@@ -5,6 +5,9 @@
 #include "shapes.h"
 #include "mathfunc.h"
 
+typedef struct {
+	circle bounds;
+} e_player;
 
 typedef struct {
 	vector pos;

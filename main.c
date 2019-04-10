@@ -191,6 +191,7 @@ void update(void) {
 		}
 	}
 
+	e_player p = {.bounds=pj};
 
 	sin_data waterdata = leveldata.water->shape;
 	oval player_oval = *(oval *)&pj;
