@@ -9,6 +9,22 @@ const int milli = 1000;
 char is_init = (char)1;
 
 void init_level() {
+
+	leveldata.player = (e_player){
+		.is_active=1,
+		.bounds=(circle){
+			.r=0.05
+		},
+		.proj=(projectile){
+			.reset_start=1,
+			.start_time=0,
+			.pos0=(vector){.x=0,.y=0.5,.z=0},
+			.pos= (vector){.x=0,.y=0.5,.z=0},
+			.vel0=(vector){.x=0,.y=0  ,.z=0},
+			.vel= (vector){.x=0,.y=0  ,.z=0}
+		}
+	};
+
 	// malloc cars
 	unsigned int ncars = 4;
 	leveldata.cars = malloc(sizeof(*leveldata.cars) * ncars);
@@ -96,33 +112,6 @@ void init_level() {
 	}
 }
 
-const float gravity = -0.2f;
-
-void updateProjectileStateAnalytical(projectile *p) {
-	// newtons constant acceleration equations
-	// x = x0 + v0*t + a * t^2 / 2
-	float dt = g.time - p->start_time;
-
-	// update vertical position
-	p->pos.y = p->pos0.y + p->vel0.y * dt + (gravity * dt*dt / 2);
-	// update vertical velocity
-	p->vel.y = p->vel0.y + gravity * dt;
-
-	// update horizontal position
-	p->pos.x = p->pos0.x + p->vel0.x * dt;
-}
-
-void updateProjectileStateNumerical(projectile *p) {
-	// add the change over the frame time
-	p->pos.y += p->vel.y * g.dt;
-	p->pos.x += p->vel.x * g.dt;
-
-	p->vel.y += gravity * g.dt;
-}
-
-projectile p;
-char activep = (char)0;
-
 void update(void) {
 	static float lastT;
 
@@ -140,12 +129,6 @@ void update(void) {
 		g.draw_box_collision = (char)0;
 
 
-		init_vector(&p.pos0, 0,0.5,0);
-		init_vector(&p.pos, 0,0.5,0);
-		init_vector(&p.vel0, 0,0,0);
-		init_vector(&p.vel, 0,0,0);
-		p.start_time = g.time;
-
 		g.i_mode = numerical;
 	}
 
@@ -153,47 +136,44 @@ void update(void) {
 	lastT = g.time;
 
 	if(g.i_mode == analytical) {
-		if(p.reset_start) {
-			p.start_time = g.time;
-			p.pos0 = p.pos;
-			p.vel0 = p.vel;
-			p.reset_start = 0;
+		if(leveldata.player.proj.reset_start) {
+			leveldata.player.proj.start_time = g.time;
+			leveldata.player.proj.pos0 = leveldata.player.proj.pos;
+			leveldata.player.proj.vel0 = leveldata.player.proj.vel;
+			leveldata.player.proj.reset_start = 0;
 		}
-		updateProjectileStateAnalytical(&p);
+		updateProjectileStateAnalytical(&leveldata.player.proj, g.time);
 	} else if(g.i_mode == numerical) {
-		updateProjectileStateNumerical(&p);
+		updateProjectileStateNumerical(&leveldata.player.proj, g.dt);
 	} else {
 		perror("invalid integration mode");
-		updateProjectileStateNumerical(&p);
+		updateProjectileStateNumerical(&leveldata.player.proj, g.dt);
 	}
+	leveldata.player.bounds.c = leveldata.player.proj.pos;
+
 
 	// update water
 	leveldata.water->shape.c = g.time;
 
-
-	//player collision circle
-	circle pj = {.r=0.05, .c={.x=p.pos.x, .y=p.pos.y, .z=p.pos.z}};
 
 	// collide with cars
 	for(int i = 0; i < leveldata.n_cars; i++) {
 		box car = {.c=leveldata.cars[i].pos,.h=leveldata.cars[i].height, .w=leveldata.cars[i].width};
 		//bounding box pos is the centre, car pos is the center on the bottom
 		car.c.y += car.h/2;
-		if(circle_box_is_intersect(&pj, &car)) {
+		if(circle_box_is_intersect(&leveldata.player.bounds, &car)) {
 			printf("%4.2f circle is intersecting with car %d\n", g.time, i);
 		}
 	}
 
 	// collide with walls
 	for(int i = 0; i < leveldata.terrain->n_boxes; i++) {
-		if(circle_box_is_intersect(&pj, &leveldata.terrain->box_collision[i])) {
+		if(circle_box_is_intersect(&leveldata.player.bounds, &leveldata.terrain->box_collision[i])) {
 			printf("%4.2f circle is intersecting with wall %d\n", g.time, i);
 		}
 	}
 
-	e_player p = {.bounds=pj};
-
-	if(player_water_is_intersect(&p, leveldata.water)) {
+	if(player_water_is_intersect(&leveldata.player, leveldata.water)) {
 		printf("%4.2f plalyer is intersecting with something %d\n", g.time);
 	}
 
@@ -214,14 +194,14 @@ void display() {
 	glColor3f(1, 1, 0);
 
 	glBegin(GL_POINTS);
-	glVertex3f(p.pos.x, p.pos.y, p.pos.z);
+	glVertex3f(leveldata.player.proj.pos.x, leveldata.player.proj.pos.y, leveldata.player.proj.pos.z);
 	glEnd();
 
 	glColor3f(1, 1, 1);
 
 	// draw circle around player
-	circle pj = {.r=0.05, .c={.x=p.pos.x, .y=p.pos.y, .z=p.pos.z}};
-	draw_circle(&pj, 10, (char)0);
+	circle pj = {.r=0.05, .c={.x=leveldata.player.proj.pos.x, .y=leveldata.player.proj.pos.y, .z=leveldata.player.proj.pos.z}};
+	draw_circle(&leveldata.player.bounds, 10, (char)0);
 
 	if(!is_init) {
 		for(int i = 0; i < leveldata.n_cars; i++) {
@@ -258,7 +238,7 @@ void display() {
 
 
 		// draw water and distance to it
-		draw_water_distance(leveldata.water, &pj, wd_water | wd_closest);
+		draw_water_distance(leveldata.water, &leveldata.player.bounds, wd_water | wd_closest);
 		//draw_water(leveldata.water);
 		draw_box(&leveldata.water->bounds, 0);
 
@@ -369,20 +349,20 @@ void keyboard(unsigned char key, int x, int y) {
 				perror("invalid integration mode");
 			}
 		case 'w':
-			p.vel.y = 0.2;
-			p.reset_start = (char)1;
+			leveldata.player.proj.vel.y = 0.2;
+			leveldata.player.proj.reset_start = (char)1;
 			break;
 		case 'a':
-			p.vel.x -= 0.05;
-			p.reset_start = (char)1;
+			leveldata.player.proj.vel.x -= 0.05;
+			leveldata.player.proj.reset_start = (char)1;
 			break;
 		case 'd':
-			p.vel.x += 0.05;
-			p.reset_start = (char)1;
+			leveldata.player.proj.vel.x += 0.05;
+			leveldata.player.proj.reset_start = (char)1;
 			break;
 		case 's':
-			activep = (char)1;
-			p.reset_start = (char)1;
+			leveldata.player.is_active = (char)1;
+			leveldata.player.proj.reset_start = (char)1;
 			break;
 		default://every other key
 			break;

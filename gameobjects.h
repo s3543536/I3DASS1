@@ -4,8 +4,11 @@
 #include "vector.h"
 #include "shapes.h"
 #include "mathfunc.h"
+#include "physics.h"
 
 typedef struct {
+	char is_active;
+	projectile proj;
 	circle bounds;
 } e_player;
 

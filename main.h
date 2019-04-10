@@ -12,6 +12,7 @@
 #include "mathfunc.h"
 #include "glfunc.h"
 #include "shapes.h"
+#include "physics.h"
 #include "glshapes.h"
 #include "intersect.h"
 #include "gameobjects.h"
@@ -32,16 +33,8 @@ struct global_t {
 
 struct global_t g;
 
-typedef struct {
-	char reset_start;
-	float start_time;
-	vector pos0;
-	vector pos;
-	vector vel0;
-	vector vel;
-} projectile;
-
 struct leveldata {
+	e_player player;
 	char is_cars_on_heap;
 	size_t n_cars;
 	e_car *cars;
