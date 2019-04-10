@@ -14,6 +14,8 @@ char circle_is_intersect(circle *c1, circle *c2);
 
 char circle_box_is_intersect(circle *c, box *b);
 
+char vector_box_is_intersect(vector *v, box *b);
+
 /** circle intersecting with a function (from mathfunc.h)
  *		within a domain of x E(-1, 1]
  *		requires function and derivative of that function

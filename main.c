@@ -175,7 +175,7 @@ void update(void) {
 	}
 
 	if(player_water_is_intersect(&leveldata.player, leveldata.water)) {
-		printf("%4.2f plalyer is intersecting with water %d\n", g.time);
+		printf("%4.2f plalyer is intersecting with water\n", g.time);
 	}
 
 	// redraw the screen

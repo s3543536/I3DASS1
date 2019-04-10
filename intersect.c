@@ -15,7 +15,19 @@ char circle_is_intersect(circle *c1, circle *c2) {
 	return c1->r + c2->r > distance_vector(&c1->c, &c2->c);
 }
 
+char vector_box_is_intersect(vector *v, box *b) {
+	if(v->x < b->c.x - b->w/2) {
+		return 0;//point is left of box
+	} else if(v->x > b->c.x + b->w/2) {
+		return 0;//point is right of box
+	} else if(v->y < b->c.y - b->h/2) {
+		return 0;//point is below box
+	} else if(v->y > b->c.y + b->h/2) {
+		return 0;//point is above box
+	}
 
+	return 1;
+}
 
 char circle_box_is_intersect(circle *c, box *b) {
 	vector nearest_point;
