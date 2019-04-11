@@ -24,3 +24,17 @@ float distance_vector(vector *v1, vector *v2) {
 	float dz = v1->z - v2->z;
 	return sqrt(dx*dx + dy*dy + dz*dz);
 }
+
+
+void vector_normalize(vector *v) {
+	float len = LENGTHVEC(*v);
+	v->x /= len;
+	v->y /= len;
+	v->z /= len;
+}
+
+void vector_scale(vector *v, float scale) {
+	v->x *= scale;
+	v->y *= scale;
+	v->z *= scale;
+}

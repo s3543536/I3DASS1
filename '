@@ -143,7 +143,6 @@ void update(void) {
 		is_init = (char)0;
 		
 		lastT = g.time;
-		g.noclip = 1;
 
 		printf("init level\n");
 		init_level();
@@ -178,7 +177,6 @@ void update(void) {
 	} else {
 		// wait for player to jump again
 	}
-
 	if(leveldata.player.t->is_dynamic || leveldata.player.is_active) {
 		// generic gameobject array for collision code
 
@@ -361,49 +359,21 @@ void keyboard(unsigned char key, int x, int y) {
 			} else {
 				perror("invalid integration mode");
 			}
-			break;
 		case 'w':
-			if(g.noclip) {
-				leveldata.player.proj.vel.y = 0.2;
-				leveldata.player.proj.reset_start = (char)1;
-
-			} else if(!leveldata.player.is_active) {
-				vector *pv0 = &leveldata.player.proj.vel0;
-				float pv0len = LENGTHVEC(*pv0);
-				vector_normalize(pv0);
-				vector_scale(pv0, pv0len + 0.1f);
-			}
+			leveldata.player.proj.vel.y = 0.2;
+			leveldata.player.proj.reset_start = (char)1;
 			break;
 		case 'a':
-			if(g.noclip) {
-				leveldata.player.proj.vel.x -= 0.05;
-				leveldata.player.proj.reset_start = (char)1;
-
-			} else if(!leveldata.player.is_active) {
-				vector *pv0 = &leveldata.player.proj.vel0;
-				pv0->x += 0.1f;
-			}
+			leveldata.player.proj.vel.x -= 0.05;
+			leveldata.player.proj.reset_start = (char)1;
 			break;
 		case 'd':
-			if(g.noclip) {
-				leveldata.player.proj.vel.x += 0.05;
-				leveldata.player.proj.reset_start = (char)1;
-
-			} else if(!leveldata.player.is_active) {
-				vector *pv0 = &leveldata.player.proj.vel0;
-				pv0->x += 0.1f;
-			}
+			leveldata.player.proj.vel.x += 0.05;
+			leveldata.player.proj.reset_start = (char)1;
 			break;
 		case 's':
-			if(g.noclip) {
-				leveldata.player.proj.reset_start = (char)1;
-
-			} else if(!leveldata.player.is_active) {
-				vector *pv0 = &leveldata.player.proj.vel0;
-				float pv0len = LENGTHVEC(*pv0);
-				vector_normalize(pv0);
-				vector_scale(pv0, pv0len - 0.1f);
-			}
+			leveldata.player.is_active = (char)1;
+			leveldata.player.proj.reset_start = (char)1;
 			break;
 		default://every other key
 			break;

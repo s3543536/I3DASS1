@@ -7,6 +7,7 @@ struct global_t {
 	float time;
 	float dt;
 	float start_time;
+	char noclip;
 	char draw_box_collision;
 	integrationMode i_mode;
 	char OSD;//on screen display

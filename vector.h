@@ -30,4 +30,8 @@ void init_vector(vector *vec, float x, float y, float z);
 
 float distance_vector(vector *v1, vector *v2);
 
+void vector_normalize(vector *v);
+
+void vector_scale(vector *v, float scale);
+
 #endif
