@@ -1,6 +1,5 @@
 #include "vector.h"
 
-
 void init_vector(vector *vec, float x, float y, float z) {
 	vec->x = x;
 	vec->y = y;

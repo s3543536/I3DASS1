@@ -16,6 +16,8 @@ typedef struct {
 	vector c;//centre
 } circle;
 
+// this needs to be a superset of circle
+// TODO: just make it contain a circle
 typedef struct {
 	// r = (x/a)^2 + (y/b)^2
 	float r;

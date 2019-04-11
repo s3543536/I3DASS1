@@ -10,20 +10,7 @@ char is_init = (char)1;
 
 void init_level() {
 
-	leveldata.player = (e_player){
-		.is_active=1,
-		.bounds=(circle){
-			.r=0.05
-		},
-		.proj=(projectile){
-			.reset_start=1,
-			.start_time=0,
-			.pos0=(vector){.x=0,.y=0.5,.z=0},
-			.pos= (vector){.x=0,.y=0.5,.z=0},
-			.vel0=(vector){.x=0,.y=0  ,.z=0},
-			.vel= (vector){.x=0,.y=0  ,.z=0}
-		}
-	};
+	leveldata.player = E_PLAYER_PROTOTYPE;
 
 	// malloc cars
 	unsigned int ncars = 4;
@@ -33,6 +20,11 @@ void init_level() {
 		perror("can't malloc leveldata.cars\n");
 		leveldata.n_cars = 0;
 	} else {
+		leveldata.cars[0] = E_CAR_PROTOTYPE;
+		leveldata.cars[1] = E_CAR_PROTOTYPE;
+		leveldata.cars[2] = E_CAR_PROTOTYPE;
+		leveldata.cars[3] = E_CAR_PROTOTYPE;
+
 		init_vector(&leveldata.cars[0].pos, -0.7, 0.03, 0);
 		init_vector(&leveldata.cars[1].pos, -0.58, 0.03, 0);
 		init_vector(&leveldata.cars[2].pos, -0.44, 0.03, 0);
@@ -58,6 +50,8 @@ void init_level() {
 	if(leveldata.water == NULL) {
 		perror("can't malloc leveldata.water\n");
 	} else {
+		*leveldata.water = E_WATER_PROTOTYPE;
+
 		leveldata.water->bounds.c = (vector){.x=0.375, .y=0, .z=0};
 		leveldata.water->bounds.w = 0.75;
 		leveldata.water->bounds.h = 1.5;
@@ -68,10 +62,10 @@ void init_level() {
 
 		leveldata.water->shape = (sin_data){.a=1, .b=5, .c=g.time, .d=0};
 
-		leveldata.water->logs[0].radius = 0.3f;
-		leveldata.water->logs[1].radius = 0.42f;
-		leveldata.water->logs[2].radius = 0.25f;
-		leveldata.water->logs[3].radius = 0.5f;
+		leveldata.water->logs[0].shape = (circle){.r=0.3f,.c=ZERO_VECTOR};
+		leveldata.water->logs[1].shape = (circle){.r=0.42f,.c=ZERO_VECTOR};
+		leveldata.water->logs[2].shape = (circle){.r=0.25f,.c=ZERO_VECTOR};
+		leveldata.water->logs[3].shape = (circle){.r=0.5f,.c=ZERO_VECTOR};
 	}
 
 	// malloc terrain
@@ -81,6 +75,8 @@ void init_level() {
 	if(leveldata.terrain == NULL) {
 		perror("can't malloc leveldata.terrain\n");
 	} else {
+		*leveldata.terrain = E_WALL_PROTOTYPE;
+
 		leveldata.terrain->n_vertices = nterrain_points;
 		init_vector(&leveldata.terrain->vertices[0], -1, 0, 0);
 		init_vector(&leveldata.terrain->vertices[1], -0.75, 0, 0);
@@ -113,13 +109,13 @@ void init_level() {
 }
 
 trajectory global_trajectory = {
-	1,
-	&leveldata.player,
-	0,
-	0,
-	0,
-	0,
-	NULL
+	.is_dynamic = 1,
+	.player = &leveldata.player,
+	.flight_time = 0,
+	.is_points_on_heap = 0,
+	.n_points = 0,
+	.max_points = 0,
+	.points = NULL,
 };
 
 void update(void) {

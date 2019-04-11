@@ -8,6 +8,9 @@ typedef struct vector {
 	float x, y, z;
 } vector;
 
+#define ZERO_VECTOR (vector){0,0,0}
+#define UNIT_VECTOR (vector){1,1,1}
+
 #define LENGTHVEC(V) sqrt((V).x * (V).x + (V).y * (V).y + (V).z * (V).z)
 
 

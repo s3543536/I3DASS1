@@ -27,6 +27,7 @@ char alloc_trajectory(trajectory *t) {
 			return 0;
 		}
 		// just malloced, no points
+		t->is_points_on_heap = 1;
 		t->n_points = 0;
 		t->max_points = 10;
 		return 1;
@@ -42,6 +43,7 @@ char realloc_trajectory(trajectory *t, size_t points) {
 			perror("can't malloc trajectory points\n");
 			return 0;
 		}
+		t->is_points_on_heap = 1;
 		t->n_points = 0;
 		t->max_points = points;
 		return 1;
@@ -101,8 +103,10 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 	}
 
 	if(!alloc_trajectory(t)) {
+		printf("no alloc\n");
 		return;
 	}
+	printf("alloced\n");
 
 	// copy so we can move it in time and place
 	e_player player = *t->player;
@@ -111,7 +115,7 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 
 	size_t current_point = 0;
 	char has_intersected = 0;
-	while(!has_intersected && total_time < max_time) {// 1 loop per line segment
+	while(!has_intersected && total_time < max_time) {// 1 loop per point
 		total_time += time_step;
 
 		// update the position
@@ -125,6 +129,10 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 		for(size_t i = 0; i < n_objects; i++) {
 			// get the intersection function for this gameobject type
 			char (*intersect_func)(e_player *p, e_gameobject *obj) = gameobj_intersect_func[objects[i]->type];
+			if(intersect_func == NULL) {
+				// can't intersect with this
+				continue;
+			}
 			if(intersect_func(&player, objects[i])) {
 				// intersected with this object
 				has_intersected = 1;
@@ -141,7 +149,7 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 				}
 
 				t->points[current_point] = player.proj;
-				t->n_points = current_point++;
+				t->n_points = ++current_point;
 			}
 		}
 	}
