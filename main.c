@@ -12,6 +12,31 @@ void init_level() {
 
 	leveldata.player = E_PLAYER_PROTOTYPE;
 
+	vector half_up = {.x=0,.y=0.5,.z=0};
+	leveldata.player.proj.reset_start = 1;
+	leveldata.player.proj.is_dynamic = 1;
+	leveldata.player.proj.pos0 = half_up;
+	leveldata.player.proj.pos  = half_up;
+	leveldata.player.proj.vel0 = ZERO_VECTOR;
+	leveldata.player.proj.vel  = ZERO_VECTOR;
+
+	leveldata.player.t = malloc(sizeof(*leveldata.player.t));
+	if(leveldata.player.t != NULL) {
+		leveldata.player.is_t_on_heap = 1;
+
+		*leveldata.player.t = (trajectory){
+			.is_dynamic = 1,
+			.player = &leveldata.player,
+			.flight_time = 0,
+			.is_points_on_heap = 0,
+			.n_points = 0,
+			.max_points = 0,
+			.points = NULL,
+		};
+	}
+
+
+
 	// malloc cars
 	unsigned int ncars = 4;
 	leveldata.cars = malloc(sizeof(*leveldata.cars) * ncars);
@@ -108,16 +133,6 @@ void init_level() {
 	}
 }
 
-trajectory global_trajectory = {
-	.is_dynamic = 1,
-	.player = &leveldata.player,
-	.flight_time = 0,
-	.is_points_on_heap = 0,
-	.n_points = 0,
-	.max_points = 0,
-	.points = NULL,
-};
-
 void update(void) {
 	static float lastT;
 
@@ -142,21 +157,25 @@ void update(void) {
 	lastT = g.time;
 
 	//update player
-	if(g.i_mode == analytical) {
-		if(leveldata.player.proj.reset_start) {
-			leveldata.player.proj.start_time = g.time;
-			leveldata.player.proj.pos0 = leveldata.player.proj.pos;
-			leveldata.player.proj.vel0 = leveldata.player.proj.vel;
-			leveldata.player.proj.reset_start = 0;
+	if(leveldata.player.is_active) {
+		if(g.i_mode == analytical) {
+			if(leveldata.player.proj.reset_start) {
+				leveldata.player.proj.start_time = g.time;
+				leveldata.player.proj.pos0 = leveldata.player.proj.pos;
+				leveldata.player.proj.vel0 = leveldata.player.proj.vel;
+				leveldata.player.proj.reset_start = 0;
+			}
+			updateProjectileStateAnalytical(&leveldata.player.proj, g.time);
+		} else if(g.i_mode == numerical) {
+			updateProjectileStateNumerical(&leveldata.player.proj, g.dt);
+		} else {
+			perror("invalid integration mode");
+			updateProjectileStateNumerical(&leveldata.player.proj, g.dt);
 		}
-		updateProjectileStateAnalytical(&leveldata.player.proj, g.time);
-	} else if(g.i_mode == numerical) {
-		updateProjectileStateNumerical(&leveldata.player.proj, g.dt);
+		leveldata.player.bounds.c = leveldata.player.proj.pos;
 	} else {
-		perror("invalid integration mode");
-		updateProjectileStateNumerical(&leveldata.player.proj, g.dt);
+		//if(leveldata.player.t->
 	}
-	leveldata.player.bounds.c = leveldata.player.proj.pos;
 
 
 	// update water
@@ -174,7 +193,7 @@ void update(void) {
 		gameobjects[i+2] = (e_gameobject *)&leveldata.cars[i];
 	}
 
-	update_trajectory(&global_trajectory, gameobjects, total_game_objects, fmax(0.1, g.dt));
+	update_trajectory(leveldata.player.t, gameobjects, total_game_objects, fmax(0.1, g.dt));
 
 	// redraw the screen
 	glutPostRedisplay();
@@ -234,7 +253,7 @@ void display() {
 
 	if(!is_init) {
 		//printf("drawing trajectory\n");
-		draw_trajectory(&global_trajectory);
+		draw_trajectory(leveldata.player.t);
 
 
 		// draw water and distance to it
@@ -290,6 +309,11 @@ void display() {
 }
 
 void free_leveldata() {
+	if(leveldata.player.is_t_on_heap) {
+		free_trajectory(leveldata.player.t);
+		free(leveldata.player.t);
+	}
+
 	//free cars
 	if(leveldata.is_cars_on_heap) {
 		free(leveldata.cars);

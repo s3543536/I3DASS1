@@ -16,6 +16,13 @@ const char is_gameobj_dynamic[5] = {
 	0
 };
 
+void free_trajectory(trajectory *t) {
+	if(t->is_points_on_heap) {
+		free(t->points);
+		t->is_points_on_heap = 0;
+	}
+}
+
 char alloc_trajectory(trajectory *t) {
 	if(!t->is_points_on_heap) {
 		t->points = malloc(sizeof(*t->points) * 10);
@@ -121,7 +128,9 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 
 	float total_time = 0;
 
-	size_t current_point = 0;
+	t->n_points = 1;
+	t->points[t->n_points] = player.proj;
+
 	char has_intersected = 0;
 	while(!has_intersected && total_time < max_time) {// 1 loop per point
 		total_time += time_step;
@@ -159,8 +168,7 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 			}
 		}
 
-		t->points[current_point] = player.proj;
-		t->n_points = ++current_point;
+		t->points[t->n_points++] = player.proj;
 	}
 
 	//printf("total trajectory time: %5.2f has_intersected: %d n_points: %d\n", total_time, has_intersected, t->n_points);

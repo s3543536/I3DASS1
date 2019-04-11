@@ -17,32 +17,27 @@ typedef enum {
 } gameobject_type;
 
 typedef struct {
-	char is_dynamic;
 	gameobject_type type;
 } e_gameobject;
 
+// forward declare a trajectory
+// so player and trajectory can point to each-other
+typedef struct trajectory trajectory;
 
 //every game object can be cast to a e_gameobject
 typedef struct {
-	char is_dynamic;
 	gameobject_type type;
 	char is_active;
 	projectile proj;
+	char is_t_on_heap;
+	trajectory *t;
 	circle bounds;
 } e_player;
 #define E_PLAYER_PROTOTYPE (e_player){ \
-	.is_dynamic = 0, \
 	.type = t_eplayer, \
 	.is_active = 1, \
-	.proj=(projectile){ \
-		.reset_start = 1, \
-		.is_dynamic = 1, \
-		.start_time = 0, \
-		.pos0= {.x=0,.y=0.5,.z=0}, \
-		.pos=  {.x=0,.y=0.5,.z=0}, \
-		.vel0=(vector){.x=0,.y=0  ,.z=0}, \
-		.vel= (vector){.x=0,.y=0  ,.z=0}, \
-	}, \
+	.proj=PROJECTILE_PROTOTYPE, \
+	.is_t_on_heap = 0, \
 	.bounds=(circle){ \
 		.r = 0.05, \
 		.c = {.x=0,.y=0.5,.z=0}, \
@@ -50,14 +45,12 @@ typedef struct {
 }; \
 
 typedef struct {
-	char is_dynamic;
 	gameobject_type type;
 	vector pos;
 	float height;
 	float width;
 } e_car;
 #define E_CAR_PROTOTYPE (e_car){ \
-	.is_dynamic = 0, \
 	.type = t_ecar, \
 	.pos = ZERO_VECTOR, \
 	.height = 0, \
@@ -65,18 +58,15 @@ typedef struct {
 }; \
 
 typedef struct {
-	char is_dynamic;
 	gameobject_type type;
 	circle shape;
 } e_log;
 #define E_LOG_PROTOTYPE (e_log){ \
-	.is_dynamic = 1, \
 	.type = t_elog, \
 	.shape = (circle){.r=0.5,.c=ZERO_VECTOR}, \
 }; \
 
 typedef struct {
-	char is_dynamic;
 	gameobject_type type;
 	box bounds;
 	float depth;
@@ -85,7 +75,6 @@ typedef struct {
 	e_log logs[0];
 } e_water;
 #define E_WATER_PROTOTYPE (e_water){ \
-	.is_dynamic = 1, \
 	.type = t_ewater, \
 	.bounds = (box){ \
 		.c = ZERO_VECTOR, \
@@ -98,7 +87,6 @@ typedef struct {
 } \
 
 typedef struct {
-	char is_dynamic;
 	gameobject_type type;
 	char is_collision;
 	size_t n_boxes;
@@ -108,7 +96,6 @@ typedef struct {
 	vector vertices[0];
 } e_wall;
 #define E_WALL_PROTOTYPE (e_wall){ \
-	.is_dynamic = 0, \
 	.type = t_ewall, \
 	.is_collision = 1, \
 	.n_boxes = 0, \

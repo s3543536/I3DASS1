@@ -29,7 +29,7 @@ char player_wall_is_intersect(e_player *p, e_gameobject *obj);
 char player_car_is_intersect(e_player *p, e_gameobject *obj);
 char player_log_is_intersect(e_player *p, e_gameobject *obj);
 
-typedef struct {
+struct trajectory {
 	char is_dynamic;// has the end point landed on something dynamic?
 	e_player *player;
 	float flight_time;
@@ -37,9 +37,11 @@ typedef struct {
 	size_t n_points;
 	size_t max_points;
 	projectile *points;
-} trajectory;
+};
 
+// mallocs
 void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, float time_step);
+void free_trajectory(trajectory *t);
 
 
 

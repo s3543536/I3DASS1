@@ -14,7 +14,7 @@ intersect_gameobjects.h:39:2: error: unknown type name ‘projectile’
 In file included from main.h:14,
                  from main.c:1:
 main.c: In function ‘init_level’:
-physics.h:17:30: error: incompatible types when initializing type ‘int’ using type ‘projectile’ {aka ‘struct <anonymous>’}
+physics.h:19:30: error: incompatible types when initializing type ‘int’ using type ‘projectile’ {aka ‘struct <anonymous>’}
  #define PROJECTILE_PROTOTYPE (projectile){ \
                               ^
 gameobjects.h:34:8: note: in expansion of macro ‘PROJECTILE_PROTOTYPE’
@@ -68,7 +68,7 @@ main.c:161:36: warning: passing argument 1 of ‘updateProjectileStateAnalytical
                                     ^~~~~~~~~~~~~~~~~~~~~~
 In file included from main.h:14,
                  from main.c:1:
-physics.h:34:50: note: expected ‘projectile *’ {aka ‘struct <anonymous> *’} but argument is of type ‘int *’
+physics.h:37:50: note: expected ‘projectile *’ {aka ‘struct <anonymous> *’} but argument is of type ‘int *’
  void updateProjectileStateAnalytical(projectile *p, float time);
                                       ~~~~~~~~~~~~^
 main.c:163:35: warning: passing argument 1 of ‘updateProjectileStateNumerical’ from incompatible pointer type [-Wincompatible-pointer-types]
@@ -76,7 +76,7 @@ main.c:163:35: warning: passing argument 1 of ‘updateProjectileStateNumerical�
                                    ^~~~~~~~~~~~~~~~~~~~~~
 In file included from main.h:14,
                  from main.c:1:
-physics.h:43:49: note: expected ‘projectile *’ {aka ‘struct <anonymous> *’} but argument is of type ‘int *’
+physics.h:46:49: note: expected ‘projectile *’ {aka ‘struct <anonymous> *’} but argument is of type ‘int *’
  void updateProjectileStateNumerical(projectile *p, float dt);
                                      ~~~~~~~~~~~~^
 main.c:166:35: warning: passing argument 1 of ‘updateProjectileStateNumerical’ from incompatible pointer type [-Wincompatible-pointer-types]
@@ -84,7 +84,7 @@ main.c:166:35: warning: passing argument 1 of ‘updateProjectileStateNumerical�
                                    ^~~~~~~~~~~~~~~~~~~~~~
 In file included from main.h:14,
                  from main.c:1:
-physics.h:43:49: note: expected ‘projectile *’ {aka ‘struct <anonymous> *’} but argument is of type ‘int *’
+physics.h:46:49: note: expected ‘projectile *’ {aka ‘struct <anonymous> *’} but argument is of type ‘int *’
  void updateProjectileStateNumerical(projectile *p, float dt);
                                      ~~~~~~~~~~~~^
 main.c:168:52: error: request for member ‘pos’ in something not a structure or union

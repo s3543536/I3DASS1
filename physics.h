@@ -13,6 +13,15 @@ typedef struct {
 	vector vel0;
 	vector vel;
 } projectile;
+#define PROJECTILE_PROTOTYPE (projectile){ \
+	.reset_start = 0, \
+	.is_dynamic = 0, \
+	.start_time = 0, \
+	.pos0 = ZERO_VECTOR, \
+	.pos = ZERO_VECTOR, \
+	.vel0 = UNIT_VECTOR, \
+	.vel = UNIT_VECTOR, \
+} \
 
 /** update projectile position
  *		analytical approach, uses newtons constant acceleration equation (for position)
