@@ -189,11 +189,11 @@ void update(void) {
 	e_gameobject *gameobjects[total_game_objects];
 	gameobjects[0] = (e_gameobject *)leveldata.water;
 	gameobjects[1] = (e_gameobject *)leveldata.terrain;
-	for(size_t i = 2; i < leveldata.n_cars; i++) {
-		gameobjects[i] = (e_gameobject *)&leveldata.cars[i];
+	for(size_t i = 0; i < leveldata.n_cars; i++) {
+		gameobjects[i+2] = (e_gameobject *)&leveldata.cars[i];
 	}
 
-	update_trajectory(&global_trajectory, gameobjects, total_game_objects, fmin(0.1, g.dt));
+	update_trajectory(&global_trajectory, gameobjects, total_game_objects, fmax(0.1, g.dt));
 
 	// redraw the screen
 	glutPostRedisplay();

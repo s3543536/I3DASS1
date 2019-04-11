@@ -53,7 +53,14 @@ char realloc_trajectory(trajectory *t, size_t points) {
 		if(points == 0) {
 			// just trim the end
 			temp = realloc(t->points, sizeof(*t->points) * t->n_points);
-			t->max_points = t->n_points;
+			if(temp != NULL) {
+				t->points = temp;
+				t->max_points = t->n_points;
+				return 1;
+			} else {
+				perror("trajectory resize to trim the end failed\n");
+				return 0;
+			}
 		} else {// set the size
 
 			temp = realloc(t->points, sizeof(*t->points) * points);
@@ -61,39 +68,35 @@ char realloc_trajectory(trajectory *t, size_t points) {
 				t->n_points = points;// removing points
 			}
 			// set new max number of points
-			t->max_points = points;
-		}
-
-		if(temp == NULL) {
-			perror("realloc trajectory points failed\n");
-			// reset it
-			free(t->points);
-			t->is_points_on_heap = 0;
-			t->n_points = 0;
-			t->max_points = 0;
-			return 0;
-		} else {
-			// success!
-			t->points = temp;
-			return 1;
+			if(temp != NULL) {
+				t->points = temp;
+				t->max_points = points;
+				return 1;
+			} else {
+				perror("trajectory resize failed\n");
+				return 0;
+			}
 		}
 	}
 }
 
 void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, float time_step) {
+	float max_time = 10;
+#if 0// this doesn't seem to work... it just gives me 0.8 max time
 	/*
 	 * x = x0 + v0*t + 0.5*a*t^2                            newtons constant acceleration equation for position
 	 * 0 = 0.5*a*t^2 + v0*t - dx
 	 * 0 = ax^2      + bx   + c                             layout for quadratic formula
 	 * x = (-b +-sqrt(b^2 - 4*a*c))/2*a                     quadratic formula
-	 * t = ((-1*v0) +-sqrt((v0)^2 - 4*0.5*a*dx))/2*0.5*a    equation to find max time from top of level to bottom
 	 */
-	float dx = -2;//fall from top of level to bottom of level
-	// assuming gravity is facing downwards
-	float pos_neg = sqrt(max_jump*max_jump - 4*0.5*-1*gravity*dx);
-	float max_time = (-1 * max_jump + pos_neg)/2*0.5*-1*gravity;
+	float c = -2;//bottom of level minus top
+	float a = -0.5 * gravity;//gravity is already neegative
+	float b = max_jump;
+	float pos_neg = sqrt(fabs(b*b - 4*a*c));
+	max_time = (-1 * b + pos_neg)/2*a;
+	printf("4ac: %f\n",4*a*c);
 	if(max_time < 0) {
-		max_time = (-1 * max_jump - pos_neg)/2*0.5*-1*gravity;
+		max_time = (-1 * b - pos_neg)/2*a;
 	}
 	if(max_time < 0) {
 		perror("time to fall to bottom is negative, check the equation");
@@ -101,12 +104,17 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 	} else if(!isfinite(max_time)) {
 		perror("max time calculation");
 	}
+	printf("max time: %f\n", max_time);
+	printf("posneg: %f\n", pos_neg);
+#endif
+
+
 
 	if(!alloc_trajectory(t)) {
-		printf("no alloc\n");
 		return;
 	}
-	printf("alloced\n");
+
+
 
 	// copy so we can move it in time and place
 	e_player player = *t->player;
@@ -124,6 +132,7 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 		} else {
 			updateProjectileStateNumerical(&player.proj, time_step);
 		}
+		player.bounds.c = player.proj.pos;
 
 		// 1 loop per object
 		for(size_t i = 0; i < n_objects; i++) {
@@ -139,22 +148,22 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 				t->is_dynamic = is_gameobj_dynamic[objects[i]->type];
 				t->flight_time = total_time;
 				break;
-			} else {
-				// no intersect, add this point and move on
-				if(t->n_points = t->max_points) {
-					if(!realloc_trajectory(t, t->max_points * 2)) {
-						perror("can't add another point!\n");
-						return;
-					}
-				}
-
-				t->points[current_point] = player.proj;
-				t->n_points = ++current_point;
 			}
 		}
+
+		// no intersect, add this point and move on
+		if(t->n_points == t->max_points) {
+			if(!realloc_trajectory(t, t->max_points * 2)) {
+				perror("can't add another point!\n");
+				return;
+			}
+		}
+
+		t->points[current_point] = player.proj;
+		t->n_points = ++current_point;
 	}
 
-	printf("total trajectory time: %5.2f has_intersected: %d\n", total_time, has_intersected);
+	//printf("total trajectory time: %5.2f has_intersected: %d n_points: %d\n", total_time, has_intersected, t->n_points);
 }
 
 char player_water_is_intersect(e_player *p, e_gameobject *obj) {
@@ -166,7 +175,8 @@ char player_water_is_intersect(e_player *p, e_gameobject *obj) {
 
 
 
-	oval player_oval = *(oval *)&p->bounds;
+	//oval player_oval = *(oval *)&p->bounds;
+	oval player_oval = {.r=p->bounds.r, .c=p->bounds.c};
 	/* ^^^ turning a circle into an oval here
 	 * this is because the scaling (see below) is separate on y and x axes
 	 * not because the frogs collision is an oval

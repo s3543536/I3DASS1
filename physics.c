@@ -6,9 +6,9 @@ void updateProjectileStateAnalytical(projectile *p, float time) {
 	float dt = time - p->start_time;
 
 	// update vertical position
-	p->pos.y = p->pos0.y + p->vel0.y * dt + (gravity * dt*dt / 2);
+	p->pos.y = p->pos0.y + p->vel0.y * dt + (-1*gravity * dt*dt / 2);
 	// update vertical velocity
-	p->vel.y = p->vel0.y + gravity * dt;
+	p->vel.y = p->vel0.y + -1*gravity * dt;
 
 	// update horizontal position
 	p->pos.x = p->pos0.x + p->vel0.x * dt;
@@ -19,6 +19,6 @@ void updateProjectileStateNumerical(projectile *p, float dt) {
 	p->pos.y += p->vel.y * dt;
 	p->pos.x += p->vel.x * dt;
 
-	p->vel.y += gravity * dt;
+	p->vel.y += -1*gravity * dt;
 }
 
