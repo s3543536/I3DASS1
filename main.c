@@ -163,26 +163,7 @@ void update(void) {
 	leveldata.water->shape.c = g.time;
 
 
-	// collide with cars
-	for(int i = 0; i < leveldata.n_cars; i++) {
-		box car = {.c=leveldata.cars[i].pos,.h=leveldata.cars[i].height, .w=leveldata.cars[i].width};
-		//bounding box pos is the centre, car pos is the center on the bottom
-		car.c.y += car.h/2;
-		if(circle_box_is_intersect(&leveldata.player.bounds, &car)) {
-			//printf("%4.2f circle is intersecting with car %d\n", g.time, i);
-		}
-	}
 
-	// collide with walls
-	for(int i = 0; i < leveldata.terrain->n_boxes; i++) {
-		if(circle_box_is_intersect(&leveldata.player.bounds, &leveldata.terrain->box_collision[i])) {
-			//printf("%4.2f circle is intersecting with wall %d\n", g.time, i);
-		}
-	}
-
-	if(player_water_is_intersect(&leveldata.player, (e_gameobject*)leveldata.water)) {
-		//printf("%4.2f plalyer is intersecting with water\n", g.time);
-	}
 
 	// generic gameobject array for collision code
 	size_t total_game_objects = leveldata.n_cars + 2;//n_cars + terrain + water

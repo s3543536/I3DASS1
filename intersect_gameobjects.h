@@ -20,8 +20,14 @@
 const char (*gameobj_intersect_func[5])(e_player *p, e_gameobject *obj);
 const char is_gameobj_dynamic[5];
 
+/*
+ * these functions are used for gameobj_intersect_func.
+ * make sure they fit that definition
+ */
 char player_water_is_intersect(e_player *p, e_gameobject *obj);
-
+char player_wall_is_intersect(e_player *p, e_gameobject *obj);
+char player_car_is_intersect(e_player *p, e_gameobject *obj);
+char player_log_is_intersect(e_player *p, e_gameobject *obj);
 
 typedef struct {
 	char is_dynamic;// has the end point landed on something dynamic?

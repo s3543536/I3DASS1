@@ -3,10 +3,10 @@
 
 const char (*gameobj_intersect_func[5])(e_player *p, e_gameobject *obj) = {
 	NULL,//player
-	NULL,//car
-	NULL,//log
+	player_car_is_intersect,//car
+	player_log_is_intersect,//log
 	player_water_is_intersect,//water
-	NULL,//wall
+	player_wall_is_intersect,//wall
 };
 const char is_gameobj_dynamic[5] = {
 	0,
@@ -214,4 +214,39 @@ char player_water_is_intersect(e_player *p, e_gameobject *obj) {
 	} else {
 		return 0;
 	}
+}
+
+
+
+char player_wall_is_intersect(e_player *p, e_gameobject *obj) {
+	e_wall *wall = (e_wall *)obj;
+
+	if(!wall->is_collision) {
+		return 0;
+	}
+
+	for(int i = 0; i < wall->n_boxes; i++) {
+		if(circle_box_is_intersect(&p->bounds, &wall->box_collision[i])) {
+			return 1;
+		}
+	}
+	return 0;
+};
+
+char player_car_is_intersect(e_player *p, e_gameobject *obj) {
+	e_car *car = (e_car *)obj;
+
+	box boxcar = {.c=car->pos,.h=car->height, .w=car->width};
+	//bounding box pos is the centre, car pos is the center on the bottom
+	boxcar.c.y += boxcar.h/2;
+	if(circle_box_is_intersect(&p->bounds, &boxcar)) {
+		return 1;
+	}
+	return 0;
+}
+
+char player_log_is_intersect(e_player *p, e_gameobject *obj) {
+	e_log *log_obj = (e_log*)obj;
+
+	return circle_is_intersect(&p->bounds, &log_obj->shape);
 }
