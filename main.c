@@ -208,25 +208,46 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
-	//white
-	glColor3f(1, 1, 0);
-
-	glBegin(GL_POINTS);
-	glVertex3f(leveldata.player.proj.pos.x, leveldata.player.proj.pos.y, leveldata.player.proj.pos.z);
-	glEnd();
-
-	glColor3f(1, 1, 1);
-
-	// draw circle around player
-	circle pj = {.r=0.05, .c={.x=leveldata.player.proj.pos.x, .y=leveldata.player.proj.pos.y, .z=leveldata.player.proj.pos.z}};
-	draw_circle(&leveldata.player.bounds, 10, (char)0);
 
 	if(!is_init) {
+
+
+		//yellow
+		glColor3f(1, 1, 0);
+
+		// player point
+		glBegin(GL_POINTS);
+		glVertex3f(leveldata.player.proj.pos.x, leveldata.player.proj.pos.y, leveldata.player.proj.pos.z);
+		glEnd();
+
+		//white
+		glColor3f(1, 1, 1);
+
+		// draw circle around player
+		circle pj = {.r=0.05, .c={.x=leveldata.player.proj.pos.x, .y=leveldata.player.proj.pos.y, .z=leveldata.player.proj.pos.z}};
+		draw_circle(&leveldata.player.bounds, 10, (char)0);
+
+
+
+
+
 		for(int i = 0; i < leveldata.n_cars; i++) {
 			draw_car(&leveldata.cars[i]);
 		}
 
+
+
+		// draw water
+		draw_water_distance(leveldata.water, &leveldata.player.bounds, wd_water);
+
+
+
+		//collisions
 		if(g.draw_box_collision) {
+			//water
+			draw_box(&leveldata.water->bounds, 0);
+
+			//terrain
 			glPushMatrix();
 			for(size_t i = 0; i < leveldata.terrain->n_boxes; i++) {
 				float red = (i % 3) / 3.0;
@@ -238,59 +259,20 @@ void display() {
 			glPopMatrix();
 			glColor3f(1,1,1);
 		}
-	}
 
-#if 0
-	vector triangle_pos = {.x=0, .y=0.5f, .z=0};
-	circle triangle = {.r=0.5f, .c=triangle_pos};
-	vector acircle_pos = {.x=0.5f, .y=0.3f, .z=0};
-	circle acircle = {.r=0.3f, .c=acircle_pos};
-	draw_circle(&triangle, 3, (char)0);
-	draw_circle(&acircle, (unsigned int)g.time%10, (char)1);
-#endif
 
-	
 
-	if(!is_init) {
-		//printf("drawing trajectory\n");
+
 		draw_trajectory(leveldata.player.t);
 
 
-		// draw water and distance to it
-		draw_water_distance(leveldata.water, &leveldata.player.bounds, wd_water);
-		//draw_water(leveldata.water);
-		draw_box(&leveldata.water->bounds, 0);
+		// draw terrain
+		draw_wall(leveldata.terrain);
 
 
 
-
-
-		//glPushMatrix();
-
-		//glTranslatef(0.375, 0, 0);
-		//glScalef(0.37, 0.5f, 0.5f);
-		//draw_2d_function(sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
-
-		//glColor3f(0, 0, 1);
-		//draw_2d_function_normals(sin_x, &leveldata.water->shape, 1 / 3.14159f, 1);
-		//drawAxes(1, 0);
-
-		//glPopMatrix();
 	}
 
-	glColor3f(1,1,1);
-	// draw road
-	if(!is_init) {
-		glBegin(GL_LINE_STRIP);
-		for(int i = 0; i < leveldata.terrain->n_vertices; i++) {
-			float x = leveldata.terrain->vertices[i].x;
-			float y = leveldata.terrain->vertices[i].y;
-			float z = leveldata.terrain->vertices[i].z;
-			glVertex3f(x, y, z);
-		}
-		glEnd();
-	}
-	
 
 #if VSYNC
 	//vsync

@@ -17,6 +17,16 @@ void draw_car(e_car *car) {
 	glPopMatrix();
 }
 
+void draw_wall(e_wall *wall) {
+	glBegin(GL_LINE_STRIP);
+	for(int i = 0; i < wall->n_vertices; i++) {
+			float x = wall->vertices[i].x;
+			float y = wall->vertices[i].y;
+			float z = wall->vertices[i].z;
+			glVertex3f(x, y, z);
+	}
+	glEnd();
+}
 
 void draw_water_distance(e_water *water, circle *player, water_distance_opts opts) {
 

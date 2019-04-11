@@ -28,4 +28,6 @@ void draw_water_distance(e_water *water, circle *player, water_distance_opts opt
 // much simpler, just draws the water
 void draw_water(e_water *water);
 
+void draw_wall(e_wall *wall);
+
 #endif
