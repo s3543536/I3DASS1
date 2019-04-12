@@ -339,8 +339,8 @@ void display() {
 			glPushMatrix();
 			for(size_t i = 0; i < leveldata.terrain->n_boxes; i++) {
 				float red = (i % 3) / 3.0;
-				float green = ((i+1) % 3) / 3.0;
-				float blue = ((i+2) % 3) / 3.0;
+				float green = ((i+1) % 6) / 6.0;
+				float blue = ((i+2) % 9) / 9.0;
 				glColor3f(red, green, blue);
 				draw_box(&leveldata.terrain->box_collision[i], (char)1);
 			}
@@ -450,7 +450,7 @@ void keyboard(unsigned char key, int x, int y) {
 		case ' ':
 			if(g.flymode) {
 				leveldata.player.is_active = !leveldata.player.is_active;
-			} else {
+			} else if(!leveldata.player.is_active) {
 				leveldata.player.jump = 1;
 			}
 			break;
