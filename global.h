@@ -10,7 +10,7 @@ struct global_t {
 	float dt;
 	float start_time;
 	float rotate_angle;
-	size_t tess;
+	unsigned int tess;
 	char drawfill;
 	char flymode;
 	char draw_box_collision;

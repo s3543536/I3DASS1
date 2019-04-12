@@ -343,7 +343,7 @@ void display() {
 			.a=1,
 			.b=0.5,
 		};
-		draw_oval(&player_oval, angle * 180/PI, 20, g.drawfill);
+		draw_oval(&player_oval, angle * 180/PI, g.tess, g.drawfill);
 
 		//white
 		glColor3f(1, 1, 1);
@@ -363,7 +363,7 @@ void display() {
 
 		// draw water
 		glColor3f(0,1,1);
-		draw_water_distance(leveldata.water, &leveldata.player.bounds, g.drawfill, wd_water);
+		draw_water_distance(leveldata.water, &leveldata.player.bounds, g.tess, g.drawfill, wd_water);
 
 		//draw logs
 		glColor3f(0.2,0.2,0.2);
@@ -454,6 +454,16 @@ void keyboard(unsigned char key, int x, int y) {
 		case 'q':
 			free_leveldata();
 			exit(EXIT_SUCCESS);
+			break;
+		case '+':
+		case '=':
+			g.tess *= 2;
+			break;
+		case '-':
+			g.tess /= 2;
+			if(g.tess < 4) {
+				g.tess = 4;
+			}
 			break;
 		case 'm':
 			// toggle draw box collision

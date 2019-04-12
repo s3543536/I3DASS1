@@ -38,10 +38,10 @@ void draw_wall(e_wall *wall, char filled) {
 	}
 }
 
-void draw_water_distance(e_water *water, circle *player, char filled, water_distance_opts opts) {
+void draw_water_distance(e_water *water, circle *player, unsigned int tess, char filled, water_distance_opts opts) {
 
 	if(opts == wd_water) {
-		return draw_water(water, filled);
+		return draw_water(water, tess, filled);
 	}
 	//printf("water height: %f\n", water->bounds.h);
 
@@ -92,30 +92,30 @@ void draw_water_distance(e_water *water, circle *player, char filled, water_dist
 
 	if((opts & wd_water) != 0) {
 		// draw water
-		draw_2d_function(fdd.f, fdd.f_data, 1, 1, filled);
+		draw_2d_function(fdd.f, fdd.f_data, 1, 1, tess, filled);
 	}
 
 	if((opts & wd_closest) != 0) {
 		// draw closest point
 		circle nearest = {.r=0.1f, .c=(vector){.x=min_x, .y=fdd.f(fdd.f_data, min_x), .z=0}};
-		draw_circle(&nearest, 10, filled);
+		draw_circle(&nearest, tess, filled);
 	}
 
 	if((opts & wd_distance) != 0) {
 		// draw distance
-		draw_2d_function(f_dist, &fdd, 1, 1, filled);
+		draw_2d_function(f_dist, &fdd, 1, 1, tess, filled);
 	}
 
 	if((opts & wd_deriv) != 0) {
 		// draw distance derivative
-		draw_2d_function(f_dist_derivative, &fdd, 1, 1, filled);
+		draw_2d_function(f_dist_derivative, &fdd, 1, 1, tess, filled);
 	}
 	glPopMatrix();
 }
 
 
 
-void draw_water(e_water *water, char filled) {
+void draw_water(e_water *water, unsigned int tess, char filled) {
 
 	sin_data waterdata = water->shape;
 	//waterdata.a *= 1/(water->bounds.h/water->bounds.w);
@@ -125,7 +125,7 @@ void draw_water(e_water *water, char filled) {
 	glTranslatef(water->bounds.c.x, water->bounds.c.y, water->bounds.c.z);
 	glScalef(0.5*water->bounds.w, 0.5*water->bounds.h, 1);
 
-	draw_2d_function(sin_x, &waterdata, 1, 1, filled);
+	draw_2d_function(sin_x, &waterdata, 1, 1, tess, filled);
 
 	glPopMatrix();
 }
