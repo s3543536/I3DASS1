@@ -168,6 +168,7 @@ void update(void) {
 		g.flymode = 1;
 		g.i_mode = numerical;
 		g.drawfill = 0;
+		g.tess = 4;
 
 		lastT = g.time;
 	}
@@ -281,6 +282,7 @@ void update(void) {
 
 	// update water
 	leveldata.water->shape.c = g.time;
+	update_water_logs(leveldata.water);
 
 
 
@@ -344,6 +346,14 @@ void display() {
 		// draw water
 		glColor3f(0,1,1);
 		draw_water_distance(leveldata.water, &leveldata.player.bounds, wd_water);
+
+		//draw logs
+		glColor3f(0.2,0.2,0.2);
+		for(size_t i = 0; i < leveldata.water->nlogs; i++) {
+			printf("log pos: %f %f\n", leveldata.water->logs[i].shape.c.x, leveldata.water->logs[i].shape.c.y);
+			printf("log size: %f \n", leveldata.water->logs[i].shape.r);
+			draw_circle(&leveldata.water->logs[i].shape, g.tess, g.drawfill);
+		}
 
 		glColor3f(1,1,1);
 

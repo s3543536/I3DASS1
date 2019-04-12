@@ -1,4 +1,4 @@
-SOURCES=main.c vector.c glvector.c mathfunc.c glfunc.c physics.c glshapes.c intersect.c glgameobjects.c intersect_gameobjects.c global.c glintersect_gameobjects.c
+SOURCES=main.c vector.c glvector.c mathfunc.c glfunc.c physics.c glshapes.c intersect.c gameobjects.c glgameobjects.c intersect_gameobjects.c global.c glintersect_gameobjects.c
 OBJECTS=$(SOURCES:.c=.o)
 HEADERS=$(SOURCES:.c=.h)
 DFILES=$(SOURCES:.c=.d)

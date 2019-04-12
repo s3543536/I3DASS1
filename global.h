@@ -1,6 +1,8 @@
 #ifndef GLOBAL
 #define GLOBAL
 
+#include <stdlib.h>
+
 typedef enum { analytical, numerical } integrationMode;
 
 struct global_t {
@@ -8,6 +10,7 @@ struct global_t {
 	float dt;
 	float start_time;
 	float rotate_angle;
+	size_t tess;
 	char drawfill;
 	char flymode;
 	char draw_box_collision;

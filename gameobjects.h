@@ -92,6 +92,8 @@ typedef struct {
 	.nlogs = 0, \
 } \
 
+void update_water_logs(e_water *w);
+
 typedef struct {
 	gameobject_type type;
 	char is_collision;
