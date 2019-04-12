@@ -109,10 +109,15 @@ void init_level() {
 		leveldata.water->logs[2] = E_LOG_PROTOTYPE;
 		leveldata.water->logs[3] = E_LOG_PROTOTYPE;
 
-		leveldata.water->logs[0].shape.r=0.3;
-		leveldata.water->logs[1].shape.r=0.42;
-		leveldata.water->logs[2].shape.r=0.25;
-		leveldata.water->logs[3].shape.r=0.5;
+		leveldata.water->logs[0].shape.c.x = 0.7;
+		leveldata.water->logs[1].shape.c.x = 0.58;
+		leveldata.water->logs[2].shape.c.x = 0.44;
+		leveldata.water->logs[3].shape.c.x = 0.32;
+
+		leveldata.water->logs[0].shape.r=0.03;
+		leveldata.water->logs[1].shape.r=0.042;
+		leveldata.water->logs[2].shape.r=0.025;
+		leveldata.water->logs[3].shape.r=0.05;
 
 	}
 
