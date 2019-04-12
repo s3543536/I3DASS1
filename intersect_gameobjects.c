@@ -125,6 +125,8 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 
 	// copy so we can move it in time and place
 	e_player player = *t->player;
+	//player.proj.vel0 = player.jump_vec;
+	//player.proj.vel = player.jump_vec;
 
 	float total_time = 0;
 
@@ -151,7 +153,9 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 				// can't intersect with this
 				continue;
 			}
-			if(intersect_func(&player, objects[i])) {
+
+			char skip = t->n_points == 1 && !objects[i]->enable_collision;
+			if(!skip && intersect_func(&player, objects[i])) {
 				// intersected with this object
 				has_intersected = 1;
 				t->is_dynamic = is_gameobj_dynamic[objects[i]->type];

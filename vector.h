@@ -34,4 +34,6 @@ void vector_normalize(vector *v);
 
 void vector_scale(vector *v, float scale);
 
+void vector_rotate_xy(vector *v, float angle);
+
 #endif

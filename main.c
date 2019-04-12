@@ -10,7 +10,11 @@ char is_init = (char)1;
 
 void init_level() {
 
+	leveldata.collision_disabled = NULL;
+
 	leveldata.player = E_PLAYER_PROTOTYPE;
+	leveldata.player.is_active = 0;
+	vector_scale(&leveldata.player.jump_vec, max_jump);
 
 	vector half_up = {.x=0,.y=0.5,.z=0};
 	leveldata.player.proj.reset_start = 1;
@@ -79,7 +83,7 @@ void init_level() {
 
 		leveldata.water->bounds.c = (vector){.x=0.375, .y=0, .z=0};
 		leveldata.water->bounds.w = 0.75;
-		leveldata.water->bounds.h = 1.5;
+		leveldata.water->bounds.h = 0.2;
 		//init_vector(&leveldata.water->bottom_left, 0.5, 0, 0);
 		//init_vector(&leveldata.water->top_right, 0.6, 0.1, 0);
 		leveldata.water->depth = 0.8f;
@@ -143,7 +147,7 @@ void update(void) {
 		is_init = (char)0;
 		
 		lastT = g.time;
-		g.noclip = 1;
+		g.noclip = 0;
 
 		printf("init level\n");
 		init_level();
@@ -153,15 +157,32 @@ void update(void) {
 
 		g.i_mode = numerical;
 	}
+	g.rotate_angle = 3 * 2*PI/180;
 
 	g.dt = g.time - lastT;
 	lastT = g.time;
+
+	if(leveldata.collision_disabled != NULL) {
+		leveldata.collision_disabled->enable_collision = 1;
+	}
+
+	if(!leveldata.player.is_active) {
+		leveldata.player.proj.vel = leveldata.player.jump_vec;
+		leveldata.player.proj.vel0 = leveldata.player.jump_vec;
+	}
+
+	if(leveldata.player.jump) {
+		leveldata.player.jump = 0;
+		leveldata.player.is_active = 1;
+		leveldata.player.proj.vel = leveldata.player.jump_vec;
+		leveldata.player.proj.vel0 = leveldata.player.jump_vec;
+	}
 
 	//update player
 	if(leveldata.player.is_active) {
 		// check if trajectory is dynamic
 		if(g.i_mode == analytical) {
-			if(leveldata.player.proj.reset_start) {
+			if(leveldata.player.proj.reset_start || leveldata.player.jump) {
 				leveldata.player.proj.start_time = g.time;
 				leveldata.player.proj.pos0 = leveldata.player.proj.pos;
 				leveldata.player.proj.vel0 = leveldata.player.proj.vel;
@@ -169,19 +190,22 @@ void update(void) {
 			}
 			updateProjectileStateAnalytical(&leveldata.player.proj, g.time);
 		} else if(g.i_mode == numerical) {
+			leveldata.player.proj.reset_start = 0;
 			updateProjectileStateNumerical(&leveldata.player.proj, g.dt);
 		} else {
 			perror("invalid integration mode");
 			updateProjectileStateNumerical(&leveldata.player.proj, g.dt);
 		}
 		leveldata.player.bounds.c = leveldata.player.proj.pos;
-	} else {
-		// wait for player to jump again
+		leveldata.player.jump = 0;
 	}
 
 	if(leveldata.player.t->is_dynamic || leveldata.player.is_active) {
-		// generic gameobject array for collision code
+		// store the previous object we want to re-enable collision on so that we can
+		// do the same for the next one
+		e_gameobject *to_enable_collision = leveldata.collision_disabled;
 
+		// generic gameobject array for collision code
 		size_t total_game_objects = leveldata.n_cars + 2;//n_cars + terrain + water
 		e_gameobject *gameobjects[total_game_objects];
 		gameobjects[0] = (e_gameobject *)leveldata.water;
@@ -192,7 +216,46 @@ void update(void) {
 		}
 
 		update_trajectory(leveldata.player.t, gameobjects, total_game_objects, fmax(0.1, g.dt));
+
+		char has_intersected = 0;
+		for(size_t i = 0; i < total_game_objects; i++) {
+			// get the intersection function for this gameobject type
+			char (*intersect_func)(e_player *p, e_gameobject *obj) = gameobj_intersect_func[gameobjects[i]->type];
+
+			if(intersect_func == NULL) {
+				// can't intersect with this
+				continue;
+			}
+
+			if(gameobjects[i]->enable_collision 
+					&& intersect_func(&leveldata.player, gameobjects[i])) {
+
+				// intersected with a car
+				if(gameobjects[i]->type == t_ecar
+						|| gameobjects[i]->type == t_ewater) {
+					// TODO: respawn
+					printf("splat\n");
+				}
+
+				has_intersected = 1;
+				leveldata.player.proj.vel = leveldata.player.jump_vec;
+				leveldata.player.proj.vel0 = leveldata.player.jump_vec;
+				leveldata.player.t->is_dynamic = 1;// trigger a trajectory update
+				leveldata.player.is_active = 0;
+
+				// store the object we don't want collision with
+				gameobjects[i]->enable_collision = 0;
+				leveldata.collision_disabled = gameobjects[i];
+				break;
+			}
+		}
+
+		// re-enable collision now that we haven't collided with it
+		if(to_enable_collision != NULL) {
+			to_enable_collision->enable_collision = 1;
+		}
 	}
+
 
 
 	// update water
@@ -233,6 +296,11 @@ void display() {
 		circle pj = {.r=0.05, .c={.x=leveldata.player.proj.pos.x, .y=leveldata.player.proj.pos.y, .z=leveldata.player.proj.pos.z}};
 		draw_circle(&leveldata.player.bounds, 10, (char)0);
 
+		//TODO: use angel between vectors:
+		//  find the angle between jump and velocity
+		//  rotate by that angle
+		// draw player jump vector
+		drawVector(leveldata.player.proj.vel, leveldata.player.proj.pos, 1, 0);
 
 
 
@@ -362,13 +430,18 @@ void keyboard(unsigned char key, int x, int y) {
 				perror("invalid integration mode");
 			}
 			break;
+		case ' ':
+			leveldata.player.jump = 1;
+			printf("jumping\n");
+			break;
 		case 'w':
 			if(g.noclip) {
 				leveldata.player.proj.vel.y = 0.2;
 				leveldata.player.proj.reset_start = (char)1;
 
 			} else if(!leveldata.player.is_active) {
-				vector *pv0 = &leveldata.player.proj.vel0;
+				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+				vector *pv0 = &leveldata.player.jump_vec;
 				float pv0len = LENGTHVEC(*pv0);
 				vector_normalize(pv0);
 				vector_scale(pv0, pv0len + 0.1f);
@@ -380,8 +453,10 @@ void keyboard(unsigned char key, int x, int y) {
 				leveldata.player.proj.reset_start = (char)1;
 
 			} else if(!leveldata.player.is_active) {
-				vector *pv0 = &leveldata.player.proj.vel0;
-				pv0->x += 0.1f;
+				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+
+				vector_rotate_xy(&leveldata.player.jump_vec, g.rotate_angle);
+				//pv0->x -= 0.2f;
 			}
 			break;
 		case 'd':
@@ -390,8 +465,9 @@ void keyboard(unsigned char key, int x, int y) {
 				leveldata.player.proj.reset_start = (char)1;
 
 			} else if(!leveldata.player.is_active) {
-				vector *pv0 = &leveldata.player.proj.vel0;
-				pv0->x += 0.1f;
+				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+
+				vector_rotate_xy(&leveldata.player.jump_vec, -1*g.rotate_angle);
 			}
 			break;
 		case 's':
@@ -399,7 +475,8 @@ void keyboard(unsigned char key, int x, int y) {
 				leveldata.player.proj.reset_start = (char)1;
 
 			} else if(!leveldata.player.is_active) {
-				vector *pv0 = &leveldata.player.proj.vel0;
+				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+				vector *pv0 = &leveldata.player.jump_vec;
 				float pv0len = LENGTHVEC(*pv0);
 				vector_normalize(pv0);
 				vector_scale(pv0, pv0len - 0.1f);

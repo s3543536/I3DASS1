@@ -38,3 +38,9 @@ void vector_scale(vector *v, float scale) {
 	v->y *= scale;
 	v->z *= scale;
 }
+
+void vector_rotate_xy(vector *v, float angle) {
+	float temp_x = v->x;
+	v->x = v->x*cos(angle) - v->y*sin(angle);
+	v->y = temp_x*sin(angle) + v->y*cos(angle);
+}

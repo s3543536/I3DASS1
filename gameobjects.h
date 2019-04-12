@@ -18,6 +18,7 @@ typedef enum {
 
 typedef struct {
 	gameobject_type type;
+	char enable_collision;
 } e_gameobject;
 
 // forward declare a trajectory
@@ -27,16 +28,22 @@ typedef struct trajectory trajectory;
 //every game object can be cast to a e_gameobject
 typedef struct {
 	gameobject_type type;
+	char enable_collision;
 	char is_active;
 	projectile proj;
+	char jump;
+	vector jump_vec;
 	char is_t_on_heap;
 	trajectory *t;
 	circle bounds;
 } e_player;
 #define E_PLAYER_PROTOTYPE (e_player){ \
 	.type = t_eplayer, \
+	.enable_collision = 1, \
 	.is_active = 1, \
 	.proj=PROJECTILE_PROTOTYPE, \
+	.jump = 0, \
+	.jump_vec = UNIT_VECTOR, \
 	.is_t_on_heap = 0, \
 	.bounds=(circle){ \
 		.r = 0.05, \
@@ -46,12 +53,14 @@ typedef struct {
 
 typedef struct {
 	gameobject_type type;
+	char enable_collision;
 	vector pos;
 	float height;
 	float width;
 } e_car;
 #define E_CAR_PROTOTYPE (e_car){ \
 	.type = t_ecar, \
+	.enable_collision = 1, \
 	.pos = ZERO_VECTOR, \
 	.height = 0, \
 	.width = 0, \
@@ -59,15 +68,18 @@ typedef struct {
 
 typedef struct {
 	gameobject_type type;
+	char enable_collision;
 	circle shape;
 } e_log;
 #define E_LOG_PROTOTYPE (e_log){ \
 	.type = t_elog, \
+	.enable_collision = 1, \
 	.shape = (circle){.r=0.5,.c=ZERO_VECTOR}, \
 }; \
 
 typedef struct {
 	gameobject_type type;
+	char enable_collision;
 	box bounds;
 	float depth;
 	sin_data shape;
@@ -76,6 +88,7 @@ typedef struct {
 } e_water;
 #define E_WATER_PROTOTYPE (e_water){ \
 	.type = t_ewater, \
+	.enable_collision = 1, \
 	.bounds = (box){ \
 		.c = ZERO_VECTOR, \
 		.w = 1, \
@@ -88,6 +101,7 @@ typedef struct {
 
 typedef struct {
 	gameobject_type type;
+	char enable_collision;
 	char is_collision;
 	size_t n_boxes;
 	box *box_collision;
@@ -97,6 +111,7 @@ typedef struct {
 } e_wall;
 #define E_WALL_PROTOTYPE (e_wall){ \
 	.type = t_ewall, \
+	.enable_collision = 1, \
 	.is_collision = 1, \
 	.n_boxes = 0, \
 	.box_collision = NULL, \
