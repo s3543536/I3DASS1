@@ -145,9 +145,9 @@ void update(void) {
 
 	if(is_init) {
 		is_init = (char)0;
-		
+
 		lastT = g.time;
-		g.noclip = 1;
+		g.flymode = 1;
 
 		printf("init level\n");
 		init_level();
@@ -433,21 +433,21 @@ void keyboard(unsigned char key, int x, int y) {
 			}
 			break;
 		case 'n':
-			g.noclip = !g.noclip;
+			g.flymode = !g.flymode;
 			break;
 		case ' ':
-			if(g.noclip) {
+			if(g.flymode) {
 				leveldata.player.is_active = !leveldata.player.is_active;
 			} else {
 				leveldata.player.jump = 1;
 			}
 			break;
 		case 'w':
-			if(g.noclip) {
+			if(g.flymode) {
 				leveldata.player.proj.vel.y = fmax(0.2, leveldata.player.proj.vel.y + 0.2);
 				leveldata.player.proj.reset_start = (char)1;
 			}
-			if(g.noclip || !leveldata.player.is_active) {
+			if(g.flymode || !leveldata.player.is_active) {
 				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
 				vector *pv0 = &leveldata.player.jump_vec;
 				float pv0len = LENGTHVEC(*pv0);
@@ -456,11 +456,11 @@ void keyboard(unsigned char key, int x, int y) {
 			}
 			break;
 		case 'a':
-			if(g.noclip) {
+			if(g.flymode) {
 				leveldata.player.proj.vel.x -= 0.05;
 				leveldata.player.proj.reset_start = (char)1;
 			}
-			if(g.noclip || !leveldata.player.is_active) {
+			if(g.flymode || !leveldata.player.is_active) {
 				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
 
 				vector_rotate_xy(&leveldata.player.jump_vec, g.rotate_angle);
@@ -468,21 +468,21 @@ void keyboard(unsigned char key, int x, int y) {
 			}
 			break;
 		case 'd':
-			if(g.noclip) {
+			if(g.flymode) {
 				leveldata.player.proj.vel.x += 0.05;
 				leveldata.player.proj.reset_start = (char)1;
 			}
-			if(g.noclip || !leveldata.player.is_active) {
+			if(g.flymode || !leveldata.player.is_active) {
 				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
 
 				vector_rotate_xy(&leveldata.player.jump_vec, -1*g.rotate_angle);
 			}
 			break;
 		case 's':
-			if(g.noclip) {
+			if(g.flymode) {
 				leveldata.player.proj.reset_start = (char)1;
 			}
-			if(g.noclip || !leveldata.player.is_active) {
+			if(g.flymode || !leveldata.player.is_active) {
 				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
 				vector *pv0 = &leveldata.player.jump_vec;
 				float pv0len = LENGTHVEC(*pv0);
