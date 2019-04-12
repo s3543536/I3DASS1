@@ -326,9 +326,12 @@ void display() {
 
 
 
+		// yellow cars
+		glColor3f(1,1,0);
 		for(int i = 0; i < leveldata.n_cars; i++) {
 			draw_car(&leveldata.cars[i]);
 		}
+		glColor3f(1,1,1);
 
 
 
