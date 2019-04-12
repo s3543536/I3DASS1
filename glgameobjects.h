@@ -13,7 +13,7 @@
 #include "mathfunc.h"
 #include "glfunc.h"
 
-void draw_car(e_car *car);
+void draw_car(e_car *car, char filled);
 
 typedef enum {
 	wd_water = 1,

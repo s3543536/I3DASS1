@@ -1,10 +1,14 @@
 #include "glgameobjects.h"
 
-void draw_car(e_car *car) {
+void draw_car(e_car *car, char filled) {
 	glPushMatrix();
 	glTranslatef(car->pos.x, car->pos.y, car->pos.z);
 
-	glBegin(GL_LINE_STRIP);
+	if(filled) {
+		glBegin(GL_QUADS);
+	} else {
+		glBegin(GL_LINE_STRIP);
+	}
 	// bottom left
 	glVertex3f((car->width/2 - car->width), 0, 0);
 	//top left
