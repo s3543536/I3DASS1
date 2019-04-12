@@ -67,10 +67,10 @@ void init_level() {
 		leveldata.cars[2] = E_CAR_PROTOTYPE;
 		leveldata.cars[3] = E_CAR_PROTOTYPE;
 
-		init_vector(&leveldata.cars[0].pos, -0.7, 0.03, 0);
-		init_vector(&leveldata.cars[1].pos, -0.58, 0.03, 0);
-		init_vector(&leveldata.cars[2].pos, -0.44, 0.03, 0);
-		init_vector(&leveldata.cars[3].pos, -0.32, 0.03, 0);
+		init_vector(&leveldata.cars[0].pos, -0.7, 0.025, 0);
+		init_vector(&leveldata.cars[1].pos, -0.58, 0.025, 0);
+		init_vector(&leveldata.cars[2].pos, -0.44, 0.025, 0);
+		init_vector(&leveldata.cars[3].pos, -0.32, 0.025, 0);
 
 		leveldata.cars[0].height = 0.1f;
 		leveldata.cars[1].height = 0.18f;
