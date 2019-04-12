@@ -16,13 +16,28 @@ void init_level() {
 	leveldata.player.is_active = 0;
 	vector_scale(&leveldata.player.jump_vec, max_jump);
 
-	vector half_up = {.x=0,.y=0.5,.z=0};
-	leveldata.player.proj.reset_start = 1;
-	leveldata.player.proj.is_dynamic = 1;
-	leveldata.player.proj.pos0 = half_up;
-	leveldata.player.proj.pos  = half_up;
+	// set player radius
+	circle player_bounds = {.r=0.015};
+	// set position based on radius
+	vector initial_position = {.x=-0.87,.y=player_bounds.r,.z=0};
+
+	//set players physics position
+	leveldata.player.proj.pos0 = initial_position;
+	leveldata.player.proj.pos  = initial_position;
 	leveldata.player.proj.vel0 = ZERO_VECTOR;
 	leveldata.player.proj.vel  = ZERO_VECTOR;
+
+	//set player physics initial state
+	leveldata.player.proj.reset_start = 1;
+	leveldata.player.proj.is_dynamic = 1;
+
+	// set players collision position
+	leveldata.player.bounds = player_bounds;
+	leveldata.player.bounds.c = (vector){
+		.x=leveldata.player.proj.pos.x,
+		.y=leveldata.player.proj.pos.y,
+		.z=leveldata.player.proj.pos.z,
+	};
 
 	leveldata.player.t = malloc(sizeof(*leveldata.player.t));
 	if(leveldata.player.t != NULL) {
@@ -57,12 +72,12 @@ void init_level() {
 		init_vector(&leveldata.cars[0].pos, -0.7, 0.03, 0);
 		init_vector(&leveldata.cars[1].pos, -0.58, 0.03, 0);
 		init_vector(&leveldata.cars[2].pos, -0.44, 0.03, 0);
-		init_vector(&leveldata.cars[3].pos, -0.2, 0.03, 0);
+		init_vector(&leveldata.cars[3].pos, -0.32, 0.03, 0);
 
-		leveldata.cars[0].height = 0.6f;
-		leveldata.cars[1].height = 0.6f;
-		leveldata.cars[2].height = 0.6f;
-		leveldata.cars[3].height = 0.6f;
+		leveldata.cars[0].height = 0.1f;
+		leveldata.cars[1].height = 0.18f;
+		leveldata.cars[2].height = 0.12f;
+		leveldata.cars[3].height = 0.08f;
 
 		leveldata.cars[0].width = 0.05f;
 		leveldata.cars[1].width = 0.05f;
