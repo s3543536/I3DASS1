@@ -169,6 +169,7 @@ void update(void) {
 		g.rotate_angle = 1 * 2*PI/180;
 		g.flymode = 1;
 		g.i_mode = numerical;
+		g.drawfill = 0;
 
 		lastT = g.time;
 	}
@@ -188,11 +189,11 @@ void update(void) {
 	if(leveldata.player.jump) {
 		leveldata.player.jump = 0;
 		leveldata.player.is_active = 1;
-		leveldata.player.proj.vel = leveldata.player.jump_vec;
-		leveldata.player.proj.vel0 = leveldata.player.jump_vec;
+		//leveldata.player.proj.vel = leveldata.player.jump_vec;
+		//leveldata.player.proj.vel0 = leveldata.player.jump_vec;
 	}
 
-	//update player
+	//player position
 	if(leveldata.player.is_active) {
 		// check if trajectory is dynamic
 		if(g.i_mode == analytical) {
@@ -214,6 +215,7 @@ void update(void) {
 		leveldata.player.jump = 0;
 	}
 
+	// player collision
 	if(leveldata.player.t->is_dynamic || leveldata.player.is_active) {
 		// store the previous object we want to re-enable collision on so that we can
 		// do the same for the next one
@@ -231,42 +233,50 @@ void update(void) {
 
 		update_trajectory(leveldata.player.t, gameobjects, total_game_objects, fmax(0.1, g.dt));
 
-		char has_intersected = 0;
-		for(size_t i = 0; i < total_game_objects; i++) {
-			// get the intersection function for this gameobject type
-			char (*intersect_func)(e_player *p, e_gameobject *obj) = gameobj_intersect_func[gameobjects[i]->type];
+		if(leveldata.player.is_active) {
+			char has_intersected = 0;
+			for(size_t i = 0; i < total_game_objects; i++) {
+				// get the intersection function for this gameobject type
+				char (*intersect_func)(e_player *p, e_gameobject *obj) = gameobj_intersect_func[gameobjects[i]->type];
 
-			if(intersect_func == NULL) {
-				// can't intersect with this
-				continue;
-			}
-
-			if(gameobjects[i]->enable_collision 
-					&& intersect_func(&leveldata.player, gameobjects[i])) {
-
-				// intersected with a car
-				if(gameobjects[i]->type == t_ecar
-						|| gameobjects[i]->type == t_ewater) {
-					// TODO: respawn
-					printf("splat\n");
+				if(intersect_func == NULL) {
+					// can't intersect with this
+					continue;
 				}
 
-				has_intersected = 1;
-				leveldata.player.proj.vel = leveldata.player.jump_vec;
-				leveldata.player.proj.vel0 = leveldata.player.jump_vec;
-				leveldata.player.t->is_dynamic = 1;// trigger a trajectory update
-				leveldata.player.is_active = 0;
+				if(gameobjects[i]->enable_collision 
+						&& intersect_func(&leveldata.player, gameobjects[i])) {
 
-				// store the object we don't want collision with
-				gameobjects[i]->enable_collision = 0;
-				leveldata.collision_disabled = gameobjects[i];
-				break;
+					// intersected with a car
+					if(gameobjects[i]->type == t_ecar
+							|| gameobjects[i]->type == t_ewater) {
+						// TODO: respawn
+						printf("splat\n");
+					}
+
+					has_intersected = 1;
+
+					// rewind time to just before the collision
+					updateProjectileStateNumerical(&leveldata.player.proj, -1*g.dt);
+					leveldata.player.bounds.c = leveldata.player.proj.pos;
+
+
+					leveldata.player.proj.vel = leveldata.player.jump_vec;
+					leveldata.player.proj.vel0 = leveldata.player.jump_vec;
+					leveldata.player.t->is_dynamic = 1;// trigger a trajectory update
+					leveldata.player.is_active = 0;
+
+					// store the object we don't want collision with
+					gameobjects[i]->enable_collision = 0;
+					leveldata.collision_disabled = gameobjects[i];
+					break;
+				}
 			}
-		}
 
-		// re-enable collision now that we haven't collided with it
-		if(to_enable_collision != NULL) {
-			to_enable_collision->enable_collision = 1;
+			// re-enable collision now that we haven't collided with it
+			if(to_enable_collision != NULL) {
+				to_enable_collision->enable_collision = 1;
+			}
 		}
 	}
 
@@ -464,6 +474,7 @@ void keyboard(unsigned char key, int x, int y) {
 			} else if(!leveldata.player.is_active) {
 				leveldata.player.jump = 1;
 			}
+			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
 			break;
 		case 'w':
 			if(g.flymode) {
