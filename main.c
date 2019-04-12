@@ -399,7 +399,7 @@ void display() {
 
 
 		// draw terrain
-		draw_wall(leveldata.terrain);
+		draw_wall(leveldata.terrain, g.drawfill);
 
 
 

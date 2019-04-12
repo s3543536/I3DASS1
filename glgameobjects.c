@@ -17,15 +17,21 @@ void draw_car(e_car *car) {
 	glPopMatrix();
 }
 
-void draw_wall(e_wall *wall) {
-	glBegin(GL_LINE_STRIP);
-	for(int i = 0; i < wall->n_vertices; i++) {
-			float x = wall->vertices[i].x;
-			float y = wall->vertices[i].y;
-			float z = wall->vertices[i].z;
-			glVertex3f(x, y, z);
+void draw_wall(e_wall *wall, char filled) {
+	if(filled) {
+		for(size_t i = 0; i < wall->n_boxes; i++) {
+			draw_box(&wall->box_collision[i], 1);
+		}
+	} else {
+		glBegin(GL_LINE_STRIP);
+		for(size_t i = 0; i < wall->n_vertices; i++) {
+				float x = wall->vertices[i].x;
+				float y = wall->vertices[i].y;
+				float z = wall->vertices[i].z;
+				glVertex3f(x, y, z);
+		}
+		glEnd();
 	}
-	glEnd();
 }
 
 void draw_water_distance(e_water *water, circle *player, char filled, water_distance_opts opts) {
