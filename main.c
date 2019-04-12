@@ -104,10 +104,16 @@ void init_level() {
 
 		leveldata.water->shape = (sin_data){.a=1, .b=5, .c=g.time, .d=0};
 
-		leveldata.water->logs[0].shape = (circle){.r=0.3f,.c=ZERO_VECTOR};
-		leveldata.water->logs[1].shape = (circle){.r=0.42f,.c=ZERO_VECTOR};
-		leveldata.water->logs[2].shape = (circle){.r=0.25f,.c=ZERO_VECTOR};
-		leveldata.water->logs[3].shape = (circle){.r=0.5f,.c=ZERO_VECTOR};
+		leveldata.water->logs[0] = E_LOG_PROTOTYPE;
+		leveldata.water->logs[1] = E_LOG_PROTOTYPE;
+		leveldata.water->logs[2] = E_LOG_PROTOTYPE;
+		leveldata.water->logs[3] = E_LOG_PROTOTYPE;
+
+		leveldata.water->logs[0].shape.r=0.3;
+		leveldata.water->logs[1].shape.r=0.42;
+		leveldata.water->logs[2].shape.r=0.25;
+		leveldata.water->logs[3].shape.r=0.5;
+
 	}
 
 	// malloc terrain
@@ -176,10 +182,20 @@ void update(void) {
 	g.dt = g.time - lastT;
 	lastT = g.time;
 
+	// update water
+	leveldata.water->shape.c = g.time;
+	update_water_logs(leveldata.water);
+
+
+
+	//player stuff
+
+
 	if(!leveldata.player.is_active) {
 		leveldata.player.proj.vel = leveldata.player.jump_vec;
 		leveldata.player.proj.vel0 = leveldata.player.jump_vec;
 
+		// handle attaching the player
 		if(leveldata.player.attached_to != NULL) {
 			void (*attach_func)(e_player *p, e_gameobject *obj) = 
 				gameobj_attach_func[leveldata.player.attached_to->type];
@@ -192,11 +208,10 @@ void update(void) {
 		}
 	}
 
+	// handle jumping
 	if(leveldata.player.jump) {
 		leveldata.player.jump = 0;
 		leveldata.player.is_active = 1;
-		//leveldata.player.proj.vel = leveldata.player.jump_vec;
-		//leveldata.player.proj.vel0 = leveldata.player.jump_vec;
 	}
 
 	//player position
@@ -224,14 +239,19 @@ void update(void) {
 
 	// player collision
 	if(leveldata.player.t->is_dynamic || leveldata.player.is_active) {
-		// generic gameobject array for collision code
-		size_t total_game_objects = leveldata.n_cars + 2;//n_cars + terrain + water
+		// setup generic gameobject array with all objects
+		size_t water_and_terrain = 2;
+		size_t cars_offset = water_and_terrain;
+		size_t logs_offset = cars_offset + leveldata.n_cars;
+		size_t total_game_objects = logs_offset + leveldata.water->nlogs;//n_cars + terrain + water + logs
 		e_gameobject *gameobjects[total_game_objects];
 		gameobjects[0] = (e_gameobject *)leveldata.water;
 		gameobjects[1] = (e_gameobject *)leveldata.terrain;
-
 		for(size_t i = 0; i < leveldata.n_cars; i++) {
-			gameobjects[i+2] = (e_gameobject *)&leveldata.cars[i];
+			gameobjects[i+cars_offset] = (e_gameobject *)&leveldata.cars[i];
+		}
+		for(size_t i = 0; i < leveldata.water->nlogs; i++) {
+			gameobjects[i+logs_offset] = (e_gameobject *)&leveldata.water->logs[i];
 		}
 
 		update_trajectory(leveldata.player.t, gameobjects, total_game_objects, fmax(0.1, g.dt));
@@ -279,10 +299,6 @@ void update(void) {
 	}
 
 
-
-	// update water
-	leveldata.water->shape.c = g.time;
-	update_water_logs(leveldata.water);
 
 
 
@@ -350,8 +366,6 @@ void display() {
 		//draw logs
 		glColor3f(0.2,0.2,0.2);
 		for(size_t i = 0; i < leveldata.water->nlogs; i++) {
-			printf("log pos: %f %f\n", leveldata.water->logs[i].shape.c.x, leveldata.water->logs[i].shape.c.y);
-			printf("log size: %f \n", leveldata.water->logs[i].shape.r);
 			draw_circle(&leveldata.water->logs[i].shape, g.tess, g.drawfill);
 		}
 
