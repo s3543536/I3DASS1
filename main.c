@@ -303,11 +303,13 @@ void display() {
 		glVertex3f(leveldata.player.proj.pos.x, leveldata.player.proj.pos.y, leveldata.player.proj.pos.z);
 		glEnd();
 
-		//white
-		glColor3f(1, 1, 1);
+		if(g.flymode) {
+			glColor3f(0,1,1);//super power cyan
+		} else {
+			glColor3f(0,1,0);//green
+		}
 
 		float angle = atan2f(leveldata.player.proj.vel.y, leveldata.player.proj.vel.x);
-
 		oval player_oval = {
 			.c=leveldata.player.bounds.c,
 			.r=leveldata.player.bounds.r,
@@ -315,6 +317,9 @@ void display() {
 			.b=0.5,
 		};
 		draw_oval(&player_oval, angle * 180/PI, 20, (char)0);
+
+		//white
+		glColor3f(1, 1, 1);
 
 		drawVector(leveldata.player.proj.vel, leveldata.player.proj.pos, 1, 0);
 
