@@ -343,7 +343,7 @@ void display() {
 			.a=1,
 			.b=0.5,
 		};
-		draw_oval(&player_oval, angle * 180/PI, 20, (char)0);
+		draw_oval(&player_oval, angle * 180/PI, 20, g.drawfill);
 
 		//white
 		glColor3f(1, 1, 1);
