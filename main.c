@@ -178,6 +178,17 @@ void update(void) {
 	if(!leveldata.player.is_active) {
 		leveldata.player.proj.vel = leveldata.player.jump_vec;
 		leveldata.player.proj.vel0 = leveldata.player.jump_vec;
+
+		if(leveldata.player.attached_to != NULL) {
+			void (*attach_func)(e_player *p, e_gameobject *obj) = 
+				gameobj_attach_func[leveldata.player.attached_to->type];
+
+			//move the player according to the something
+			attach_func(&leveldata.player, leveldata.player.attached_to);
+			leveldata.player.proj.pos0 = leveldata.player.proj.pos;
+			leveldata.player.bounds.c = leveldata.player.proj.pos;
+			leveldata.player.t->is_dynamic = 1;//dirty the trajectory redraw
+		}
 	}
 
 	if(leveldata.player.jump) {
@@ -189,6 +200,7 @@ void update(void) {
 
 	//player position
 	if(leveldata.player.is_active) {
+		leveldata.player.attached_to = NULL;
 		// check if trajectory is dynamic
 		if(g.i_mode == analytical) {
 			if(leveldata.player.proj.reset_start || leveldata.player.jump) {
@@ -249,6 +261,10 @@ void update(void) {
 					updateProjectileStateNumerical(&leveldata.player.proj, -1*g.dt);
 					leveldata.player.bounds.c = leveldata.player.proj.pos;
 
+					if(gameobj_attach_func[gameobjects[i]->type] != NULL) {
+						// we can attach to this object... don't just be static
+						leveldata.player.attached_to = gameobjects[i];
+					}
 
 					leveldata.player.proj.vel = leveldata.player.jump_vec;
 					leveldata.player.proj.vel0 = leveldata.player.jump_vec;

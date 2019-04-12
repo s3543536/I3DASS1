@@ -12,6 +12,7 @@ typedef struct vector {
 #define UNIT_VECTOR (vector){1,1,1}
 
 #define LENGTHVEC(V) sqrt((V).x * (V).x + (V).y * (V).y + (V).z * (V).z)
+#define DIFFVEC(V1, V2) ((vector){.x=(V1).x - (V2).x, .y=(V1).y - (V2).y, .z=(V1).z - (V2).z})
 
 
 /** cross product of 2 vectors

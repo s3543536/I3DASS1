@@ -15,6 +15,52 @@ const char is_gameobj_dynamic[5] = {
 	1,
 	0
 };
+const void (*gameobj_attach_func[5])(e_player *p, e_gameobject *obj) = {
+	NULL,//player
+	NULL,//car
+	log_attach,//log
+	water_attach,//water
+	NULL,//wall
+};
+
+void log_attach(e_player *p, e_gameobject *obj) {
+	e_log elog = *(e_log*)obj;
+
+	//d = sqrt(dx^2 + dy^2)
+	//d^2 = dx^2 + dy^2
+	//dy^2 = d^2 - dx^2
+	//dy = sqrt(d^2 - dx^2)
+	float dx = elog.shape.c.x - p->proj.pos.x;
+	float d = LENGTHVEC(DIFFVEC(elog.shape.c, p->proj.pos));
+	float dy = sqrt(d*d - dx*dx);
+
+	//move the player above the log, so that the circles are touching
+	p->proj.pos.y += dy+0.01;
+}
+
+void water_attach(e_player *p, e_gameobject *obj) {
+	e_water *w = (e_water*)obj;
+
+	circle player_circle = p->bounds;
+	//apply translation in reverse
+	player_circle.c.x -= w->bounds.c.x;
+	player_circle.c.y -= w->bounds.c.y;
+	player_circle.c.z -= w->bounds.c.z;
+
+	//apply scale in reverse
+	player_circle.c.x *= 1/(0.5*w->bounds.w);
+	player_circle.c.y *= 1/(0.5*w->bounds.h);
+
+	//apply function
+	player_circle.c.y = sin_x(&w->shape, player_circle.c.x);
+
+	//re-apply scale
+	player_circle.c.y *= (0.5*w->bounds.h);
+	//re-apply translation
+	player_circle.c.y += w->bounds.c.y;
+
+	p->proj.pos.y = player_circle.c.y;
+}
 
 void free_trajectory(trajectory *t) {
 	if(t->is_points_on_heap) {
