@@ -146,20 +146,17 @@ void update(void) {
 	if(is_init) {
 		is_init = (char)0;
 
-		lastT = g.time;
-		g.flymode = 1;
-
-		printf("init level\n");
 		init_level();
 
 		g.draw_box_collision = (char)0;
 
-
+		//3 degrees (in radians)
+		g.rotate_angle = 1 * 2*PI/180;
+		g.flymode = 1;
 		g.i_mode = numerical;
-	}
 
-	//3 degrees (in radians)
-	g.rotate_angle = 3 * 2*PI/180;
+		lastT = g.time;
+	}
 
 	g.dt = g.time - lastT;
 	lastT = g.time;
