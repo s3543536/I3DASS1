@@ -94,15 +94,12 @@ void init_level() {
 	} else {
 		*leveldata.water = E_WATER_PROTOTYPE;
 
-		leveldata.water->bounds.c = (vector){.x=0.375, .y=0, .z=0};
+		leveldata.water->bounds.c = (vector){.x=0.375, .y=-0.1, .z=0};
 		leveldata.water->bounds.w = 0.75;
 		leveldata.water->bounds.h = 0.2;
-		//init_vector(&leveldata.water->bottom_left, 0.5, 0, 0);
-		//init_vector(&leveldata.water->top_right, 0.6, 0.1, 0);
-		leveldata.water->depth = 0.8f;
 		leveldata.water->nlogs = nlogs;
 
-		leveldata.water->shape = (sin_data){.a=1, .b=5, .c=g.time, .d=0};
+		leveldata.water->shape = (sin_data){.a=0.5, .b=5, .c=g.time, .d=0.5};
 
 		leveldata.water->logs[0] = E_LOG_PROTOTYPE;
 		leveldata.water->logs[1] = E_LOG_PROTOTYPE;
@@ -137,8 +134,8 @@ void init_level() {
 		init_vector(&leveldata.terrain->vertices[3], -0.25, 0.025, 0);
 		init_vector(&leveldata.terrain->vertices[4], -0.25, 0, 0);
 		init_vector(&leveldata.terrain->vertices[5], 0, 0, 0);
-		init_vector(&leveldata.terrain->vertices[6], -0, -0.06, 0);
-		init_vector(&leveldata.terrain->vertices[7], 0.75, -0.06, 0);
+		init_vector(&leveldata.terrain->vertices[6], -0, -0.2, 0);
+		init_vector(&leveldata.terrain->vertices[7], 0.75, -0.2, 0);
 		init_vector(&leveldata.terrain->vertices[8], 0.75, 0, 0);
 		init_vector(&leveldata.terrain->vertices[9], 1, 0, 0);
 	}
@@ -152,12 +149,12 @@ void init_level() {
 		leveldata.terrain->n_boxes = 4;
 		vector centre0 = {.x=-0.5, .y=-0.5, .z=0};//main left quadrant
 		vector centre1 = {.x=-0.5, .y=0.0125, .z=0};//road
-		vector centre2 = {.x=0.5, .y=-0.53, .z=0};//main right quadrant
-		vector centre3 = {.x=0.875, .y=-0.03, .z=0};//right-most bank
+		vector centre2 = {.x=0.5, .y=-0.6, .z=0};//main right quadrant
+		vector centre3 = {.x=0.875, .y=-0.1, .z=0};//right-most bank
 		leveldata.terrain->box_collision[0] = (box){.c=centre0, .h=1, .w=1};//main left quadrant
 		leveldata.terrain->box_collision[1] = (box){.c=centre1, .h=0.025, .w=0.5};//road
-		leveldata.terrain->box_collision[2] = (box){.c=centre2, .h=0.94, .w=1};
-		leveldata.terrain->box_collision[3] = (box){.c=centre3, .h=0.06, .w=0.25};
+		leveldata.terrain->box_collision[2] = (box){.c=centre2, .h=0.8, .w=1};
+		leveldata.terrain->box_collision[3] = (box){.c=centre3, .h=0.2, .w=0.25};
 	}
 }
 

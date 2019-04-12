@@ -75,7 +75,6 @@ typedef struct {
 typedef struct {
 	gameobject_type type;
 	box bounds;
-	float depth;
 	sin_data shape;
 	size_t nlogs;
 	e_log logs[0];
@@ -87,7 +86,6 @@ typedef struct {
 		.w = 1, \
 		.h = 1, \
 	}, \
-	.depth = 0, \
 	.shape = (sin_data){.a=1,.b=1,.c=0,.d=0,}, \
 	.nlogs = 0, \
 } \
