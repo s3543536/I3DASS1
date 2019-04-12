@@ -331,13 +331,14 @@ void display() {
 		for(int i = 0; i < leveldata.n_cars; i++) {
 			draw_car(&leveldata.cars[i]);
 		}
-		glColor3f(1,1,1);
 
 
 
 		// draw water
+		glColor3f(0,1,1);
 		draw_water_distance(leveldata.water, &leveldata.player.bounds, wd_water);
 
+		glColor3f(1,1,1);
 
 
 		//collisions
