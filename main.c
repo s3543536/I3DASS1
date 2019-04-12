@@ -158,6 +158,57 @@ void init_level() {
 	}
 }
 
+void handle_keys() {
+	if(keys & kw) {
+		if(g.flymode) {
+			vector *change_vec = &leveldata.player.proj.vel;
+			change_vec->y += g.velocity_change * g.dt;
+		}
+		if(!leveldata.player.is_active) {
+			vector *change_vec = &leveldata.player.jump_vec;
+			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+			float change_vec_len = LENGTHVEC(*change_vec);
+			vector_normalize(change_vec);
+			vector_scale(change_vec, change_vec_len + g.velocity_change * g.dt);
+		}
+	}
+	if(keys & ks) {
+		if(g.flymode) {
+			vector *change_vec = &leveldata.player.proj.vel;
+			change_vec->y -= g.velocity_change * g.dt;
+		}
+		if(!leveldata.player.is_active) {
+			vector *change_vec = &leveldata.player.jump_vec;
+			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+			float change_vec_len = LENGTHVEC(*change_vec);
+			vector_normalize(change_vec);
+			vector_scale(change_vec, change_vec_len - g.velocity_change * g.dt);
+		}
+	}
+	if(keys & ka) {
+		if(g.flymode) {
+			vector *change_vec = &leveldata.player.proj.vel;
+			change_vec->x -= g.velocity_change * g.dt;
+		}
+		if(!leveldata.player.is_active) {
+			 vector *change_vec = &leveldata.player.jump_vec;
+			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+			vector_rotate_xy(change_vec, g.rotate_angle * g.dt);
+		}
+	}
+	if(keys & kd) {
+		if(g.flymode) {
+			vector *change_vec = &leveldata.player.proj.vel;
+			change_vec->x += g.velocity_change * g.dt;
+		}
+		if(!leveldata.player.is_active) {
+			vector *change_vec = &leveldata.player.jump_vec;
+			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+			vector_rotate_xy(change_vec, -1 * g.rotate_angle * g.dt);
+		}
+	}
+}
+
 void update(void) {
 	static float lastT;
 
@@ -172,7 +223,8 @@ void update(void) {
 		g.draw_box_collision = (char)0;
 
 		//3 degrees (in radians)
-		g.rotate_angle = 1 * 2*PI/180;
+		g.rotate_angle = 20 * PI/180;//20 degres per sec
+		g.velocity_change = 0.3;//0.3 mps per sec
 		g.flymode = 1;
 		g.i_mode = numerical;
 		g.drawfill = 0;
@@ -188,6 +240,8 @@ void update(void) {
 	leveldata.water->shape.c = g.time;
 	update_water_logs(leveldata.water);
 
+
+	handle_keys();
 
 
 	//player stuff
@@ -448,8 +502,28 @@ void free_leveldata() {
 	}
 }
 
+void keyboardUp(unsigned char key, int x, int y) {
+	switch(key) {
+		case 'w':
+			keys &= ~kw;
+			break;
+		case 's':
+			keys &= ~ks;
+			break;
+		case 'a':
+			keys &= ~ka;
+			break;
+		case 'd':
+			keys &= ~kd;
+			break;
+	}
+}
+
 void keyboard(unsigned char key, int x, int y) {
 	switch(key) {
+		case 'e':
+			printf("e down\n");
+			break;
 		case 27:
 		case 'q':
 			free_leveldata();
@@ -513,52 +587,16 @@ void keyboard(unsigned char key, int x, int y) {
 			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
 			break;
 		case 'w':
-			if(g.flymode) {
-				leveldata.player.proj.vel.y = fmax(0.2, leveldata.player.proj.vel.y + 0.2);
-				leveldata.player.proj.reset_start = (char)1;
-			}
-			if(g.flymode || !leveldata.player.is_active) {
-				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-				vector *pv0 = &leveldata.player.jump_vec;
-				float pv0len = LENGTHVEC(*pv0);
-				vector_normalize(pv0);
-				vector_scale(pv0, pv0len + 0.1f);
-			}
+			keys |= kw;
 			break;
 		case 'a':
-			if(g.flymode) {
-				leveldata.player.proj.vel.x -= 0.05;
-				leveldata.player.proj.reset_start = (char)1;
-			}
-			if(g.flymode || !leveldata.player.is_active) {
-				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-
-				vector_rotate_xy(&leveldata.player.jump_vec, g.rotate_angle);
-				//pv0->x -= 0.2f;
-			}
+			keys |= ka;
 			break;
 		case 'd':
-			if(g.flymode) {
-				leveldata.player.proj.vel.x += 0.05;
-				leveldata.player.proj.reset_start = (char)1;
-			}
-			if(g.flymode || !leveldata.player.is_active) {
-				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-
-				vector_rotate_xy(&leveldata.player.jump_vec, -1*g.rotate_angle);
-			}
+			keys |= kd;
 			break;
 		case 's':
-			if(g.flymode) {
-				leveldata.player.proj.reset_start = (char)1;
-			}
-			if(g.flymode || !leveldata.player.is_active) {
-				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-				vector *pv0 = &leveldata.player.jump_vec;
-				float pv0len = LENGTHVEC(*pv0);
-				vector_normalize(pv0);
-				vector_scale(pv0, pv0len - 0.1f);
-			}
+			keys |= ks;
 			break;
 		default://every other key
 			break;
@@ -585,6 +623,7 @@ int main(int argc, char **argv) {
 
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
+	glutKeyboardUpFunc(keyboardUp);
 	glutIdleFunc(update);
 	glutMainLoop();
 

@@ -35,6 +35,14 @@ struct leveldata {
 
 struct leveldata leveldata;
 
+enum smooth_keys {
+	kw = 1 << 0,
+	ks = 1 << 1,
+	ka = 1 << 2,
+	kd = 1 << 3,
+} keys;
+//x-or with the thing you want to flip
+
 
 /*
  * glTranslate(x, y, z);
