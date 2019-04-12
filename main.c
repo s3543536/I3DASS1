@@ -10,8 +10,6 @@ char is_init = (char)1;
 
 void init_level() {
 
-	leveldata.collision_disabled = NULL;
-
 	leveldata.player = E_PLAYER_PROTOTYPE;
 	leveldata.player.is_active = 0;
 	vector_scale(&leveldata.player.jump_vec, max_jump);
@@ -177,10 +175,6 @@ void update(void) {
 	g.dt = g.time - lastT;
 	lastT = g.time;
 
-	if(leveldata.collision_disabled != NULL) {
-		leveldata.collision_disabled->enable_collision = 1;
-	}
-
 	if(!leveldata.player.is_active) {
 		leveldata.player.proj.vel = leveldata.player.jump_vec;
 		leveldata.player.proj.vel0 = leveldata.player.jump_vec;
@@ -217,10 +211,6 @@ void update(void) {
 
 	// player collision
 	if(leveldata.player.t->is_dynamic || leveldata.player.is_active) {
-		// store the previous object we want to re-enable collision on so that we can
-		// do the same for the next one
-		e_gameobject *to_enable_collision = leveldata.collision_disabled;
-
 		// generic gameobject array for collision code
 		size_t total_game_objects = leveldata.n_cars + 2;//n_cars + terrain + water
 		e_gameobject *gameobjects[total_game_objects];
@@ -244,8 +234,7 @@ void update(void) {
 					continue;
 				}
 
-				if(gameobjects[i]->enable_collision 
-						&& intersect_func(&leveldata.player, gameobjects[i])) {
+				if(intersect_func(&leveldata.player, gameobjects[i])) {
 
 					// intersected with a car
 					if(gameobjects[i]->type == t_ecar
@@ -266,16 +255,8 @@ void update(void) {
 					leveldata.player.t->is_dynamic = 1;// trigger a trajectory update
 					leveldata.player.is_active = 0;
 
-					// store the object we don't want collision with
-					gameobjects[i]->enable_collision = 0;
-					leveldata.collision_disabled = gameobjects[i];
 					break;
 				}
-			}
-
-			// re-enable collision now that we haven't collided with it
-			if(to_enable_collision != NULL) {
-				to_enable_collision->enable_collision = 1;
 			}
 		}
 	}

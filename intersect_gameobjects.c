@@ -154,8 +154,7 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 				continue;
 			}
 
-			char skip = t->n_points == 1 && !objects[i]->enable_collision;
-			if(!skip && intersect_func(&player, objects[i])) {
+			if(intersect_func(&player, objects[i])) {
 				// intersected with this object
 				has_intersected = 1;
 				t->is_dynamic = is_gameobj_dynamic[objects[i]->type];

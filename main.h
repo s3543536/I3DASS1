@@ -24,8 +24,6 @@
 
 struct leveldata {
 	e_player player;
-	e_gameobject *collision_disabled;
-	e_gameobject *to_enable_collision;
 	char is_cars_on_heap;
 	size_t n_cars;
 	e_car *cars;
