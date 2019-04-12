@@ -1,16 +1,31 @@
 #include "glfunc.h"
 
 
-void draw_2d_function(float (*f)(void *data, float x), void *pass_thr, float x_scale, float y_scale) {
-	glBegin(GL_LINE_STRIP);
-	float y = 0;
-	for(float x = -1; x < 1; x += 0.1f * x_scale) {
-		y = f(pass_thr, x / x_scale);
-		glVertex3f(x, y * y_scale, 0.0f);
+void draw_2d_function(float (*f)(void *data, float x), void *pass_thr, float x_scale, float y_scale, char filled) {
+	if(filled) {
+		glBegin(GL_QUAD_STRIP);
+		float y = 0;
+		for(float x = -1; x < 1; x += 0.1f * x_scale) {
+			glVertex3f(x, -1, 0.0f);
+
+			y = f(pass_thr, x / x_scale);
+			glVertex3f(x, y * y_scale, 0.0f);
+		}
+		y = f(pass_thr, 1 / x_scale);
+		glVertex3f(1, -1, 0.0f);
+		glVertex3f(1, y * y_scale, 0.0f);
+		glEnd();
+	} else {
+		glBegin(GL_LINE_STRIP);
+		float y = 0;
+		for(float x = -1; x < 1; x += 0.1f * x_scale) {
+			y = f(pass_thr, x / x_scale);
+			glVertex3f(x, y * y_scale, 0.0f);
+		}
+		y = f(pass_thr, 1 / x_scale);
+		glVertex3f(1, y * y_scale, 0.0f);
+		glEnd();
 	}
-	y = f(pass_thr, 1 / x_scale);
-	glVertex3f(1, y * y_scale, 0.0f);
-	glEnd();
 }
 
 void draw_2d_function_normals(float (*f)(void *data, float x), void *pass_thr, float x_scale, float y_scale) {

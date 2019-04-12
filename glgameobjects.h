@@ -23,10 +23,10 @@ typedef enum {
 } water_distance_opts;
 
 // draws the water and the various functions used to calculate distance
-void draw_water_distance(e_water *water, circle *player, water_distance_opts opts);
+void draw_water_distance(e_water *water, circle *player, char filled, water_distance_opts opts);
 
 // much simpler, just draws the water
-void draw_water(e_water *water);
+void draw_water(e_water *water, char filled);
 
 void draw_wall(e_wall *wall);
 

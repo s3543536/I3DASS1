@@ -363,7 +363,7 @@ void display() {
 
 		// draw water
 		glColor3f(0,1,1);
-		draw_water_distance(leveldata.water, &leveldata.player.bounds, wd_water);
+		draw_water_distance(leveldata.water, &leveldata.player.bounds, g.drawfill, wd_water);
 
 		//draw logs
 		glColor3f(0.2,0.2,0.2);
@@ -478,6 +478,9 @@ void keyboard(unsigned char key, int x, int y) {
 			// increment posx and print
 			posx += 0.01f;
 			printf("posx: %5.3f\n", posx);
+			break;
+		case 'f':
+			g.drawfill = !g.drawfill;
 			break;
 		case 'i':
 			if(g.i_mode == analytical) {
