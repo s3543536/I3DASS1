@@ -26,16 +26,16 @@ const void (*gameobj_attach_func[5])(e_player *p, e_gameobject *obj) = {
 void log_attach(e_player *p, e_gameobject *obj) {
 	e_log elog = *(e_log*)obj;
 
-	//d = sqrt(dx^2 + dy^2)
-	//d^2 = dx^2 + dy^2
-	//dy^2 = d^2 - dx^2
-	//dy = sqrt(d^2 - dx^2)
-	float dx = elog.shape.c.x - p->proj.pos.x;
-	float d = LENGTHVEC(DIFFVEC(elog.shape.c, p->proj.pos));
-	float dy = sqrt(d*d - dx*dx);
+	//equation of circle (log boundary)
+	//x^2 + y^2 = r^2
+	//y^2 = r^2 - x^2
+	//y = sqrt(r^2 - x^2)
+	float x = elog.shape.c.x - p->proj.pos.x;
+	float r = elog.shape.r;
+	float y = sqrt(r*r - x*x) + elog.shape.c.y;
 
 	//move the player above the log, so that the circles are touching
-	p->proj.pos.y += dy+0.01;
+	p->proj.pos.y = y+0.02;
 }
 
 void water_attach(e_player *p, e_gameobject *obj) {

@@ -174,7 +174,7 @@ void update(void) {
 		g.flymode = 1;
 		g.i_mode = numerical;
 		g.drawfill = 0;
-		g.tess = 4;
+		g.tess = 20;
 
 		lastT = g.time;
 	}
