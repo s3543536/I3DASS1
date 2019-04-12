@@ -306,14 +306,16 @@ void display() {
 		//white
 		glColor3f(1, 1, 1);
 
-		// draw circle around player
-		circle pj = {.r=0.05, .c={.x=leveldata.player.proj.pos.x, .y=leveldata.player.proj.pos.y, .z=leveldata.player.proj.pos.z}};
-		draw_circle(&leveldata.player.bounds, 10, (char)0);
+		float angle = atan2f(leveldata.player.proj.vel.y, leveldata.player.proj.vel.x);
 
-		//TODO: use angel between vectors:
-		//  find the angle between jump and velocity
-		//  rotate by that angle
-		// draw player jump vector
+		oval player_oval = {
+			.c=leveldata.player.bounds.c,
+			.r=leveldata.player.bounds.r,
+			.a=1,
+			.b=0.5,
+		};
+		draw_oval(&player_oval, angle * 180/PI, 20, (char)0);
+
 		drawVector(leveldata.player.proj.vel, leveldata.player.proj.pos, 1, 0);
 
 

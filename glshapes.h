@@ -17,6 +17,8 @@ void drawAxes(float length, int draw_negative);
 #endif
 void draw_circle(circle *c, size_t nvertex, char filled);
 
+void draw_oval(oval *o, float rotate_angle, size_t nvertex, char filled);
+
 void draw_box(box *b, char filled);
 
 

@@ -59,3 +59,22 @@ void draw_box(box *b, char filled) {
 	glVertex3f(b->c.x+b->w/2, b->c.y-b->h/2, b->c.z);
 	glEnd();
 }
+
+void draw_oval(oval *o, float rotate_angle, size_t nvertex, char filled) {
+	glPushMatrix();
+	glTranslatef(o->c.x, o->c.y, o->c.z);
+	glRotatef(rotate_angle, 0,0,1);
+	if(filled) {
+		glBegin(GL_POLYGON);
+	} else {
+		glBegin(GL_LINE_LOOP);
+	}
+
+	float angle = 0;
+	for(size_t i = 0; i < nvertex; i++) {
+		angle = i * 2 * PI / nvertex;
+		glVertex3f(sin(angle) * o->r * o->a, cos(angle) * o->r * o->b, 0);
+	}
+	glEnd();
+	glPopMatrix();
+}
