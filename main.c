@@ -158,57 +158,6 @@ void init_level() {
 	}
 }
 
-void handle_keys() {
-	if(keys & kw) {
-		if(g.flymode) {
-			vector *change_vec = &leveldata.player.proj.vel;
-			change_vec->y += g.velocity_change * g.dt;
-		}
-		if(!leveldata.player.is_active) {
-			vector *change_vec = &leveldata.player.jump_vec;
-			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-			float change_vec_len = LENGTHVEC(*change_vec);
-			vector_normalize(change_vec);
-			vector_scale(change_vec, change_vec_len + g.velocity_change * g.dt);
-		}
-	}
-	if(keys & ks) {
-		if(g.flymode) {
-			vector *change_vec = &leveldata.player.proj.vel;
-			change_vec->y -= g.velocity_change * g.dt;
-		}
-		if(!leveldata.player.is_active) {
-			vector *change_vec = &leveldata.player.jump_vec;
-			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-			float change_vec_len = LENGTHVEC(*change_vec);
-			vector_normalize(change_vec);
-			vector_scale(change_vec, change_vec_len - g.velocity_change * g.dt);
-		}
-	}
-	if(keys & ka) {
-		if(g.flymode) {
-			vector *change_vec = &leveldata.player.proj.vel;
-			change_vec->x -= g.velocity_change * g.dt;
-		}
-		if(!leveldata.player.is_active) {
-			 vector *change_vec = &leveldata.player.jump_vec;
-			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-			vector_rotate_xy(change_vec, g.rotate_angle * g.dt);
-		}
-	}
-	if(keys & kd) {
-		if(g.flymode) {
-			vector *change_vec = &leveldata.player.proj.vel;
-			change_vec->x += g.velocity_change * g.dt;
-		}
-		if(!leveldata.player.is_active) {
-			vector *change_vec = &leveldata.player.jump_vec;
-			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-			vector_rotate_xy(change_vec, -1 * g.rotate_angle * g.dt);
-		}
-	}
-}
-
 void update(void) {
 	static float lastT;
 
@@ -525,6 +474,58 @@ void free_leveldata() {
 		free(leveldata.terrain);
 	}
 }
+
+void handle_keys() {
+	if(keys & kw) {
+		if(g.flymode) {
+			vector *change_vec = &leveldata.player.proj.vel;
+			change_vec->y += g.velocity_change * g.dt;
+		}
+		if(!leveldata.player.is_active) {
+			vector *change_vec = &leveldata.player.jump_vec;
+			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+			float change_vec_len = LENGTHVEC(*change_vec);
+			vector_normalize(change_vec);
+			vector_scale(change_vec, change_vec_len + g.velocity_change * g.dt);
+		}
+	}
+	if(keys & ks) {
+		if(g.flymode) {
+			vector *change_vec = &leveldata.player.proj.vel;
+			change_vec->y -= g.velocity_change * g.dt;
+		}
+		if(!leveldata.player.is_active) {
+			vector *change_vec = &leveldata.player.jump_vec;
+			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+			float change_vec_len = LENGTHVEC(*change_vec);
+			vector_normalize(change_vec);
+			vector_scale(change_vec, change_vec_len - g.velocity_change * g.dt);
+		}
+	}
+	if(keys & ka) {
+		if(g.flymode) {
+			vector *change_vec = &leveldata.player.proj.vel;
+			change_vec->x -= g.velocity_change * g.dt;
+		}
+		if(!leveldata.player.is_active) {
+			 vector *change_vec = &leveldata.player.jump_vec;
+			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+			vector_rotate_xy(change_vec, g.rotate_angle * g.dt);
+		}
+	}
+	if(keys & kd) {
+		if(g.flymode) {
+			vector *change_vec = &leveldata.player.proj.vel;
+			change_vec->x += g.velocity_change * g.dt;
+		}
+		if(!leveldata.player.is_active) {
+			vector *change_vec = &leveldata.player.jump_vec;
+			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+			vector_rotate_xy(change_vec, -1 * g.rotate_angle * g.dt);
+		}
+	}
+}
+
 
 void keyboardUp(unsigned char key, int x, int y) {
 	switch(key) {

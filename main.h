@@ -43,6 +43,8 @@ enum smooth_keys {
 } keys;
 //x-or with the thing you want to flip
 
+void handle_keys();
+
 
 /*
  * glTranslate(x, y, z);
