@@ -159,7 +159,7 @@ void init_level() {
 }
 
 void update(void) {
-	static float lastT;
+	static float last_t;
 
 	// update the time
 	g.time = glutGet(GLUT_ELAPSED_TIME) / (float)milli - g.start_time;
@@ -172,21 +172,22 @@ void update(void) {
 		g.draw_box_collision = (char)0;
 
 		//3 degrees (in radians)
-		g.rotate_angle = 20 * PI/180;//20 degres per sec
-		g.velocity_change = 0.3;//0.3 mps per sec
-		g.flymode = 1;
-		g.i_mode = numerical;
-		g.drawfill = 0;
-		g.tess = 20;
 
-		lastT = g.time;
+		last_t = g.time;
+
 	}
 
-	g.dt = g.time - lastT;
-	lastT = g.time;
+	g.real_dt = g.time - last_t;
+	if(g.pause) {
+		g.dt = 0;
+		g.start_time += g.real_dt;
+	} else {
+		g.dt = g.real_dt;
+	}
+	last_t = g.time;
 
 	// update water
-	leveldata.water->shape.c = g.time;
+	leveldata.water->shape.c += g.dt;
 	update_water_logs(leveldata.water);
 
 
@@ -479,7 +480,7 @@ void handle_keys() {
 	if(keys & kw) {
 		if(g.flymode) {
 			vector *change_vec = &leveldata.player.proj.vel;
-			change_vec->y += g.velocity_change * g.dt;
+			change_vec->y += g.velocity_change * g.real_dt;
 		}
 		if(!leveldata.player.is_active) {
 			vector *change_vec = &leveldata.player.jump_vec;
@@ -492,7 +493,7 @@ void handle_keys() {
 	if(keys & ks) {
 		if(g.flymode) {
 			vector *change_vec = &leveldata.player.proj.vel;
-			change_vec->y -= g.velocity_change * g.dt;
+			change_vec->y -= g.velocity_change * g.real_dt;
 		}
 		if(!leveldata.player.is_active) {
 			vector *change_vec = &leveldata.player.jump_vec;
@@ -505,7 +506,7 @@ void handle_keys() {
 	if(keys & ka) {
 		if(g.flymode) {
 			vector *change_vec = &leveldata.player.proj.vel;
-			change_vec->x -= g.velocity_change * g.dt;
+			change_vec->x -= g.velocity_change * g.real_dt;
 		}
 		if(!leveldata.player.is_active) {
 			 vector *change_vec = &leveldata.player.jump_vec;
@@ -516,7 +517,7 @@ void handle_keys() {
 	if(keys & kd) {
 		if(g.flymode) {
 			vector *change_vec = &leveldata.player.proj.vel;
-			change_vec->x += g.velocity_change * g.dt;
+			change_vec->x += g.velocity_change * g.real_dt;
 		}
 		if(!leveldata.player.is_active) {
 			vector *change_vec = &leveldata.player.jump_vec;
@@ -546,8 +547,9 @@ void keyboardUp(unsigned char key, int x, int y) {
 
 void keyboard(unsigned char key, int x, int y) {
 	switch(key) {
-		case 'e':
-			printf("e down\n");
+		case 'p':
+			//pause time
+			g.pause = !g.pause;
 			break;
 		case 27:
 		case 'q':

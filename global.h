@@ -8,7 +8,9 @@ typedef enum { analytical, numerical } integrationMode;
 struct global_t {
 	float time;
 	float dt;
+	float real_dt;
 	float start_time;
+	char pause;
 	float rotate_angle;
 	float velocity_change;
 	unsigned int tess;
