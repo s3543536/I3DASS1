@@ -17,11 +17,11 @@ void init_level() {
 	// set player radius
 	circle player_bounds = {.r=0.015};
 	// set position based on radius
-	vector initial_position = {.x=-0.87,.y=player_bounds.r,.z=0};
+	leveldata.player.start_pos = (vector){.x=-0.87,.y=player_bounds.r,.z=0};
 
 	//set players physics position
-	leveldata.player.proj.pos0 = initial_position;
-	leveldata.player.proj.pos  = initial_position;
+	leveldata.player.proj.pos0 = leveldata.player.start_pos;
+	leveldata.player.proj.pos  = leveldata.player.start_pos;
 	leveldata.player.proj.vel0 = ZERO_VECTOR;
 	leveldata.player.proj.vel  = ZERO_VECTOR;
 
@@ -195,7 +195,19 @@ void update(void) {
 
 
 	//player stuff
-
+	if(leveldata.player.is_dead && leveldata.player.respawn) {
+		leveldata.player.proj.pos = leveldata.player.start_pos;
+		leveldata.player.proj.pos0 = leveldata.player.start_pos;
+		leveldata.player.bounds.c = leveldata.player.start_pos;
+		leveldata.player.proj.vel0 = ZERO_VECTOR;
+		leveldata.player.proj.vel  = ZERO_VECTOR;
+		leveldata.player.proj.reset_start = 1;
+		leveldata.player.proj.is_dynamic = 1;
+		leveldata.player.t->is_dynamic = 1;
+		leveldata.player.is_dead = 0;
+		leveldata.player.respawn = 0;
+		leveldata.player.attached_to = NULL;
+	}
 
 	if(!leveldata.player.is_active) {
 		leveldata.player.proj.vel = leveldata.player.jump_vec;
@@ -304,6 +316,7 @@ void update(void) {
 							|| gameobjects[i]->type == t_ewater) {
 						// TODO: respawn
 						printf("splat\n");
+						leveldata.player.is_dead = 1;
 					}
 
 					has_intersected = 1;
@@ -355,7 +368,9 @@ void display() {
 		draw_wall(leveldata.terrain, 0);
 
 		//player
-		if(g.flymode) {
+		if(leveldata.player.is_dead) {
+			glColor3f(1,0,0);//dead
+		} else if(g.flymode) {
 			glColor3f(0,1,1);//super power cyan
 		} else {
 			glColor3f(0,1,0);//green
@@ -371,9 +386,11 @@ void display() {
 
 
 		//trajectroy and vector
-		glColor3f(1, 1, 1);
-		draw_trajectory(leveldata.player.t);
-		drawVector(leveldata.player.proj.vel, leveldata.player.proj.pos, 1, 0);
+		if(!leveldata.player.is_dead) {
+			glColor3f(1, 1, 1);
+			draw_trajectory(leveldata.player.t);
+			drawVector(leveldata.player.proj.vel, leveldata.player.proj.pos, 1, 0);
+		}
 
 
 		// cars
@@ -521,67 +538,82 @@ void keyboardUp(unsigned char key, int x, int y) {
 }
 
 void keyboard(unsigned char key, int x, int y) {
-	switch(key) {
-		case 'p':
-			//pause time
-			g.pause = !g.pause;
-			break;
-		case 27:
-		case 'q':
-			free_leveldata();
-			exit(EXIT_SUCCESS);
-			break;
-		case '+':
-		case '=':
-			g.tess *= 2;
-			break;
-		case '-':
-			g.tess /= 2;
-			if(g.tess < 4) {
-				g.tess = 4;
-			}
-			break;
-		case 'm':
-			// toggle draw box collision
-			g.draw_box_collision = !g.draw_box_collision;
-			break;
-		case 'f':
-			g.drawfill = !g.drawfill;
-			break;
-		case 'i':
-			if(g.i_mode == analytical) {
-				g.i_mode = numerical;
-			} else if(g.i_mode == numerical) {
-				g.i_mode = analytical;
-			} else {
-				perror("invalid integration mode");
-			}
-			break;
-		case 'n':
-			g.flymode = !g.flymode;
-			break;
-		case ' ':
-			if(g.flymode) {
-				leveldata.player.is_active = !leveldata.player.is_active;
-			} else if(!leveldata.player.is_active) {
-				leveldata.player.jump = 1;
-			}
-			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-			break;
-		case 'w':
-			keys |= kw;
-			break;
-		case 'a':
-			keys |= ka;
-			break;
-		case 'd':
-			keys |= kd;
-			break;
-		case 's':
-			keys |= ks;
-			break;
-		default://every other key
-			break;
+	if(leveldata.player.is_dead) {
+		switch(key) {
+			case 'r':
+				leveldata.player.respawn = 1;
+				break;
+			case 27:
+			case 'q':
+				free_leveldata();
+				exit(EXIT_SUCCESS);
+				break;
+			case 'g':
+				g.pause = !g.pause;
+				break;
+		}
+	} else {
+		switch(key) {
+			case 'g':
+				g.pause = !g.pause;
+				break;
+			case 27:
+			case 'q':
+				free_leveldata();
+				exit(EXIT_SUCCESS);
+				break;
+			case '+':
+			case '=':
+				g.tess *= 2;
+				break;
+			case '-':
+				g.tess /= 2;
+				if(g.tess < 4) {
+					g.tess = 4;
+				}
+				break;
+			case 'm':
+				// toggle draw box collision
+				g.draw_box_collision = !g.draw_box_collision;
+				break;
+			case 'f':
+				g.drawfill = !g.drawfill;
+				break;
+			case 'i':
+				if(g.i_mode == analytical) {
+					g.i_mode = numerical;
+				} else if(g.i_mode == numerical) {
+					g.i_mode = analytical;
+				} else {
+					perror("invalid integration mode");
+				}
+				break;
+			case 'n':
+				g.flymode = !g.flymode;
+				break;
+			case ' ':
+				if(g.flymode) {
+					leveldata.player.is_active = !leveldata.player.is_active;
+				} else if(!leveldata.player.is_active) {
+					leveldata.player.jump = 1;
+				}
+				leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+				break;
+			case 'w':
+				keys |= kw;
+				break;
+			case 'a':
+				keys |= ka;
+				break;
+			case 'd':
+				keys |= kd;
+				break;
+			case 's':
+				keys |= ks;
+				break;
+			default://every other key
+				break;
+		}
 	}
 }
 

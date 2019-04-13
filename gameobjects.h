@@ -28,8 +28,11 @@ typedef struct trajectory trajectory;
 typedef struct {
 	gameobject_type type;
 	char is_active;
+	char is_dead;
+	char respawn;
 	e_gameobject *attached_to;
 	projectile proj;
+	vector start_pos;
 	char jump;
 	vector jump_vec;
 	char is_t_on_heap;
@@ -39,8 +42,11 @@ typedef struct {
 #define E_PLAYER_PROTOTYPE (e_player){ \
 	.type = t_eplayer, \
 	.is_active = 1, \
+	.is_dead = 0, \
+	.respawn = 0, \
 	.attached_to = NULL, \
 	.proj=PROJECTILE_PROTOTYPE, \
+	.start_pos=ZERO_VECTOR, \
 	.jump = 0, \
 	.jump_vec = UNIT_VECTOR, \
 	.is_t_on_heap = 0, \
