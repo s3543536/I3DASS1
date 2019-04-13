@@ -40,125 +40,143 @@ void init_level() {
 	};
 
 	p->t = malloc(sizeof(*p->t));
-	if(p->t != NULL) {
-		p->is_t_on_heap = 1;
+	assert(p->t != NULL);
 
-		*p->t = (trajectory){
-			.is_dynamic = 1,
-			.player = p,
-			.flight_time = 0,
-			.is_points_on_heap = 0,
-			.n_points = 0,
-			.max_points = 0,
-			.points = NULL,
-		};
-	}
+	p->is_t_on_heap = 1;
+	*p->t = (trajectory){
+		.is_dynamic = 1,
+		.player = p,
+		.flight_time = 0,
+		.is_points_on_heap = 0,
+		.n_points = 0,
+		.max_points = 0,
+		.points = NULL,
+	};
 
 	leveldata.player_start_state = leveldata.player;
+
+
+
 
 
 	// malloc cars
 	unsigned int ncars = 4;
 	leveldata.cars = malloc(sizeof(*leveldata.cars) * ncars);
-	leveldata.is_cars_on_heap = leveldata.cars != NULL;
-	if(leveldata.cars == NULL) {
-		perror("can't malloc leveldata.cars\n");
-		leveldata.n_cars = 0;
-	} else {
-		leveldata.cars[0] = E_CAR_PROTOTYPE;
-		leveldata.cars[1] = E_CAR_PROTOTYPE;
-		leveldata.cars[2] = E_CAR_PROTOTYPE;
-		leveldata.cars[3] = E_CAR_PROTOTYPE;
+	assert(leveldata.cars != NULL);
+	leveldata.n_cars = 4;
 
-		init_vector(&leveldata.cars[0].pos, -0.7, 0.025, 0);
-		init_vector(&leveldata.cars[1].pos, -0.58, 0.025, 0);
-		init_vector(&leveldata.cars[2].pos, -0.44, 0.025, 0);
-		init_vector(&leveldata.cars[3].pos, -0.32, 0.025, 0);
+	leveldata.cars[0] = E_CAR_PROTOTYPE;
+	leveldata.cars[1] = E_CAR_PROTOTYPE;
+	leveldata.cars[2] = E_CAR_PROTOTYPE;
+	leveldata.cars[3] = E_CAR_PROTOTYPE;
 
-		leveldata.cars[0].height = 0.1f;
-		leveldata.cars[1].height = 0.18f;
-		leveldata.cars[2].height = 0.12f;
-		leveldata.cars[3].height = 0.08f;
+	init_vector(&leveldata.cars[0].pos, -0.7, 0.025, 0);
+	init_vector(&leveldata.cars[1].pos, -0.58, 0.025, 0);
+	init_vector(&leveldata.cars[2].pos, -0.44, 0.025, 0);
+	init_vector(&leveldata.cars[3].pos, -0.32, 0.025, 0);
 
-		leveldata.cars[0].width = 0.05f;
-		leveldata.cars[1].width = 0.05f;
-		leveldata.cars[2].width = 0.05f;
-		leveldata.cars[3].width = 0.05f;
-		
-		leveldata.n_cars = 4;
-	}
+	leveldata.cars[0].height = 0.1f;
+	leveldata.cars[1].height = 0.18f;
+	leveldata.cars[2].height = 0.12f;
+	leveldata.cars[3].height = 0.08f;
+
+	leveldata.cars[0].width = 0.05f;
+	leveldata.cars[1].width = 0.05f;
+	leveldata.cars[2].width = 0.05f;
+	leveldata.cars[3].width = 0.05f;
+
+
+
+
 
 	// malloc water
 	size_t nlogs = 4;
 	leveldata.water = malloc(sizeof(*leveldata.water) + sizeof(e_log) * nlogs);
-	leveldata.is_water_on_heap = leveldata.cars != NULL;
-	if(leveldata.water == NULL) {
-		perror("can't malloc leveldata.water\n");
-	} else {
-		*leveldata.water = E_WATER_PROTOTYPE;
+	assert(leveldata.water != NULL);
+	*leveldata.water = E_WATER_PROTOTYPE;
 
-		leveldata.water->bounds.c = (vector){.x=0.375, .y=-0.1, .z=0};
-		leveldata.water->bounds.w = 0.75;
-		leveldata.water->bounds.h = 0.2;
-		leveldata.water->nlogs = nlogs;
+	leveldata.water->bounds.c = (vector){.x=0.375, .y=-0.1, .z=0};
+	leveldata.water->bounds.w = 0.75;
+	leveldata.water->bounds.h = 0.2;
+	leveldata.water->nlogs = nlogs;
 
-		leveldata.water->shape = (sin_data){.a=0.5, .b=5, .c=g.time, .d=0.5};
+	leveldata.water->shape = (sin_data){.a=0.5, .b=5, .c=g.time, .d=0.5};
 
-		leveldata.water->logs[0] = E_LOG_PROTOTYPE;
-		leveldata.water->logs[1] = E_LOG_PROTOTYPE;
-		leveldata.water->logs[2] = E_LOG_PROTOTYPE;
-		leveldata.water->logs[3] = E_LOG_PROTOTYPE;
+	leveldata.water->logs[0] = E_LOG_PROTOTYPE;
+	leveldata.water->logs[1] = E_LOG_PROTOTYPE;
+	leveldata.water->logs[2] = E_LOG_PROTOTYPE;
+	leveldata.water->logs[3] = E_LOG_PROTOTYPE;
 
-		leveldata.water->logs[0].shape.c.x = 0.7;
-		leveldata.water->logs[1].shape.c.x = 0.58;
-		leveldata.water->logs[2].shape.c.x = 0.44;
-		leveldata.water->logs[3].shape.c.x = 0.32;
+	leveldata.water->logs[0].shape.c.x = 0.7;
+	leveldata.water->logs[1].shape.c.x = 0.58;
+	leveldata.water->logs[2].shape.c.x = 0.44;
+	leveldata.water->logs[3].shape.c.x = 0.32;
 
-		leveldata.water->logs[0].shape.r=0.03;
-		leveldata.water->logs[1].shape.r=0.042;
-		leveldata.water->logs[2].shape.r=0.025;
-		leveldata.water->logs[3].shape.r=0.05;
+	leveldata.water->logs[0].shape.r=0.03;
+	leveldata.water->logs[1].shape.r=0.042;
+	leveldata.water->logs[2].shape.r=0.025;
+	leveldata.water->logs[3].shape.r=0.05;
 
-	}
+
+
+
 
 	// malloc terrain
 	unsigned int nterrain_points = 10;
 	leveldata.terrain = malloc(sizeof(*leveldata.terrain) + sizeof(*leveldata.terrain->vertices) * nterrain_points);
-	leveldata.is_terrain_on_heap = leveldata.terrain != NULL;
-	if(leveldata.terrain == NULL) {
-		perror("can't malloc leveldata.terrain\n");
-	} else {
-		*leveldata.terrain = E_WALL_PROTOTYPE;
+	assert(leveldata.terrain != NULL);
+	*leveldata.terrain = E_WALL_PROTOTYPE;
 
-		leveldata.terrain->n_vertices = nterrain_points;
-		init_vector(&leveldata.terrain->vertices[0], -1, 0, 0);
-		init_vector(&leveldata.terrain->vertices[1], -0.75, 0, 0);
-		init_vector(&leveldata.terrain->vertices[2], -0.75, 0.025, 0);
-		init_vector(&leveldata.terrain->vertices[3], -0.25, 0.025, 0);
-		init_vector(&leveldata.terrain->vertices[4], -0.25, 0, 0);
-		init_vector(&leveldata.terrain->vertices[5], 0, 0, 0);
-		init_vector(&leveldata.terrain->vertices[6], -0, -0.2, 0);
-		init_vector(&leveldata.terrain->vertices[7], 0.75, -0.2, 0);
-		init_vector(&leveldata.terrain->vertices[8], 0.75, 0, 0);
-		init_vector(&leveldata.terrain->vertices[9], 1, 0, 0);
-	}
+	leveldata.terrain->n_vertices = nterrain_points;
+	init_vector(&leveldata.terrain->vertices[0], -1, 0, 0);
+	init_vector(&leveldata.terrain->vertices[1], -0.75, 0, 0);
+	init_vector(&leveldata.terrain->vertices[2], -0.75, 0.025, 0);
+	init_vector(&leveldata.terrain->vertices[3], -0.25, 0.025, 0);
+	init_vector(&leveldata.terrain->vertices[4], -0.25, 0, 0);
+	init_vector(&leveldata.terrain->vertices[5], 0, 0, 0);
+	init_vector(&leveldata.terrain->vertices[6], -0, -0.2, 0);
+	init_vector(&leveldata.terrain->vertices[7], 0.75, -0.2, 0);
+	init_vector(&leveldata.terrain->vertices[8], 0.75, 0, 0);
+	init_vector(&leveldata.terrain->vertices[9], 1, 0, 0);
+
 	// malloc terrain collision
 	leveldata.terrain->n_boxes = 4;
 	leveldata.terrain->box_collision = malloc(sizeof(*leveldata.terrain->box_collision) * leveldata.terrain->n_boxes);
-	leveldata.terrain->is_collision = leveldata.terrain->box_collision != NULL;
-	if(!leveldata.terrain->is_collision) {
-		perror("can't malloc leveldata.terrain->box_collision");
-	} else {
-		leveldata.terrain->n_boxes = 4;
-		vector centre0 = {.x=-0.5, .y=-0.5, .z=0};//main left quadrant
-		vector centre1 = {.x=-0.5, .y=0.0125, .z=0};//road
-		vector centre2 = {.x=0.5, .y=-0.6, .z=0};//main right quadrant
-		vector centre3 = {.x=0.875, .y=-0.1, .z=0};//right-most bank
-		leveldata.terrain->box_collision[0] = (box){.c=centre0, .h=1, .w=1};//main left quadrant
-		leveldata.terrain->box_collision[1] = (box){.c=centre1, .h=0.025, .w=0.5};//road
-		leveldata.terrain->box_collision[2] = (box){.c=centre2, .h=0.8, .w=1};
-		leveldata.terrain->box_collision[3] = (box){.c=centre3, .h=0.2, .w=0.25};
+	assert(leveldata.terrain->box_collision != NULL);
+	leveldata.terrain->is_collision = 1;
+	leveldata.terrain->n_boxes = 4;
+
+	vector centre0 = {.x=-0.5, .y=-0.5, .z=0};//main left quadrant
+	vector centre1 = {.x=-0.5, .y=0.0125, .z=0};//road
+	vector centre2 = {.x=0.5, .y=-0.6, .z=0};//main right quadrant
+	vector centre3 = {.x=0.875, .y=-0.1, .z=0};//right-most bank
+
+	leveldata.terrain->box_collision[0] = (box){.c=centre0, .h=1, .w=1};//main left quadrant
+	leveldata.terrain->box_collision[1] = (box){.c=centre1, .h=0.025, .w=0.5};//road
+	leveldata.terrain->box_collision[2] = (box){.c=centre2, .h=0.8, .w=1};
+	leveldata.terrain->box_collision[3] = (box){.c=centre3, .h=0.2, .w=0.25};
+
+
+
+
+	// setup generic gameobject array with all objects
+	size_t water_and_terrain = 2;
+	size_t cars_offset = water_and_terrain;
+	size_t logs_offset = cars_offset + leveldata.n_cars;
+
+	leveldata.n_objects = logs_offset + leveldata.water->nlogs;
+	leveldata.objects = malloc(sizeof(*leveldata.objects) * leveldata.n_objects);
+	assert(leveldata.objects != NULL);
+	leveldata.objects[0] = (e_gameobject *)leveldata.water;
+	leveldata.objects[1] = (e_gameobject *)leveldata.terrain;
+	for(size_t i = 0; i < leveldata.n_cars; i++) {
+		leveldata.objects[i+cars_offset] = (e_gameobject *)&leveldata.cars[i];
 	}
+	for(size_t i = 0; i < leveldata.water->nlogs; i++) {
+		leveldata.objects[i+logs_offset] = (e_gameobject *)&leveldata.water->logs[i];
+	}
+
+
 }
 
 void update(void) {
@@ -251,42 +269,28 @@ void update(void) {
 
 	// player collision
 	if(p->t->is_dynamic || p->is_active) {
-		// setup generic gameobject array with all objects
-		size_t water_and_terrain = 2;
-		size_t cars_offset = water_and_terrain;
-		size_t logs_offset = cars_offset + leveldata.n_cars;
-		size_t total_game_objects = logs_offset + leveldata.water->nlogs;//n_cars + terrain + water + logs
-		e_gameobject *gameobjects[total_game_objects];
-		gameobjects[0] = (e_gameobject *)leveldata.water;
-		gameobjects[1] = (e_gameobject *)leveldata.terrain;
-		for(size_t i = 0; i < leveldata.n_cars; i++) {
-			gameobjects[i+cars_offset] = (e_gameobject *)&leveldata.cars[i];
-		}
-		for(size_t i = 0; i < leveldata.water->nlogs; i++) {
-			gameobjects[i+logs_offset] = (e_gameobject *)&leveldata.water->logs[i];
-		}
 
-		update_trajectory(p->t, gameobjects, total_game_objects, 0.01);
+		update_trajectory(p->t, leveldata.objects, leveldata.n_objects, 0.01);
 
 		if(p->is_active) {
 			char has_intersected = 0;
-			for(size_t i = 0; i < total_game_objects; i++) {
+			for(size_t i = 0; i < leveldata.n_objects; i++) {
 				// get the intersection function for this gameobject type
-				char (*intersect_func)(e_player *p, e_gameobject *obj) = gameobj_intersect_func[gameobjects[i]->type];
+				char (*intersect_func)(e_player *p, e_gameobject *obj) = gameobj_intersect_func[leveldata.objects[i]->type];
 
 				if(intersect_func == NULL) {
 					// can't intersect with this
 					continue;
 				}
 
-				if(intersect_func(p, gameobjects[i])) {
+				if(intersect_func(p, leveldata.objects[i])) {
 
 					
 #ifndef PRINT_COLLIDES
 #define PRINT_COLLIDES 0
 #endif
 #if PRINT_COLLIDES
-					switch(gameobjects[i]->type) {
+					switch(leveldata.objects[i]->type) {
 						case t_ewater:
 							printf("collide with water\n");
 							break;
@@ -306,8 +310,8 @@ void update(void) {
 #endif
 
 					// intersected with a car
-					if(gameobjects[i]->type == t_ecar
-							|| gameobjects[i]->type == t_ewater) {
+					if(leveldata.objects[i]->type == t_ecar
+							|| leveldata.objects[i]->type == t_ewater) {
 						// TODO: respawn
 						printf("splat\n");
 						p->is_dead = 1;
@@ -319,9 +323,9 @@ void update(void) {
 					updateProjectileStateNumerical(&p->proj, -1*g.dt);
 					p->bounds.c = p->proj.pos;
 
-					if(gameobj_attach_func[gameobjects[i]->type] != NULL) {
+					if(gameobj_attach_func[leveldata.objects[i]->type] != NULL) {
 						// we can attach to this object... don't just be static
-						p->attached_to = gameobjects[i];
+						p->attached_to = leveldata.objects[i];
 					}
 
 					p->proj.vel = p->jump_vec;
@@ -441,29 +445,21 @@ void display() {
 }
 
 void free_leveldata() {
-	if(leveldata.player.is_t_on_heap) {
-		free_trajectory(leveldata.player.t);
-		free(leveldata.player.t);
-	}
+	free_trajectory(leveldata.player.t);
+	free(leveldata.player.t);
 
 	//free cars
-	if(leveldata.is_cars_on_heap) {
-		free(leveldata.cars);
-		leveldata.n_cars = 0;
-	}
+	free(leveldata.cars);
+	leveldata.n_cars = 0;
 
 	//free water
-	if(leveldata.is_water_on_heap) {
-		free(leveldata.water);
-	}
+	free(leveldata.water);
 
 	//free terrain
-	if(leveldata.is_terrain_on_heap) {
-		if(leveldata.terrain->is_collision) {
-			free(leveldata.terrain->box_collision);
-		}
-		free(leveldata.terrain);
+	if(leveldata.terrain->is_collision) {
+		free(leveldata.terrain->box_collision);
 	}
+	free(leveldata.terrain);
 }
 
 void handle_keys() {
