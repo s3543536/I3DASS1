@@ -325,6 +325,30 @@ void update(void) {
 
 				if(intersect_func(&leveldata.player, gameobjects[i])) {
 
+					
+#ifndef PRINT_COLLIDES
+#define PRINT_COLLIDES 0
+#endif
+#if PRINT_COLLIDES
+					switch(gameobjects[i]->type) {
+						case t_ewater:
+							printf("collide with water\n");
+							break;
+						case t_eplayer:
+							printf("collide with player\n");
+							break;
+						case t_elog:
+							printf("collide with log\n");
+							break;
+						case t_ecar:
+							printf("collide with car\n");
+							break;
+						case t_ewall:
+							printf("collide with wall\n");
+							break;
+					}
+#endif
+
 					// intersected with a car
 					if(gameobjects[i]->type == t_ecar
 							|| gameobjects[i]->type == t_ewater) {

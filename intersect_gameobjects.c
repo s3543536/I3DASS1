@@ -31,11 +31,12 @@ void log_attach(e_player *p, e_gameobject *obj) {
 	//y^2 = r^2 - x^2
 	//y = sqrt(r^2 - x^2)
 	float x = elog.shape.c.x - p->proj.pos.x;
-	float r = elog.shape.r;
+	float r = elog.shape.r + p->bounds.r;
 	float y = sqrt(r*r - x*x) + elog.shape.c.y;
+	assert(isfinite(y));
 
 	//move the player above the log, so that the circles are touching
-	p->proj.pos.y = y+0.02;
+	p->proj.pos.y = y;
 }
 
 void water_attach(e_player *p, e_gameobject *obj) {

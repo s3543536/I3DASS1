@@ -1,6 +1,7 @@
 #ifndef INTERSECT_GAMEOBJECTS
 #define INTERSECT_GAMEOBJECTS
 
+#include <assert.h>
 #include <stdio.h>
 
 #include "global.h"
