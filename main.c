@@ -206,7 +206,7 @@ void update(void) {
 			void (*attach_func)(e_player *p, e_gameobject *obj) = 
 				gameobj_attach_func[leveldata.player.attached_to->type];
 
-			//move the player according to the something
+			//move the player according to the thing its attached to
 			attach_func(&leveldata.player, leveldata.player.attached_to);
 			leveldata.player.proj.pos0 = leveldata.player.proj.pos;
 			leveldata.player.bounds.c = leveldata.player.proj.pos;
@@ -350,20 +350,16 @@ void display() {
 	if(!is_init) {
 
 
-		//yellow
-		glColor3f(1, 1, 0);
+		// draw terrain
+		glColor3f(1, 1, 1);
+		draw_wall(leveldata.terrain, 0);
 
-		// player point
-		glBegin(GL_POINTS);
-		glVertex3f(leveldata.player.proj.pos.x, leveldata.player.proj.pos.y, leveldata.player.proj.pos.z);
-		glEnd();
-
+		//player
 		if(g.flymode) {
 			glColor3f(0,1,1);//super power cyan
 		} else {
 			glColor3f(0,1,0);//green
 		}
-
 		float angle = atan2f(leveldata.player.proj.vel.y, leveldata.player.proj.vel.x);
 		oval player_oval = {
 			.c=leveldata.player.bounds.c,
@@ -373,21 +369,18 @@ void display() {
 		};
 		draw_oval(&player_oval, angle * 180/PI, g.tess, g.drawfill);
 
-		//white
-		glColor3f(1, 1, 1);
 
+		//trajectroy and vector
+		glColor3f(1, 1, 1);
+		draw_trajectory(leveldata.player.t);
 		drawVector(leveldata.player.proj.vel, leveldata.player.proj.pos, 1, 0);
 
 
-
-
-		// yellow cars
+		// cars
 		glColor3f(1,1,0);
 		for(int i = 0; i < leveldata.n_cars; i++) {
 			draw_car(&leveldata.cars[i], g.drawfill);
 		}
-
-
 
 		// draw water
 		glColor3f(0,1,1);
@@ -398,9 +391,6 @@ void display() {
 		for(size_t i = 0; i < leveldata.water->nlogs; i++) {
 			draw_circle(&leveldata.water->logs[i].shape, g.tess, g.drawfill);
 		}
-
-		glColor3f(1,1,1);
-
 
 		//collisions
 		if(g.draw_box_collision) {
@@ -419,17 +409,6 @@ void display() {
 			glPopMatrix();
 			glColor3f(1,1,1);
 		}
-
-
-
-
-		draw_trajectory(leveldata.player.t);
-
-
-		// draw terrain
-		draw_wall(leveldata.terrain, g.drawfill);
-
-
 
 	}
 
@@ -478,51 +457,47 @@ void free_leveldata() {
 
 void handle_keys() {
 	if(keys & kw) {
-		if(g.flymode) {
+		if(!leveldata.player.is_active) {
+			vector *change_vec = &leveldata.player.jump_vec;
+			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
+			float change_vec_len = LENGTHVEC(*change_vec);
+			vector_normalize(change_vec);
+			vector_scale(change_vec, change_vec_len + g.velocity_change * g.real_dt);
+		} else if(g.flymode) {
 			vector *change_vec = &leveldata.player.proj.vel;
 			change_vec->y += g.velocity_change * g.real_dt;
 		}
+	}
+	if(keys & ks) {
 		if(!leveldata.player.is_active) {
 			vector *change_vec = &leveldata.player.jump_vec;
 			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
 			float change_vec_len = LENGTHVEC(*change_vec);
 			vector_normalize(change_vec);
-			vector_scale(change_vec, change_vec_len + g.velocity_change * g.dt);
-		}
-	}
-	if(keys & ks) {
-		if(g.flymode) {
+			vector_scale(change_vec, change_vec_len - g.velocity_change * g.real_dt);
+		} else if(g.flymode) {
 			vector *change_vec = &leveldata.player.proj.vel;
 			change_vec->y -= g.velocity_change * g.real_dt;
 		}
+	}
+	if(keys & ka) {
 		if(!leveldata.player.is_active) {
 			vector *change_vec = &leveldata.player.jump_vec;
 			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-			float change_vec_len = LENGTHVEC(*change_vec);
-			vector_normalize(change_vec);
-			vector_scale(change_vec, change_vec_len - g.velocity_change * g.dt);
-		}
-	}
-	if(keys & ka) {
-		if(g.flymode) {
+			vector_rotate_xy(change_vec, g.rotate_angle * g.real_dt);
+		} else if(g.flymode) {
 			vector *change_vec = &leveldata.player.proj.vel;
 			change_vec->x -= g.velocity_change * g.real_dt;
 		}
-		if(!leveldata.player.is_active) {
-			 vector *change_vec = &leveldata.player.jump_vec;
-			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-			vector_rotate_xy(change_vec, g.rotate_angle * g.dt);
-		}
 	}
 	if(keys & kd) {
-		if(g.flymode) {
-			vector *change_vec = &leveldata.player.proj.vel;
-			change_vec->x += g.velocity_change * g.real_dt;
-		}
 		if(!leveldata.player.is_active) {
 			vector *change_vec = &leveldata.player.jump_vec;
 			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-			vector_rotate_xy(change_vec, -1 * g.rotate_angle * g.dt);
+			vector_rotate_xy(change_vec, -1 * g.rotate_angle * g.real_dt);
+		} else if(g.flymode) {
+			vector *change_vec = &leveldata.player.proj.vel;
+			change_vec->x += g.velocity_change * g.real_dt;
 		}
 	}
 }
@@ -569,26 +544,6 @@ void keyboard(unsigned char key, int x, int y) {
 		case 'm':
 			// toggle draw box collision
 			g.draw_box_collision = !g.draw_box_collision;
-			break;
-		case 'h':
-			// decrement posx and print
-			posx -= 0.01f;
-			printf("posx: %5.3f\n", posx);
-			break;
-		case 'j':
-			// decrement scalex and print
-			posy -= 0.01f;
-			printf("scalex: %5.3f\n", scalex);
-			break;
-		case 'k':
-			// increment scalex and print
-			posy += 0.01f;
-			printf("scalex: %5.3f\n", scalex);
-			break;
-		case 'l':
-			// increment posx and print
-			posx += 0.01f;
-			printf("posx: %5.3f\n", posx);
 			break;
 		case 'f':
 			g.drawfill = !g.drawfill;
