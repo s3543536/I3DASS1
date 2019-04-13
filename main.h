@@ -25,13 +25,12 @@
 struct leveldata {
 	e_player player;
 	e_player player_start_state;
-	char is_cars_on_heap;
 	size_t n_cars;
 	e_car *cars;
-	char is_water_on_heap;
 	e_water *water;
-	char is_terrain_on_heap;
 	e_wall *terrain;
+	size_t n_objects;
+	e_gameobject **objects;//index of level objects
 };
 
 struct leveldata leveldata;
