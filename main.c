@@ -402,7 +402,7 @@ void display() {
 		draw_water_distance(leveldata.water, &leveldata.player.bounds, g.tess, g.drawfill, wd_water);
 
 		//draw logs
-		glColor3f(0.2,0.2,0.2);
+		glColor3f(0.52,0.34,0.14);
 		for(size_t i = 0; i < leveldata.water->nlogs; i++) {
 			draw_circle(&leveldata.water->logs[i].shape, g.tess, g.drawfill);
 		}
