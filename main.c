@@ -266,7 +266,7 @@ void update(void) {
 			gameobjects[i+logs_offset] = (e_gameobject *)&leveldata.water->logs[i];
 		}
 
-		update_trajectory(p->t, gameobjects, total_game_objects, fmax(0.1, g.dt));
+		update_trajectory(p->t, gameobjects, total_game_objects, 0.01);
 
 		if(p->is_active) {
 			char has_intersected = 0;
