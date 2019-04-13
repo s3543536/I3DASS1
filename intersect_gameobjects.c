@@ -60,7 +60,7 @@ void water_attach(e_player *p, e_gameobject *obj) {
 	//re-apply translation
 	player_circle.c.y += w->bounds.c.y;
 
-	p->proj.pos.y = player_circle.c.y;
+	p->proj.pos.y = player_circle.c.y - player_circle.r;
 }
 
 void free_trajectory(trajectory *t) {
