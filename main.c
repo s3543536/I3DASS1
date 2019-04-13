@@ -312,8 +312,6 @@ void update(void) {
 					// intersected with a car
 					if(leveldata.objects[i]->type == t_ecar
 							|| leveldata.objects[i]->type == t_ewater) {
-						// TODO: respawn
-						printf("splat\n");
 						p->is_dead = 1;
 					}
 
