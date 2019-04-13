@@ -24,6 +24,7 @@
 
 struct leveldata {
 	e_player player;
+	e_player player_start_state;
 	char is_cars_on_heap;
 	size_t n_cars;
 	e_car *cars;

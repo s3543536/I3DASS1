@@ -10,40 +10,42 @@ char is_init = (char)1;
 
 void init_level() {
 
-	leveldata.player = E_PLAYER_PROTOTYPE;
-	leveldata.player.is_active = 0;
-	vector_scale(&leveldata.player.jump_vec, max_jump);
+	e_player *p = &leveldata.player;
+
+	*p = E_PLAYER_PROTOTYPE;
+	p->is_active = 0;
+	vector_scale(&p->jump_vec, max_jump);
 
 	// set player radius
 	circle player_bounds = {.r=0.015};
 	// set position based on radius
-	leveldata.player.start_pos = (vector){.x=-0.87,.y=player_bounds.r,.z=0};
+	p->start_pos = (vector){.x=-0.87,.y=player_bounds.r,.z=0};
 
 	//set players physics position
-	leveldata.player.proj.pos0 = leveldata.player.start_pos;
-	leveldata.player.proj.pos  = leveldata.player.start_pos;
-	leveldata.player.proj.vel0 = ZERO_VECTOR;
-	leveldata.player.proj.vel  = ZERO_VECTOR;
+	p->proj.pos0 = p->start_pos;
+	p->proj.pos  = p->start_pos;
+	p->proj.vel0 = ZERO_VECTOR;
+	p->proj.vel  = ZERO_VECTOR;
 
 	//set player physics initial state
-	leveldata.player.proj.reset_start = 1;
-	leveldata.player.proj.is_dynamic = 1;
+	p->proj.reset_start = 1;
+	p->proj.is_dynamic = 1;
 
 	// set players collision position
-	leveldata.player.bounds = player_bounds;
-	leveldata.player.bounds.c = (vector){
-		.x=leveldata.player.proj.pos.x,
-		.y=leveldata.player.proj.pos.y,
-		.z=leveldata.player.proj.pos.z,
+	p->bounds = player_bounds;
+	p->bounds.c = (vector){
+		.x=p->proj.pos.x,
+		.y=p->proj.pos.y,
+		.z=p->proj.pos.z,
 	};
 
-	leveldata.player.t = malloc(sizeof(*leveldata.player.t));
-	if(leveldata.player.t != NULL) {
-		leveldata.player.is_t_on_heap = 1;
+	p->t = malloc(sizeof(*p->t));
+	if(p->t != NULL) {
+		p->is_t_on_heap = 1;
 
-		*leveldata.player.t = (trajectory){
+		*p->t = (trajectory){
 			.is_dynamic = 1,
-			.player = &leveldata.player,
+			.player = p,
 			.flight_time = 0,
 			.is_points_on_heap = 0,
 			.n_points = 0,
@@ -52,6 +54,7 @@ void init_level() {
 		};
 	}
 
+	leveldata.player_start_state = leveldata.player;
 
 
 	// malloc cars
@@ -193,70 +196,61 @@ void update(void) {
 
 	handle_keys();
 
-
+	e_player *p = &leveldata.player;
 	//player stuff
-	if(leveldata.player.is_dead && leveldata.player.respawn) {
-		leveldata.player.proj.pos = leveldata.player.start_pos;
-		leveldata.player.proj.pos0 = leveldata.player.start_pos;
-		leveldata.player.bounds.c = leveldata.player.start_pos;
-		leveldata.player.proj.vel0 = ZERO_VECTOR;
-		leveldata.player.proj.vel  = ZERO_VECTOR;
-		leveldata.player.proj.reset_start = 1;
-		leveldata.player.proj.is_dynamic = 1;
-		leveldata.player.t->is_dynamic = 1;
-		leveldata.player.is_dead = 0;
-		leveldata.player.respawn = 0;
-		leveldata.player.attached_to = NULL;
+	if(p->is_dead && p->respawn) {
+		*p = leveldata.player_start_state;
+		p->t->is_dynamic = 1;
 	}
 
-	if(!leveldata.player.is_active) {
-		leveldata.player.proj.vel = leveldata.player.jump_vec;
-		leveldata.player.proj.vel0 = leveldata.player.jump_vec;
+	if(!p->is_active) {
+		p->proj.vel = p->jump_vec;
+		p->proj.vel0 = p->jump_vec;
 
 		// handle attaching the player
-		if(leveldata.player.attached_to != NULL) {
+		if(p->attached_to != NULL) {
 			void (*attach_func)(e_player *p, e_gameobject *obj) = 
-				gameobj_attach_func[leveldata.player.attached_to->type];
+				gameobj_attach_func[p->attached_to->type];
 
 			//move the player according to the thing its attached to
-			attach_func(&leveldata.player, leveldata.player.attached_to);
-			leveldata.player.proj.pos0 = leveldata.player.proj.pos;
-			leveldata.player.bounds.c = leveldata.player.proj.pos;
-			leveldata.player.t->is_dynamic = 1;//dirty the trajectory redraw
+			attach_func(p, p->attached_to);
+			p->proj.pos0 = p->proj.pos;
+			p->bounds.c = p->proj.pos;
+			p->t->is_dynamic = 1;//dirty the trajectory redraw
 		}
 	}
 
 	// handle jumping
-	if(leveldata.player.jump) {
-		leveldata.player.jump = 0;
-		leveldata.player.is_active = 1;
+	if(p->jump) {
+		p->jump = 0;
+		p->is_active = 1;
 	}
 
 	//player position
-	if(leveldata.player.is_active) {
-		leveldata.player.attached_to = NULL;
+	if(p->is_active) {
+		p->attached_to = NULL;
 		// check if trajectory is dynamic
 		if(g.i_mode == analytical) {
-			if(leveldata.player.proj.reset_start || leveldata.player.jump) {
-				leveldata.player.proj.start_time = g.time;
-				leveldata.player.proj.pos0 = leveldata.player.proj.pos;
-				leveldata.player.proj.vel0 = leveldata.player.proj.vel;
-				leveldata.player.proj.reset_start = 0;
+			if(p->proj.reset_start || p->jump) {
+				p->proj.start_time = g.time;
+				p->proj.pos0 = p->proj.pos;
+				p->proj.vel0 = p->proj.vel;
+				p->proj.reset_start = 0;
 			}
-			updateProjectileStateAnalytical(&leveldata.player.proj, g.time);
+			updateProjectileStateAnalytical(&p->proj, g.time);
 		} else if(g.i_mode == numerical) {
-			leveldata.player.proj.reset_start = 0;
-			updateProjectileStateNumerical(&leveldata.player.proj, g.dt);
+			p->proj.reset_start = 0;
+			updateProjectileStateNumerical(&p->proj, g.dt);
 		} else {
 			perror("invalid integration mode");
-			updateProjectileStateNumerical(&leveldata.player.proj, g.dt);
+			updateProjectileStateNumerical(&p->proj, g.dt);
 		}
-		leveldata.player.bounds.c = leveldata.player.proj.pos;
-		leveldata.player.jump = 0;
+		p->bounds.c = p->proj.pos;
+		p->jump = 0;
 	}
 
 	// player collision
-	if(leveldata.player.t->is_dynamic || leveldata.player.is_active) {
+	if(p->t->is_dynamic || p->is_active) {
 		// setup generic gameobject array with all objects
 		size_t water_and_terrain = 2;
 		size_t cars_offset = water_and_terrain;
@@ -272,9 +266,9 @@ void update(void) {
 			gameobjects[i+logs_offset] = (e_gameobject *)&leveldata.water->logs[i];
 		}
 
-		update_trajectory(leveldata.player.t, gameobjects, total_game_objects, fmax(0.1, g.dt));
+		update_trajectory(p->t, gameobjects, total_game_objects, fmax(0.1, g.dt));
 
-		if(leveldata.player.is_active) {
+		if(p->is_active) {
 			char has_intersected = 0;
 			for(size_t i = 0; i < total_game_objects; i++) {
 				// get the intersection function for this gameobject type
@@ -285,7 +279,7 @@ void update(void) {
 					continue;
 				}
 
-				if(intersect_func(&leveldata.player, gameobjects[i])) {
+				if(intersect_func(p, gameobjects[i])) {
 
 					
 #ifndef PRINT_COLLIDES
@@ -316,24 +310,24 @@ void update(void) {
 							|| gameobjects[i]->type == t_ewater) {
 						// TODO: respawn
 						printf("splat\n");
-						leveldata.player.is_dead = 1;
+						p->is_dead = 1;
 					}
 
 					has_intersected = 1;
 
 					// rewind time to just before the collision
-					updateProjectileStateNumerical(&leveldata.player.proj, -1*g.dt);
-					leveldata.player.bounds.c = leveldata.player.proj.pos;
+					updateProjectileStateNumerical(&p->proj, -1*g.dt);
+					p->bounds.c = p->proj.pos;
 
 					if(gameobj_attach_func[gameobjects[i]->type] != NULL) {
 						// we can attach to this object... don't just be static
-						leveldata.player.attached_to = gameobjects[i];
+						p->attached_to = gameobjects[i];
 					}
 
-					leveldata.player.proj.vel = leveldata.player.jump_vec;
-					leveldata.player.proj.vel0 = leveldata.player.jump_vec;
-					leveldata.player.t->is_dynamic = 1;// trigger a trajectory update
-					leveldata.player.is_active = 0;
+					p->proj.vel = p->jump_vec;
+					p->proj.vel0 = p->jump_vec;
+					p->t->is_dynamic = 1;// trigger a trajectory update
+					p->is_active = 0;
 
 					break;
 				}
