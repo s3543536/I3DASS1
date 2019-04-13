@@ -142,13 +142,15 @@ void init_level() {
 	// malloc terrain collision
 	leveldata.terrain->n_boxes = 4;
 	leveldata.terrain->box_collision = malloc(sizeof(*leveldata.terrain->box_collision) * leveldata.terrain->n_boxes);
-	leveldata.terrain->is_collision = leveldata.terrain->box_collision != NULL;
-	assert(leveldata.terrain->is_collision != NULL);
+	assert(leveldata.terrain->box_collision != NULL);
+	leveldata.terrain->is_collision = 1;
 	leveldata.terrain->n_boxes = 4;
+
 	vector centre0 = {.x=-0.5, .y=-0.5, .z=0};//main left quadrant
 	vector centre1 = {.x=-0.5, .y=0.0125, .z=0};//road
 	vector centre2 = {.x=0.5, .y=-0.6, .z=0};//main right quadrant
 	vector centre3 = {.x=0.875, .y=-0.1, .z=0};//right-most bank
+
 	leveldata.terrain->box_collision[0] = (box){.c=centre0, .h=1, .w=1};//main left quadrant
 	leveldata.terrain->box_collision[1] = (box){.c=centre1, .h=0.025, .w=0.5};//road
 	leveldata.terrain->box_collision[2] = (box){.c=centre2, .h=0.8, .w=1};
