@@ -107,10 +107,10 @@ void init_level() {
 	leveldata.water->logs[2] = E_LOG_PROTOTYPE;
 	leveldata.water->logs[3] = E_LOG_PROTOTYPE;
 
-	leveldata.water->logs[0].shape.c.x = 0.7;
-	leveldata.water->logs[1].shape.c.x = 0.58;
-	leveldata.water->logs[2].shape.c.x = 0.44;
-	leveldata.water->logs[3].shape.c.x = 0.32;
+	leveldata.water->logs[0].shape.c.x = 0.61;
+	leveldata.water->logs[1].shape.c.x = 0.46;
+	leveldata.water->logs[2].shape.c.x = 0.31;
+	leveldata.water->logs[3].shape.c.x = 0.16;
 
 	leveldata.water->logs[0].shape.r=0.03;
 	leveldata.water->logs[1].shape.r=0.042;
@@ -528,6 +528,31 @@ void keyboardUp(unsigned char key, int x, int y) {
 }
 
 void keyboard(unsigned char key, int x, int y) {
+#ifndef MOVE_LOGS
+#define MOVE_LOGS 0
+#endif
+#if MOVE_LOGS
+	static int idx = 3;
+	switch(key) {
+		case ']':
+			leveldata.water->logs[idx].shape.c.x += 0.01;
+			printf("xpos: %f\n", leveldata.water->logs[idx].shape.c.x);
+			break;
+		case '[':
+			leveldata.water->logs[idx].shape.c.x -= 0.01;
+			printf("xpos: %f\n", leveldata.water->logs[idx].shape.c.x);
+			break;
+		case '}':
+			idx += 1;
+			printf("idx: %d\n", idx);
+			break;
+		case '{':
+			idx -= 1;
+			printf("idx: %d\n", idx);
+			break;
+	}
+#endif
+
 	if(leveldata.player.is_dead) {
 		switch(key) {
 			case 'r':
