@@ -373,9 +373,12 @@ void display() {
 	glEnable(GL_DEPTH_TEST);
 
 	glColor3f(1, 1, 1);
-	glRasterPos2f(0.5,0.5);
 	char out[30];
-	sprintf(out, "frame time: %2.2f\0", dt*1000);
+	sprintf(out, "frame time: %2.1f\0", dt*1000);
+	glRasterPos2f(0.5,0.5);
+	glutBitmapString(GLUT_BITMAP_8_BY_13, out);
+	sprintf(out, "fps:        %2.1f\0", 1/(dt));
+	glRasterPos2f(0.5,0.3);
 	glutBitmapString(GLUT_BITMAP_8_BY_13, out);
 
 	if(!is_init) {
