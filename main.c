@@ -360,12 +360,13 @@ void glutBitmapString(void *font, char *str) {
 void display() {
 
 	/* this is a constant average of frame time
-	 * each previous frame time's significance = 1/(2^n)
+	 * each previous frame time's significance = 1/(new_mult^n)
 	 * where n is the number of frames ago it occurred
 	 */
 	static float dt = 0;
-	dt += g.real_dt;
-	dt /= 2;
+	const float new_mult = 0.1;
+	dt *= 1-new_mult;
+	dt += g.real_dt * new_mult;
 
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
