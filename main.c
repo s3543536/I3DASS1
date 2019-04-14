@@ -347,39 +347,39 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
-
-	/* this is a constant average of frame time
-	 * each previous frame time's significance = 1/(new_mult^n)
-	 * where n is the number of frames ago it occurred
-	 */
-	static float dt = 0;
-	const float new_mult = 0.1;
-	dt *= 1-new_mult;
-	dt += g.real_dt * new_mult;
-
-	if(g.OSD) {
-		glColor3f(1, 1, 1);
-		char out[30];
-		sprintf(out, "%6.1f\0", dt*1000);
-		glRasterPos2f(0.5,0.9);
-		glutBitmapString(GLUT_BITMAP_8_BY_13, "frame time:");
-		glRasterPos2f(0.8,0.9);
-		glutBitmapString(GLUT_BITMAP_8_BY_13, out);
-		sprintf(out, "%6.1f\0", 1/(dt));
-		glRasterPos2f(0.5,0.8);
-		glutBitmapString(GLUT_BITMAP_8_BY_13, "fps:");
-		glRasterPos2f(0.8,0.8);
-		glutBitmapString(GLUT_BITMAP_8_BY_13, out);
-		sprintf(out, "%6d\0", g.tess);
-		glRasterPos2f(0.5,0.7);
-		glutBitmapString(GLUT_BITMAP_8_BY_13, "tess:");
-		glRasterPos2f(0.8,0.7);
-		glutBitmapString(GLUT_BITMAP_8_BY_13, out);
-	}
-
-	drawAxes(1, 0);
-
 	if(!is_init) {
+
+
+		/* this is a constant average of frame time
+		* each previous frame time's significance = 1/(new_mult^n)
+		* where n is the number of frames ago it occurred
+		*/
+		static float dt = 0;
+		const float new_mult = 0.1;
+		dt *= 1-new_mult;
+		dt += g.real_dt * new_mult;
+
+		if(g.OSD) {
+			glColor3f(1, 1, 1);
+			char out[30];
+			sprintf(out, "%6.1f\0", dt*1000);
+			glRasterPos2f(0.5,0.9);
+			glutBitmapString(GLUT_BITMAP_8_BY_13, "frame time:");
+			glRasterPos2f(0.8,0.9);
+			glutBitmapString(GLUT_BITMAP_8_BY_13, out);
+			sprintf(out, "%6.1f\0", 1/(dt));
+			glRasterPos2f(0.5,0.8);
+			glutBitmapString(GLUT_BITMAP_8_BY_13, "fps:");
+			glRasterPos2f(0.8,0.8);
+			glutBitmapString(GLUT_BITMAP_8_BY_13, out);
+			sprintf(out, "%6d\0", g.tess);
+			glRasterPos2f(0.5,0.7);
+			glutBitmapString(GLUT_BITMAP_8_BY_13, "tess:");
+			glRasterPos2f(0.8,0.7);
+			glutBitmapString(GLUT_BITMAP_8_BY_13, out);
+		}
+
+		drawAxes(1, 0);
 
 
 		// draw terrain
