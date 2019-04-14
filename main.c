@@ -359,6 +359,7 @@ void display() {
 		dt *= 1-new_mult;
 		dt += g.real_dt * new_mult;
 
+		//OSD
 		if(g.OSD) {
 			glColor3f(1, 1, 1);
 			char out[30];
@@ -531,6 +532,22 @@ void handle_keys() {
 }
 
 
+void specialUp(int key, int x, int y) {
+	switch(key) {
+		case GLUT_KEY_UP:
+			keys &= ~kw;
+			break;
+		case GLUT_KEY_DOWN:
+			keys &= ~ks;
+			break;
+		case GLUT_KEY_RIGHT:
+			keys &= ~kd;
+			break;
+		case GLUT_KEY_LEFT:
+			keys &= ~ka;
+			break;
+	}
+}
 void keyboardUp(unsigned char key, int x, int y) {
 	switch(key) {
 		case 'w':
@@ -545,6 +562,25 @@ void keyboardUp(unsigned char key, int x, int y) {
 		case 'd':
 			keys &= ~kd;
 			break;
+	}
+}
+
+void special(int key, int x, int y) {
+	if(!leveldata.player.is_dead) {
+		switch(key) {
+			case GLUT_KEY_UP:
+				keys |= kw;
+				break;
+			case GLUT_KEY_LEFT:
+				keys |= ka;
+				break;
+			case GLUT_KEY_RIGHT:
+				keys |= kd;
+				break;
+			case GLUT_KEY_DOWN:
+				keys |= ks;
+				break;
+		}
 	}
 }
 
@@ -671,6 +707,8 @@ int main(int argc, char **argv) {
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutKeyboardUpFunc(keyboardUp);
+	glutSpecialFunc(special);
+	glutSpecialUpFunc(specialUp);
 	glutIdleFunc(update);
 	glutMainLoop();
 
