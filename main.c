@@ -349,6 +349,12 @@ void update(void) {
 
 #define VSYNC 1
 
+void glutBitmapString(void *font, char *str) {
+	for(int i = 0; str[i] != '\0'; i++) {
+		glutBitmapCharacter(font, str[i]);
+	}
+}
+
 void display() {
 
 	//printf("time: %5.1f\n", g.time);
@@ -356,6 +362,9 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
+	glColor3f(1, 1, 1);
+	glRasterPos2f(x, y);
+	glutBitmapString(GLUT_BITMAP_8_BY_13, "hello world");
 
 	if(!is_init) {
 
