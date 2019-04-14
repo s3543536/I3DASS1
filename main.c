@@ -626,6 +626,9 @@ void keyboard(unsigned char key, int x, int y) {
 			case 'o':
 				g.OSD = !g.OSD;
 				break;
+			case 'f':
+				g.drawfill = !g.drawfill;
+				break;
 		}
 	} else {
 		switch(key) {
