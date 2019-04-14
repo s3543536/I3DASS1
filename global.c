@@ -14,6 +14,6 @@ struct global_t g = {
 	.flymode = 0,
 	.i_mode = numerical,
 	.drawfill = 0,
-	.tess = 20,
+	.tess = 32,
 	.pause = 0,
 };

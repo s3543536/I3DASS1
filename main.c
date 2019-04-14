@@ -380,6 +380,9 @@ void display() {
 	sprintf(out, "fps:        %2.1f\0", 1/(dt));
 	glRasterPos2f(0.5,0.3);
 	glutBitmapString(GLUT_BITMAP_8_BY_13, out);
+	sprintf(out, "tess:     %6d\0", g.tess);
+	glRasterPos2f(0.5,0.1);
+	glutBitmapString(GLUT_BITMAP_8_BY_13, out);
 
 	if(!is_init) {
 
