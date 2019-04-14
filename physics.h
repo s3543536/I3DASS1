@@ -23,14 +23,6 @@ typedef struct {
 	.vel = UNIT_VECTOR, \
 } \
 
-/** update projectile position
- *		analytical approach, uses newtons constant acceleration equation (for position)
- *		to update the position based on its start velocity and location
- *
- *		@param projectile *p    the projectile to update
- *		@param float time       the world time (should be before start time)
- */
-void updateProjectileStateAnalytical(projectile *p, float time);
 
 /** update projectile position
  *		numerical approach, uses newtons constant acceleration equation (for change in time)

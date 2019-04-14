@@ -248,22 +248,8 @@ void update(void) {
 	//player position
 	if(p->is_active) {
 		p->attached_to = NULL;
-		// check if trajectory is dynamic
-		if(g.i_mode == analytical) {
-			if(p->proj.reset_start || p->jump) {
-				p->proj.start_time = g.time;
-				p->proj.pos0 = p->proj.pos;
-				p->proj.vel0 = p->proj.vel;
-				p->proj.reset_start = 0;
-			}
-			updateProjectileStateAnalytical(&p->proj, g.time);
-		} else if(g.i_mode == numerical) {
-			p->proj.reset_start = 0;
-			updateProjectileStateNumerical(&p->proj, g.dt);
-		} else {
-			perror("invalid integration mode");
-			updateProjectileStateNumerical(&p->proj, g.dt);
-		}
+		p->proj.reset_start = 0;
+		updateProjectileStateNumerical(&p->proj, g.dt);
 		p->bounds.c = p->proj.pos;
 		p->jump = 0;
 	}
@@ -390,6 +376,8 @@ void display() {
 		glRasterPos2f(0.8,0.7);
 		glutBitmapString(GLUT_BITMAP_8_BY_13, out);
 	}
+
+	drawAxes(1, 0);
 
 	if(!is_init) {
 
@@ -632,15 +620,6 @@ void keyboard(unsigned char key, int x, int y) {
 				break;
 			case 'f':
 				g.drawfill = !g.drawfill;
-				break;
-			case 'i':
-				if(g.i_mode == analytical) {
-					g.i_mode = numerical;
-				} else if(g.i_mode == numerical) {
-					g.i_mode = analytical;
-				} else {
-					perror("invalid integration mode");
-				}
 				break;
 			case 'n':
 				g.flymode = !g.flymode;

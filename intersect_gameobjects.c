@@ -185,11 +185,7 @@ void update_trajectory(trajectory *t, e_gameobject **objects, size_t n_objects, 
 		total_time += time_step;
 
 		// update the position
-		if(g.i_mode == analytical) {
-			updateProjectileStateAnalytical(&player.proj, total_time);
-		} else {
-			updateProjectileStateNumerical(&player.proj, time_step);
-		}
+		updateProjectileStateNumerical(&player.proj, time_step);
 		player.bounds.c = player.proj.pos;
 
 		// 1 loop per object

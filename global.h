@@ -3,8 +3,6 @@
 
 #include <stdlib.h>
 
-typedef enum { analytical, numerical } integrationMode;
-
 struct global_t {
 	float time;
 	float dt;
@@ -17,7 +15,6 @@ struct global_t {
 	char drawfill;
 	char flymode;
 	char draw_box_collision;
-	integrationMode i_mode;
 	char OSD;//on screen display
 };
 
