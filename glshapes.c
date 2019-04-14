@@ -3,23 +3,23 @@
 
 void drawAxes(float length, int draw_negative) {
 	//red
-	glColor3f(1, 0, 0);
+	glColor3f(1, 0, -0.1);
 	//x-axis
 	glBegin(GL_LINES);
 	if(draw_negative)
-		glVertex3f(-1 * length, 0, 0);
+		glVertex3f(-1 * length, 0, -0.1);
 	else
-		glVertex3f(0, 0, 0);
-	glVertex3f(length, 0, 0);
+		glVertex3f(0, 0, -0.1);
+	glVertex3f(length, 0, -0.1);
 
 	//green
-	glColor3f(0, 1, 0);
+	glColor3f(0, 1, -0.1);
 	//y-axis
 	if(draw_negative)
-		glVertex3f(0, -1 * length, 0);
+		glVertex3f(0, -1 * length, -0.1);
 	else
-		glVertex3f(0, 0, 0);
-	glVertex3f(0, length, 0);
+		glVertex3f(0, 0, -0.1);
+	glVertex3f(0, length, -0.1);
 
 	//blue
 	glColor3f(0, 0, 1);
@@ -27,7 +27,7 @@ void drawAxes(float length, int draw_negative) {
 	if(draw_negative)
 		glVertex3f(0, 0, -1 * length);
 	else
-		glVertex3f(0, 0, 0);
+		glVertex3f(0, 0, -0.1);
 	glVertex3f(0, 0, length);
 	glEnd();
 }
