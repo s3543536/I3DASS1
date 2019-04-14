@@ -359,6 +359,24 @@ void glutBitmapString(void *font, char *str) {
 
 void display() {
 
+
+#define DTLEN 100
+	static float dt[DTLEN];
+	if(is_init) {
+		for(int i = 0; i < DTLEN; i++) {
+			dt[i] = 0;
+		}
+	}
+	static int dtpos = 0;
+	float avg_dt = 0;
+	for(int i = dtpos; i != (dtpos + DTLEN-1)%DTLEN; i = (i+1)%DTLEN) {
+		avg_dt += dt[i];
+	}
+	avg_dt /= DTLEN;
+	dtpos += 1;
+	dtpos %= DTLEN;
+	dt[dtpos] = g.dt;
+
 	//printf("time: %5.1f\n", g.time);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -366,7 +384,9 @@ void display() {
 
 	glColor3f(1, 1, 1);
 	glRasterPos2f(0.5,0.5);
-	glutBitmapString(GLUT_BITMAP_8_BY_13, "hello world");
+	char out[30];
+	sprintf(out, "frame time: %2.2f\0", avg_dt*1000);
+	glutBitmapString(GLUT_BITMAP_8_BY_13, out);
 
 	if(!is_init) {
 
