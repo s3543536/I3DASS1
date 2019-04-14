@@ -16,4 +16,5 @@ struct global_t g = {
 	.drawfill = 0,
 	.tess = 32,
 	.pause = 0,
+	.OSD = 1,
 };
