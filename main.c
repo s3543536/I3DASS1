@@ -374,14 +374,20 @@ void display() {
 
 	glColor3f(1, 1, 1);
 	char out[30];
-	sprintf(out, "frame time: %2.1f\0", dt*1000);
-	glRasterPos2f(0.5,0.5);
+	sprintf(out, "%6.1f\0", dt*1000);
+	glRasterPos2f(0.5,0.9);
+	glutBitmapString(GLUT_BITMAP_8_BY_13, "frame time:");
+	glRasterPos2f(0.8,0.9);
 	glutBitmapString(GLUT_BITMAP_8_BY_13, out);
-	sprintf(out, "fps:        %2.1f\0", 1/(dt));
-	glRasterPos2f(0.5,0.3);
+	sprintf(out, "%6.1f\0", 1/(dt));
+	glRasterPos2f(0.5,0.8);
+	glutBitmapString(GLUT_BITMAP_8_BY_13, "fps:");
+	glRasterPos2f(0.8,0.8);
 	glutBitmapString(GLUT_BITMAP_8_BY_13, out);
-	sprintf(out, "tess:     %6d\0", g.tess);
-	glRasterPos2f(0.5,0.1);
+	sprintf(out, "%6d\0", g.tess);
+	glRasterPos2f(0.5,0.7);
+	glutBitmapString(GLUT_BITMAP_8_BY_13, "tess:");
+	glRasterPos2f(0.8,0.7);
 	glutBitmapString(GLUT_BITMAP_8_BY_13, out);
 
 	if(!is_init) {
