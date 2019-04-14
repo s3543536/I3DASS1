@@ -14,6 +14,7 @@ void init_level() {
 
 	*p = E_PLAYER_PROTOTYPE;
 	p->is_active = 0;
+	vector_normalize(&p->jump_vec);
 	vector_scale(&p->jump_vec, max_jump);
 
 	// set player radius
@@ -75,15 +76,15 @@ void init_level() {
 	init_vector(&leveldata.cars[2].pos, -0.44, 0.025, 0);
 	init_vector(&leveldata.cars[3].pos, -0.32, 0.025, 0);
 
-	leveldata.cars[0].height = 0.1f;
-	leveldata.cars[1].height = 0.18f;
-	leveldata.cars[2].height = 0.12f;
+	leveldata.cars[0].height = 0.05f;
+	leveldata.cars[1].height = 0.1f;
+	leveldata.cars[2].height = 0.1f;
 	leveldata.cars[3].height = 0.08f;
 
-	leveldata.cars[0].width = 0.05f;
-	leveldata.cars[1].width = 0.05f;
-	leveldata.cars[2].width = 0.05f;
-	leveldata.cars[3].width = 0.05f;
+	leveldata.cars[0].width = 0.08f;
+	leveldata.cars[1].width = 0.045f;
+	leveldata.cars[2].width = 0.06f;
+	leveldata.cars[3].width = 0.086f;
 
 
 
@@ -107,10 +108,10 @@ void init_level() {
 	leveldata.water->logs[2] = E_LOG_PROTOTYPE;
 	leveldata.water->logs[3] = E_LOG_PROTOTYPE;
 
-	leveldata.water->logs[0].shape.c.x = 0.7;
-	leveldata.water->logs[1].shape.c.x = 0.58;
-	leveldata.water->logs[2].shape.c.x = 0.44;
-	leveldata.water->logs[3].shape.c.x = 0.32;
+	leveldata.water->logs[0].shape.c.x = 0.61;
+	leveldata.water->logs[1].shape.c.x = 0.46;
+	leveldata.water->logs[2].shape.c.x = 0.31;
+	leveldata.water->logs[3].shape.c.x = 0.16;
 
 	leveldata.water->logs[0].shape.r=0.03;
 	leveldata.water->logs[1].shape.r=0.042;
@@ -400,7 +401,7 @@ void display() {
 		draw_water_distance(leveldata.water, &leveldata.player.bounds, g.tess, g.drawfill, wd_water);
 
 		//draw logs
-		glColor3f(0.2,0.2,0.2);
+		glColor3f(0.52,0.34,0.14);
 		for(size_t i = 0; i < leveldata.water->nlogs; i++) {
 			draw_circle(&leveldata.water->logs[i].shape, g.tess, g.drawfill);
 		}
@@ -465,7 +466,7 @@ void handle_keys() {
 		if(!leveldata.player.is_active) {
 			vector *change_vec = &leveldata.player.jump_vec;
 			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-			float change_vec_len = LENGTHVEC(*change_vec);
+			float change_vec_len = fmin(max_jump, fmax(0.01,LENGTHVEC(*change_vec)));
 			vector_normalize(change_vec);
 			vector_scale(change_vec, change_vec_len + g.velocity_change * g.real_dt);
 		} else if(g.flymode) {
@@ -477,7 +478,7 @@ void handle_keys() {
 		if(!leveldata.player.is_active) {
 			vector *change_vec = &leveldata.player.jump_vec;
 			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-			float change_vec_len = LENGTHVEC(*change_vec);
+			float change_vec_len = fmin(max_jump, fmax(0.01,LENGTHVEC(*change_vec)));
 			vector_normalize(change_vec);
 			vector_scale(change_vec, change_vec_len - g.velocity_change * g.real_dt);
 		} else if(g.flymode) {
@@ -526,6 +527,31 @@ void keyboardUp(unsigned char key, int x, int y) {
 }
 
 void keyboard(unsigned char key, int x, int y) {
+#ifndef MOVE_LOGS
+#define MOVE_LOGS 0
+#endif
+#if MOVE_LOGS
+	static int idx = 3;
+	switch(key) {
+		case ']':
+			leveldata.water->logs[idx].shape.c.x += 0.01;
+			printf("xpos: %f\n", leveldata.water->logs[idx].shape.c.x);
+			break;
+		case '[':
+			leveldata.water->logs[idx].shape.c.x -= 0.01;
+			printf("xpos: %f\n", leveldata.water->logs[idx].shape.c.x);
+			break;
+		case '}':
+			idx += 1;
+			printf("idx: %d\n", idx);
+			break;
+		case '{':
+			idx -= 1;
+			printf("idx: %d\n", idx);
+			break;
+	}
+#endif
+
 	if(leveldata.player.is_dead) {
 		switch(key) {
 			case 'r':
