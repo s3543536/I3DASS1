@@ -7,6 +7,11 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 
+#define USE_FREEGLUT 0
+#if USE_FREEGLUT
+#include <GL/freeglut.h>
+#endif
+
 #include "global.h"
 #include "vector.h"
 #include "glvector.h"
@@ -45,6 +50,10 @@ enum smooth_keys {
 
 void handle_keys();
 
+
+#if !USE_FREEGLUT
+void glutBitmapString(void *font, char *str);
+#endif
 
 /*
  * glTranslate(x, y, z);

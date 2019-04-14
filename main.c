@@ -349,11 +349,13 @@ void update(void) {
 
 #define VSYNC 1
 
+#if !USE_FREEGLUT
 void glutBitmapString(void *font, char *str) {
 	for(int i = 0; str[i] != '\0'; i++) {
 		glutBitmapCharacter(font, str[i]);
 	}
 }
+#endif
 
 void display() {
 
@@ -363,7 +365,7 @@ void display() {
 	glEnable(GL_DEPTH_TEST);
 
 	glColor3f(1, 1, 1);
-	glRasterPos2f(x, y);
+	glRasterPos2f(0.5,0.5);
 	glutBitmapString(GLUT_BITMAP_8_BY_13, "hello world");
 
 	if(!is_init) {
