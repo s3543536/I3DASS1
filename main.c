@@ -14,6 +14,7 @@ void init_level() {
 
 	*p = E_PLAYER_PROTOTYPE;
 	p->is_active = 0;
+	vector_normalize(&p->jump_vec);
 	vector_scale(&p->jump_vec, max_jump);
 
 	// set player radius
@@ -75,15 +76,15 @@ void init_level() {
 	init_vector(&leveldata.cars[2].pos, -0.44, 0.025, 0);
 	init_vector(&leveldata.cars[3].pos, -0.32, 0.025, 0);
 
-	leveldata.cars[0].height = 0.1f;
-	leveldata.cars[1].height = 0.18f;
-	leveldata.cars[2].height = 0.12f;
+	leveldata.cars[0].height = 0.05f;
+	leveldata.cars[1].height = 0.1f;
+	leveldata.cars[2].height = 0.1f;
 	leveldata.cars[3].height = 0.08f;
 
-	leveldata.cars[0].width = 0.05f;
-	leveldata.cars[1].width = 0.05f;
-	leveldata.cars[2].width = 0.05f;
-	leveldata.cars[3].width = 0.05f;
+	leveldata.cars[0].width = 0.08f;
+	leveldata.cars[1].width = 0.045f;
+	leveldata.cars[2].width = 0.06f;
+	leveldata.cars[3].width = 0.086f;
 
 
 
@@ -467,7 +468,7 @@ void handle_keys() {
 		if(!leveldata.player.is_active) {
 			vector *change_vec = &leveldata.player.jump_vec;
 			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-			float change_vec_len = LENGTHVEC(*change_vec);
+			float change_vec_len = fmin(max_jump, fmax(0.01,LENGTHVEC(*change_vec)));
 			vector_normalize(change_vec);
 			vector_scale(change_vec, change_vec_len + g.velocity_change * g.real_dt);
 		} else if(g.flymode) {
@@ -479,7 +480,7 @@ void handle_keys() {
 		if(!leveldata.player.is_active) {
 			vector *change_vec = &leveldata.player.jump_vec;
 			leveldata.player.t->is_dynamic = 1;//trigger dynamic update
-			float change_vec_len = LENGTHVEC(*change_vec);
+			float change_vec_len = fmin(max_jump, fmax(0.01,LENGTHVEC(*change_vec)));
 			vector_normalize(change_vec);
 			vector_scale(change_vec, change_vec_len - g.velocity_change * g.real_dt);
 		} else if(g.flymode) {
